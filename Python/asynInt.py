@@ -19,7 +19,7 @@ class node:
     def append(self, *nodes):
         for node in nodes:
             self.series.append(node)
-    
+
     # override to add entry and exit code
     def execute(self):
         for item in self.series:
@@ -55,12 +55,13 @@ class move(node):
     def __init__(self, name, motor, target, increment):
         super().__init__(name)
         self.data['kind'] = 'move'
-        
+
         # motor object isn't serializable for now
         self.motor = motor
+        self.data['motor'] = motor.name
         self.data['targ'] = target
         self.data['incr'] = increment
-        
+
     def execute(self):
         self.motor.movePosition(self.data['targ'], self.data['incr'])
         for item in self.series:
@@ -72,24 +73,25 @@ class doneWait(node):
         super().__init__(name)
         self.data['kind'] = 'doneWait'
         self.motor = motor
-        
+        self.data['motor'] = motor.name
+
     def execute(self):
         self.motor.flag.wait()
         for item in self.series:
             item.execute()
-        
+
 # iteration command
 class loop(node):
     def __init__(self, name, numb):
         super().__init__(name)
         self.data['kind'] = 'loop'
         self.data['numb'] = numb
-        
+
     def execute(self):
         for n in range(self.data['numb']):
             for item in self.series:
                 item.execute()
-    
+
 class delay(node):
     def __init__(self, name, interval):
         super().__init__(name)
@@ -104,7 +106,8 @@ class delay(node):
 class keyWait(node):
     def __init__(self, name, key):
         super().__init__(name)
+        self.data['kind'] = 'keyWait'
         self.data['key'] = key
-        
+
     def execute(self):
         time.sleep(1.0)

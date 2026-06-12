@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ============================================================
 # toyMotor.py, Motion control program for motor simulation
 # M. Williamsen, FlexLink AB
@@ -76,37 +77,41 @@ def ctrlY(theTrack):
         posA = leftPos
         posB = leftPos
         motB = motor2
+        text = 'motor 2'
     elif theTrack == 2:
         posA = leftPos
         posB = rightPos
         motB = motor2
+        text = 'motor 2'
     elif theTrack == 3:
         posA = rightPos
         posB = leftPos
         motB = motor3
+        text = 'motor 3'
     elif theTrack == 4:
         posA = rightPos
         posB = rightPos
         motB = motor3
+        text = 'motor 3'
     else:
         print ('Unexpected track: {}'.format(theTrack))
         return None
 
     subTree = asynInt.node('Track #{}'.format(str(theTrack)))
     subTree.append(
-        asynInt.move('', motor1, homePos, fastSpeed),
-        asynInt.move('', motB, homePos, fastSpeed),
-        asynInt.doneWait('', motor1),
-        asynInt.keyWait('i', 'i'),
-        asynInt.doneWait('', motB),
-        asynInt.move('', motor1, posA, slowSpeed),
-        asynInt.doneWait('', motor1),
-        asynInt.keyWait('o', 'o'),
-        asynInt.move('', motor1, homePos, fastSpeed),
-        asynInt.move('', motB, posB, slowSpeed),
-        asynInt.doneWait('', motB),
-        asynInt.delay('track1', 1.0),
-        asynInt.move('', motB, homePos, fastSpeed))
+        asynInt.move('Move motor 1', motor1, homePos, fastSpeed),
+        asynInt.move('Move ' + text, motB, homePos, fastSpeed),
+        asynInt.doneWait('Wait for motor 1', motor1),
+        asynInt.keyWait('Wait for key i', 'i'),
+        asynInt.doneWait('Wait for ' + text, motB),
+        asynInt.move('Move motor 1', motor1, posA, slowSpeed),
+        asynInt.doneWait('Wait for motor 1', motor1),
+        asynInt.keyWait('Wait for key o', 'o'),
+        asynInt.move('Move motor 1', motor1, homePos, fastSpeed),
+        asynInt.move('Move ' + text, motB, posB, slowSpeed),
+        asynInt.doneWait('Wait for ' + text, motB),
+        asynInt.delay('Wait track 1', 1.0),
+        asynInt.move('Move ' + text, motB, homePos, fastSpeed))
 
     return subTree
 
