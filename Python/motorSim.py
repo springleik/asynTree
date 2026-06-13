@@ -1,6 +1,6 @@
 # ============================================================
 # motorSim.py, Simple animation model for function motors
-# M. Williamsen, FlexLink AB
+# M. Williamsen, Springleik Project
 # 14 May 2024
 
 import tkinter, threading, json

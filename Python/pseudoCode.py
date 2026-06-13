@@ -2,7 +2,7 @@
 # ============================================================
 # pseudoCode.py, Motion control program for motor simulation
 # Renders a JSON representation of the control program as pseudocode.
-# M. Williamsen, FlexLink AB
+# M. Williamsen, Springleik Project
 # 16 May 2026
 
 import json, sys

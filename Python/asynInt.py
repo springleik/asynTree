@@ -1,6 +1,6 @@
 # ============================================================
 # asynInt.py, Abstract syntax tree interpreter for motion control
-# M. Williamsen, FlexLink AB
+# M. Williamsen, Springleik Project
 # 14 May 2024
 
 import time, json

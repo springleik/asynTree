@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # ------------------------ AST.py ------------------------ #
-# M. Williamsen, FlexLink, 5 April 2024
+# M. Williamsen, Springleik Project
+# 5 April 2024
 
 # Consider possible demonstrations
 # Strip chart recorder showing position, velocity, acceleration vs. time
@@ -27,15 +28,15 @@ class node:
         self.level = 0
         self.count = 0
         pass
-        
+
     def execute(self):
         print ('Executing node')
         pass
-        
+
     def analyze(self):
         print ('Analyzing node')
         pass
-        
+
     def serializeValue(self):
         theValue = self.value
         theType = type(theValue)
@@ -47,19 +48,19 @@ class node:
         elif theType is float:
             if math.isnan(theValue): print ('NaN', end = '')
             elif math.isinf(theValue): print ('Infinity', end = '')
-            else: print (theValue, end = '')        
+            else: print (theValue, end = '')
 
     def serialize(self):
         print ('{{"level":{0},"count":{1},"value":'.format(self.level, self.count), end = '')
         self.serializeValue()
         print ('}', end = '')
-        
+
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
         self.level = visitor.level
         self.count = visitor.count
         visitor.count += 1
-       
+
 # Subclass with a list
 class branch (node):
     # Each branch node has an optional value and series
@@ -71,24 +72,24 @@ class branch (node):
     def enter (self):
         print ('Entering branch')
         pass
-        
+
     def leave (self):
         print ('Leaving branch')
         pass
-        
+
     def execute(self):
         print ('Executing branch')
         self.enter()
         for item in self.series:
             item.execute()
         self.leave()
-        
+
     def analyze(self):
         print ('Analyzing branch')
         for item in self.series:
             item.analyze()
         pass
-        
+
     def serialize(self):
         print ('{"value":', end = '')
         self.serializeValue()
@@ -100,7 +101,7 @@ class branch (node):
             print ('\n' + item.level * '   ', end = '')
             item.serialize()
         print ('\n' + self.level * '   ' + ']}', end = '')
-        
+
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
         super().summarize(visitor)
@@ -109,7 +110,7 @@ class branch (node):
         for item in self.series:
             item.summarize(visitor)
         visitor.level -= 1
-        
+
     def append(self, item):
         self.series.append(item)
         pass
@@ -122,7 +123,7 @@ class wait (node):
         pass
 
 # branch subclass for loop iteration
-class loop (branch):        
+class loop (branch):
     def execute(self):
         remain = self.value
         while self.value > 0:

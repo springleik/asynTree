@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ============================================================
 # toyMotor.py, Motion control program for motor simulation
-# M. Williamsen, FlexLink AB
+# M. Williamsen, Springleik Project
 # 14 May 2024
 
 import tkinter, threading, json

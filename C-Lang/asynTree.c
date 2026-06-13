@@ -1,7 +1,8 @@
 /*
  * File asynTree.c defines an
  * Abstract Syntax Tree Interpreter
- * M. Williamsen, 20 June 2024
+ * M. Williamsen, Springleik Project
+ * 20 June 2024
 */
 
 // https://github.com/zserge/jsmn/tree/master

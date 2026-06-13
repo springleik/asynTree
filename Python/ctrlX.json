@@ -1,1 +1,391 @@
-{"kind": "loop", "name": "Motor Control", "numb": 3,"list":[{"kind": "node", "name": "Track #1","list":[{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 2", "motor": "Motor 2", "targ": 135, "incr": 15,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key i", "key": "i","list":[]},{"kind": "doneWait", "name": "Wait for motor 2", "motor": "Motor 2","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 270, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key o", "key": "o","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 2", "motor": "Motor 2", "targ": 270, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 2", "motor": "Motor 2","list":[]},{"kind": "delay", "name": "Wait track 1", "wait": 1.0,"list":[]},{"kind": "move", "name": "Move motor 2", "motor": "Motor 2", "targ": 135, "incr": 15,"list":[]}]},{"kind": "node", "name": "Track #2","list":[{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 2", "motor": "Motor 2", "targ": 135, "incr": 15,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key i", "key": "i","list":[]},{"kind": "doneWait", "name": "Wait for motor 2", "motor": "Motor 2","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 270, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key o", "key": "o","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 2", "motor": "Motor 2", "targ": 0, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 2", "motor": "Motor 2","list":[]},{"kind": "delay", "name": "Wait track 1", "wait": 1.0,"list":[]},{"kind": "move", "name": "Move motor 2", "motor": "Motor 2", "targ": 135, "incr": 15,"list":[]}]},{"kind": "node", "name": "Track #3","list":[{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 3", "motor": "Motor 3", "targ": 135, "incr": 15,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key i", "key": "i","list":[]},{"kind": "doneWait", "name": "Wait for motor 3", "motor": "Motor 3","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 0, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key o", "key": "o","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 3", "motor": "Motor 3", "targ": 270, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 3", "motor": "Motor 3","list":[]},{"kind": "delay", "name": "Wait track 1", "wait": 1.0,"list":[]},{"kind": "move", "name": "Move motor 3", "motor": "Motor 3", "targ": 135, "incr": 15,"list":[]}]},{"kind": "node", "name": "Track #4","list":[{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 3", "motor": "Motor 3", "targ": 135, "incr": 15,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key i", "key": "i","list":[]},{"kind": "doneWait", "name": "Wait for motor 3", "motor": "Motor 3","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 0, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 1", "motor": "Motor 1","list":[]},{"kind": "keyWait", "name": "Wait for key o", "key": "o","list":[]},{"kind": "move", "name": "Move motor 1", "motor": "Motor 1", "targ": 135, "incr": 15,"list":[]},{"kind": "move", "name": "Move motor 3", "motor": "Motor 3", "targ": 0, "incr": 3,"list":[]},{"kind": "doneWait", "name": "Wait for motor 3", "motor": "Motor 3","list":[]},{"kind": "delay", "name": "Wait track 1", "wait": 1.0,"list":[]},{"kind": "move", "name": "Move motor 3", "motor": "Motor 3", "targ": 135, "incr": 15,"list":[]}]}]}
+{
+  "kind": "loop",
+  "name": "Motor Control",
+  "numb": 3,
+  "list": [
+    {
+      "kind": "node",
+      "name": "Track #1",
+      "list": [
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 2",
+          "motor": "Motor 2",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key i",
+          "key": "i",
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 2",
+          "motor": "Motor 2",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 270,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key o",
+          "key": "o",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 2",
+          "motor": "Motor 2",
+          "targ": 270,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 2",
+          "motor": "Motor 2",
+          "list": []
+        },
+        {
+          "kind": "delay",
+          "name": "Wait track 1",
+          "wait": 1.0,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 2",
+          "motor": "Motor 2",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        }
+      ]
+    },
+    {
+      "kind": "node",
+      "name": "Track #2",
+      "list": [
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 2",
+          "motor": "Motor 2",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key i",
+          "key": "i",
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 2",
+          "motor": "Motor 2",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 270,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key o",
+          "key": "o",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 2",
+          "motor": "Motor 2",
+          "targ": 0,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 2",
+          "motor": "Motor 2",
+          "list": []
+        },
+        {
+          "kind": "delay",
+          "name": "Wait track 1",
+          "wait": 1.0,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 2",
+          "motor": "Motor 2",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        }
+      ]
+    },
+    {
+      "kind": "node",
+      "name": "Track #3",
+      "list": [
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 3",
+          "motor": "Motor 3",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key i",
+          "key": "i",
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 3",
+          "motor": "Motor 3",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 0,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key o",
+          "key": "o",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 3",
+          "motor": "Motor 3",
+          "targ": 270,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 3",
+          "motor": "Motor 3",
+          "list": []
+        },
+        {
+          "kind": "delay",
+          "name": "Wait track 1",
+          "wait": 1.0,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 3",
+          "motor": "Motor 3",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        }
+      ]
+    },
+    {
+      "kind": "node",
+      "name": "Track #4",
+      "list": [
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 3",
+          "motor": "Motor 3",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key i",
+          "key": "i",
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 3",
+          "motor": "Motor 3",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 0,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 1",
+          "motor": "Motor 1",
+          "list": []
+        },
+        {
+          "kind": "keyWait",
+          "name": "Wait for key o",
+          "key": "o",
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 1",
+          "motor": "Motor 1",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 3",
+          "motor": "Motor 3",
+          "targ": 0,
+          "incr": 3,
+          "list": []
+        },
+        {
+          "kind": "doneWait",
+          "name": "Wait for motor 3",
+          "motor": "Motor 3",
+          "list": []
+        },
+        {
+          "kind": "delay",
+          "name": "Wait track 1",
+          "wait": 1.0,
+          "list": []
+        },
+        {
+          "kind": "move",
+          "name": "Move motor 3",
+          "motor": "Motor 3",
+          "targ": 135,
+          "incr": 15,
+          "list": []
+        }
+      ]
+    }
+  ]
+}
