@@ -1,17 +1,25 @@
 # ============================================================
 # motorSim.py, Simple animation model for function motors
 # M. Williamsen, Springleik Project
+# File motorSim.py
 # 14 May 2024
 
 import tkinter, threading, json
 # ============================================================
 # class representing a function motor
 class motor:
+    # class variables
+    width = 300
+    height = 300
+    xPos = 150
+    yPos = 15
+    index = 1
+
     def __init__(self, name):
         # initialize instance variables
         self.name = name
-        self.width = 300
-        self.height = 300
+        self.width = motor.width
+        self.height = motor.height
         self.radius = 100
         self.rot = 0
         self.targ = self.rot
@@ -22,8 +30,18 @@ class motor:
         self.lock = threading.Lock()
         self.flag = threading.Event()
 
-        # create top level, set window title
+        # create top level, set window title and position
         self.wind = tkinter.Toplevel()
+        if 1 == motor.index:
+            motor.xPos, motor.yPos = 210, 28
+        elif 2 == motor.index:
+            motor.xPos, motor.yPos = 58, 354
+        elif 3 == motor.index:
+            motor.xPos, motor.yPos = 362, 354
+        else: print ('Unexpected index: {}'.format (index))
+        motor.index += 1
+        self.wind.geometry ('{}x{}+{}+{}'.format (
+            motor.width, motor.height, motor.xPos, motor.yPos))
         self.wind.resizable(width = False, height = False)
         self.wind.title(self.name)
 
@@ -132,4 +150,4 @@ class motor:
         for key, value in vars(self).items():
             if '.' not in str(type(value)):
                 jsonValues[key] = value
-        print (json.dumps(jsonValues), end = '', file = jFile)
+        print (json.dumps(jsonValues, indent = 2), end = '', file = jFile)

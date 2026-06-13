@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # ============================================================
-# toyMotor.py, Motion control program for motor simulation
+# Motion control program for motor simulation
 # M. Williamsen, Springleik Project
+# File toyMotor.py
 # 14 May 2024
 
 import tkinter, threading, json
@@ -171,4 +172,5 @@ with open('motorX.json', 'w') as motorFile:
     motor3.serialize(motorFile)
     motorFile.write(']\n')
 
-print(motor1.getSpeed(), motor1.getPosition(), motor2.getSpeed(), motor2.getPosition(), motor3.getSpeed(), motor3.getPosition())
+print(motor1.getSpeed(), motor1.getPosition(), motor2.getSpeed(),
+    motor2.getPosition(), motor3.getSpeed(), motor3.getPosition())

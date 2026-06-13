@@ -1,38 +1,34 @@
-[
-  {
-    "name": "Motor 1",
-    "width": 300,
-    "height": 300,
-    "radius": 100,
-    "rot": 135,
-    "targ": 135,
-    "incr": 15,
-    "arc": 270,
-    "run": false,
-    "done": false
-  },
-  {
-    "name": "Motor 2",
-    "width": 300,
-    "height": 300,
-    "radius": 100,
-    "rot": 135,
-    "targ": 135,
-    "incr": 15,
-    "arc": 270,
-    "run": false,
-    "done": false
-  },
-  {
-    "name": "Motor 3",
-    "width": 300,
-    "height": 300,
-    "radius": 100,
-    "rot": 135,
-    "targ": 135,
-    "incr": 15,
-    "arc": 270,
-    "run": false,
-    "done": false
-  }
-]
+[{
+  "name": "Motor 1",
+  "width": 300,
+  "height": 300,
+  "radius": 100,
+  "rot": 135,
+  "targ": 135,
+  "incr": 15,
+  "arc": 270,
+  "run": false,
+  "done": false
+},{
+  "name": "Motor 2",
+  "width": 300,
+  "height": 300,
+  "radius": 100,
+  "rot": 135,
+  "targ": 135,
+  "incr": 15,
+  "arc": 270,
+  "run": false,
+  "done": false
+},{
+  "name": "Motor 3",
+  "width": 300,
+  "height": 300,
+  "radius": 100,
+  "rot": 135,
+  "targ": 135,
+  "incr": 15,
+  "arc": 270,
+  "run": false,
+  "done": false
+}]

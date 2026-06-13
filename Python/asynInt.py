@@ -1,6 +1,7 @@
 # ============================================================
 # asynInt.py, Abstract syntax tree interpreter for motion control
 # M. Williamsen, Springleik Project
+# File asynInt.py
 # 14 May 2024
 
 import time, json
@@ -31,7 +32,7 @@ class node:
 
     # TODO goal to serialize to string, file, or console
     def serialize(self, jFile):
-        s = json.dumps(self.data)[:-1] + ',"list":['
+        s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
         print(s, file = jFile, end = '')
         first = True
         for item in self.series:

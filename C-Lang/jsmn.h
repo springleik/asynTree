@@ -1,6 +1,6 @@
 /*
  * MIT License
- *
+ * File jsmn.h
  * Copyright (c) 2010 Serge Zaitsev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -196,10 +196,10 @@ static int jsmn_parse_string(jsmn_parser *parser, const char *js,
   jsmntok_t *token;
 
   int start = parser->pos;
-  
+
   /* Skip starting quote */
   parser->pos++;
-  
+
   for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++) {
     char c = js[parser->pos];
 
