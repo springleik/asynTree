@@ -11,20 +11,16 @@ class motor:
     # class variables
     width = 300
     height = 300
-    xPos = 150
-    yPos = 15
+    radius = 100
+    arc = 270
     index = 1
 
     def __init__(self, name):
         # initialize instance variables
         self.name = name
-        self.width = motor.width
-        self.height = motor.height
-        self.radius = 100
         self.rot = 0
         self.targ = self.rot
         self.incr = 1
-        self.arc = 270
         self.run = False
         self.done = False
         self.lock = threading.Lock()
@@ -32,6 +28,7 @@ class motor:
 
         # create top level, set window title and position
         self.wind = tkinter.Toplevel()
+        self.wind.title(self.name)
         if 1 == motor.index:
             motor.xPos, motor.yPos = 210, 28
         elif 2 == motor.index:
@@ -43,7 +40,6 @@ class motor:
         self.wind.geometry ('{}x{}+{}+{}'.format (
             motor.width, motor.height, motor.xPos, motor.yPos))
         self.wind.resizable(width = False, height = False)
-        self.wind.title(self.name)
 
         # create the canvas
         self.canvas = tkinter.Canvas(self.wind, width = self.width, height = self.height)
@@ -94,8 +90,8 @@ class motor:
             fill = 'lightgrey', width = 0)
         self.canvas.create_line(2, 150, 300, 150)
         self.canvas.create_line(150, 2, 150, 350)
-        self.canvas.create_arc(150 - self.radius, 150 - self.radius, 150 + self.radius,
-            150 + self.radius, start = self.rot, extent = self.arc, fill = 'white')
+        self.canvas.create_arc(150 - motor.radius, 150 - motor.radius, 150 + motor.radius,
+            150 + motor.radius, start = self.rot, extent = motor.arc, fill = 'white')
         text = 'rotation: {}\n target: {}'.format(self.rot, self.targ)
         self.canvas.create_text(10, 10, text = text, anchor = 'nw')
         self.canvas.update()
@@ -112,6 +108,7 @@ class motor:
             self.run = False
             self.done = True
             self.wind.destroy()
+            self.wind = None
         elif 'r' == c: self.run = True
         elif 's' == c: self.run = False
 
@@ -126,13 +123,20 @@ class motor:
     def downPressed(self, event): self.incr -= 1
 
     # pause, then call timerFired again unless done
-    # this is a critical section
     def timerFired(self, interval):
-        if not self.wind.winfo_exists(): pass
+        # handle case where window doesn't exist
+        if self.wind:
+            if not self.wind.winfo_exists():
+                pass
+        # handle case where user closes program
         if self.done:
             self.run = False
-            self.wind.destroy()
+            if self.wind:
+                self.wind.destroy()
+                self.wind = None
             pass
+        # handle normal iteration
+        # this is a critical section
         if self.run:
             self.lock.acquire()
             self.rot += self.incr
@@ -142,6 +146,7 @@ class motor:
                 self.flag.set()
             self.lock.release()
             self.redrawAll()
+        # wait for next interval
         self.canvas.after(interval, self.timerFired, interval)
 
     # serialize motor instance attributes to JSON

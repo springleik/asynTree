@@ -6,7 +6,7 @@
 # 14 May 2024
 
 import tkinter, threading, json
-import motorSim, asynInt, sys
+import motorSim, asynInt, sys, time
 
 '''
 Pseudocode for motion profile:
@@ -135,7 +135,12 @@ def consX():
         cmd = sys.stdin.readline().rstrip()
 
         # interpret commands
-        if 'q' == cmd: done = True
+        if 'q' == cmd:
+            motor1.done = True
+            motor2.done = True
+            motor3.done = True
+            done = True
+            root.quit ()
         elif 'r' == cmd: theTree.execute()
         else: print ('what?')
 
@@ -158,11 +163,12 @@ root.mainloop()
 # join threads
 console.join()
 
-# capture state on exit
+# capture tree state on exit
 with open('ctrlX.json', 'w') as treeFile:
     theTree.serialize(treeFile)
     treeFile.write('\n')
 
+# motor objects are outside of tree structure
 with open('motorX.json', 'w') as motorFile:
     motorFile.write('[')
     motor1.serialize(motorFile)
@@ -172,5 +178,6 @@ with open('motorX.json', 'w') as motorFile:
     motor3.serialize(motorFile)
     motorFile.write(']\n')
 
+# show console output
 print(motor1.getSpeed(), motor1.getPosition(), motor2.getSpeed(),
     motor2.getPosition(), motor3.getSpeed(), motor3.getPosition())

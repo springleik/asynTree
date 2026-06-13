@@ -30,7 +30,7 @@ class node:
         for item in self.series:
             item.analyze()
 
-    # TODO goal to serialize to string, file, or console
+    # serialize to file
     def serialize(self, jFile):
         s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
         print(s, file = jFile, end = '')
