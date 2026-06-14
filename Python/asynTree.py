@@ -8,8 +8,8 @@
 # Strip chart recorder showing position, velocity, acceleration vs. time
 # Strip chart recorder showing quantity per unit time of products passing a sensor
 # Strip chart of products entering or leaving a combiner, diverter, etc
-# showing peak throughput for each channel. Yay!
-# Animation, as in my crankshaft program, with the possibility to slow it down arbitrarily to show dependencies
+# Showing peak throughput for each channel.
+# Animation, with the possibility to slow it down arbitrarily to show dependencies
 # Emergency stop and reset
 # State machine evolution
 # Forcing inputs via buttons on screen
@@ -106,7 +106,6 @@ class branch (node):
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
         super().summarize(visitor)
-        visitor.count += 1
         visitor.level += 1
         for item in self.series:
             item.summarize(visitor)
@@ -159,7 +158,10 @@ aTree = loop(3,
 )
 
 # summarize the tree
-aTree.summarize()
+summary = node ('visitor')
+aTree.summarize(summary)
+summary.serialize ()
+print ()
 
 # execute the tree
 aTree.execute()
@@ -169,3 +171,4 @@ aTree.analyze()
 
 # serialize the tree
 aTree.serialize()
+print ()
