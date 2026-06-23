@@ -1,4 +1,4 @@
 # asynTree
 Abstrax Syntax Tree (AST) interpreters in Python, Java, and C language.
 
-The Springleik Project is an effort to study and quantify the use of small domain-specific languages in coding embedded applications for measurement and control. The Toy Motor demo presented here simulates the operation of three stepper motors configured to divert products on a conveyor from an input stream to one of four output streams.
+The Springleik Project is an effort to study and quantify the use of small domain-specific languages in coding embedded applications for measurement and control. The Toy Motor demo presented here simulates the operation of three actuator motors configured to divert products on a conveyor from an input stream to one of four output streams.

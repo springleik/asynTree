@@ -1,0 +1,58 @@
+Loading control program file: ctrlX.json
+Motor Control: Iterate 3 times.
+  Track #1:
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 2 to target 135 with increment 15 deg.
+    Wait for motor 1 target reached.
+    Wait for key i input.
+    Wait for motor 2 target reached.
+    Move motor 1 to target 270 with increment 3 deg.
+    Wait for motor 1 target reached.
+    Wait for key o input.
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 2 to target 270 with increment 3 deg.
+    Wait for motor 2 target reached.
+    Wait track 1: Wait for 1.0 seconds.
+    Move motor 2 to target 135 with increment 15 deg.
+  Track #2:
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 2 to target 135 with increment 15 deg.
+    Wait for motor 1 target reached.
+    Wait for key i input.
+    Wait for motor 2 target reached.
+    Move motor 1 to target 270 with increment 3 deg.
+    Wait for motor 1 target reached.
+    Wait for key o input.
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 2 to target 0 with increment 3 deg.
+    Wait for motor 2 target reached.
+    Wait track 1: Wait for 1.0 seconds.
+    Move motor 2 to target 135 with increment 15 deg.
+  Track #3:
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 3 to target 135 with increment 15 deg.
+    Wait for motor 1 target reached.
+    Wait for key i input.
+    Wait for motor 3 target reached.
+    Move motor 1 to target 0 with increment 3 deg.
+    Wait for motor 1 target reached.
+    Wait for key o input.
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 3 to target 270 with increment 3 deg.
+    Wait for motor 3 target reached.
+    Wait track 1: Wait for 1.0 seconds.
+    Move motor 3 to target 135 with increment 15 deg.
+  Track #4:
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 3 to target 135 with increment 15 deg.
+    Wait for motor 1 target reached.
+    Wait for key i input.
+    Wait for motor 3 target reached.
+    Move motor 1 to target 0 with increment 3 deg.
+    Wait for motor 1 target reached.
+    Wait for key o input.
+    Move motor 1 to target 135 with increment 15 deg.
+    Move motor 3 to target 0 with increment 3 deg.
+    Wait for motor 3 target reached.
+    Wait track 1: Wait for 1.0 seconds.
+    Move motor 3 to target 135 with increment 15 deg.
