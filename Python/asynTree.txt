@@ -1,0 +1,102 @@
+{"level":0,"count":16,"value":"visitor"}
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Waiting: 0.25 seconds.
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Executing node
+Waiting: 0.1 seconds.
+Executing node
+Executing node
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Leaving branch
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Waiting: 0.25 seconds.
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Executing node
+Waiting: 0.1 seconds.
+Executing node
+Executing node
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Leaving branch
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Waiting: 0.25 seconds.
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Executing node
+Waiting: 0.1 seconds.
+Executing node
+Executing node
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Leaving branch
+Leaving branch
+Analyzing branch
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing branch
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing branch
+Analyzing node
+Analyzing node
+{"value":0,"level":0,"count":0,"series":[
+   {"level":1,"count":1,"value":1},
+   {"level":1,"count":2,"value":"two"},
+   {"level":1,"count":3,"value":false},
+   {"level":1,"count":4,"value":0.25},
+   {"value":55,"level":1,"count":5,"series":[
+      {"level":2,"count":6,"value":2},
+      {"level":2,"count":7,"value":"three"},
+      {"level":2,"count":8,"value":true},
+      {"level":2,"count":9,"value":null},
+      {"level":2,"count":10,"value":0.1},
+      {"level":2,"count":11,"value":Infinity},
+      {"level":2,"count":12,"value":NaN}
+   ]},
+   {"value":12345,"level":1,"count":13,"series":[
+      {"level":2,"count":14,"value":123},
+      {"level":2,"count":15,"value":1.23}
+   ]}
+]}

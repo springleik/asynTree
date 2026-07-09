@@ -5,7 +5,6 @@
  * 20 June 2024
 */
 
-// https://github.com/zserge/jsmn/tree/master
 // https://stackoverflow.com/questions/21150454/representing-an-abstract-syntax-tree-in-c
 // https://stackoverflow.com/questions/840501/how-do-function-pointers-in-c-work
 
@@ -14,7 +13,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "jsmn.h"
 #include "asynTree.h"
 
 // helper functions to simplify syntax for base class methods
@@ -218,14 +216,6 @@ int main(void)
     node *first = malloc (sizeof(node));
     initNode (first);
     printf ("one: %d, two: %d\n", first->depth, first->seq);
-
-    // instantiate a JSON parser
-    char *jsn = "{\"one\":1,\"two\":2,\"three\":3,\"four\":4}";
-    jsmn_parser par;
-    jsmntok_t tok [16];
-    jsmn_init (&par);
-    int tokens = jsmn_parse (&par, jsn, strlen(jsn), tok, 16);
-    printf ("tokens: %d\n", tokens);
 
     // allocate tree nodes
     node *one = malloc (sizeof(node));
