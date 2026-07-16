@@ -1,10 +1,13 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{listings}
 
 %opening
 \title{Springleik: A Case Study in Small Languages}
 \author{Mark S. Williamsen}
+
+\graphicspath{ {./figures/} }
 
 \begin{document}
 
@@ -17,7 +20,7 @@ Small languages arise in computing for a variety of reasons. A simple command in
 \section{Model of software development}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{figures/figure1}
+\includegraphics[width=\textwidth]{figure1}
 \caption{Software development process rendered as a closed-loop control simulation diagram. Negative feedback from the \textit{Test} block causes the \textit{Deliverables} to evolve, tracking changes in \textit{Requirements}. When all requirements have been met, the error term $E(s)$ goes to zero and the control loop is in steady state.}
 \label{closedLoopModel}
 \end{figure}
@@ -40,9 +43,9 @@ In this model we see that there are three things which matter: requirements, imp
 
 Developers of embedded software for small targets may be tempted to organize their object model around things the system has, such as inputs, outputs, sensors, and actuators. I would submit however that a coherent design is more likely to result from an object model organized around things the embedded system does, such as ``home an axis'', ``measure a sample'', ``acquire a trace'', or ``energize a solenoid.'' The real reason we think in terms of objects is so that we can throw them into a container and iterate over them. While there may be a use case for iterating over peripherals, the important use case here is iterating over a collection of nodes which represent actions a user might want to invoke. These are packaged along with the arguments needed to carry out each action. Thus we replace a noun-oriented design with a verb-oriented design so that command nodes can be collected into sequences which can then be interpreted on live hardware, simulated hardware, or a hybrid of both. Let's look at an example of how such a design might arise.
 
-Consider a small target with embedded processor and several channels of analog-to-digital (ADC) conversion. On first bring-up we want to start characterizing the ADC inputs. We write a small monitor program with a command prompt exposed on a serial port, or a socket port if so equipped. Then we write commands to initialize the ADC, trigger a conversion, and report the result. Each of the commands can be followed with one or more arguments giving details such as sample rate and channel selection. Running a terminal program on a host computer allows us to manually exercise various behaviors of the ADC. We can stream a text file containing ADC commands from the host to the target's monitor program to execute a measurement sequence of arbitrary complexity. ADC conversions however take finite time, and we wind up overrunning the monitor program with new commands before old ones are complete. So we write a program to run on the host and carry out a series of ADC measurements on the target using monitor program commands, but now waiting for a prompt from the target before sending a new command from the host.
+Consider a small target with embedded processor and several axes of motion control. On first bring-up we want to start characterizing the motion controller. We write a small monitor program with a command prompt exposed on a serial port, or a socket port if so equipped. Then we write commands to initialize the motion controller, home an axis, move an axis, and report motion done. Each of the commands can be followed with one or more arguments giving details such as velocity, acceleration, idle current, run current, etc. Running a terminal program on a host computer allows us to manually exercise various behaviors of the motion controller. We can stream a text file containing motion commands from the host to the target's monitor program to execute a motion sequence of arbitrary complexity. Move commands however take finite time, and we wind up overrunning the monitor program with new commands before old ones are complete. So we write a program to run on the host and carry out a series of motions on the target using monitor program commands, but now waiting for a prompt from the target before sending a new command from the host.
 
-Many readers will have gone through these steps in bringing up a new target. We don't yet have a small language, but many of the pieces needed are already in place. Now we implement our object model, starting on the host side, declaring a class object for each command and an instance attribute for each argument the command needs. One can also add an instance attribute for the command's return value, if it makes sense for the particular use case. We can write a program on the host side which will interact with live hardware through the monitor command prompt, or with a simulation which emulates the same interface. Now we have a small language we can use to carry out the following steps:
+Many readers will have gone through these steps in bringing up a new target. We don't yet have a small language, but many of the pieces needed are already in place. Now we implement our object model, starting on the host side, declaring a class object for each command and an instance attribute for each argument the command needs. One can also add an instance attribute for command return values, if it makes sense for the particular use case. We can write a program on the host side which will interact with live hardware through the monitor command prompt, or with a simulation which emulates the same interface. Now we have a small language we can use to carry out the following steps:
 
 \begin{itemize}
  \item Instantiate one or more class objects on the host representing command nodes to be executed.
@@ -52,15 +55,54 @@ Many readers will have gone through these steps in bringing up a new target. We 
  \item Capture results returned from the target for each command node, either as attributes of the command nodes or in a separate trace or listing.
 \end{itemize}
 
-Let's look at what we have. The class objects representing command nodes can live almost anywhere: on the host, on the target, in the cloud, or anywhere else that can interpret them into commands with the desired arguments. For now we think of the arguments as being hard-coded, but they could just as well be derived or symbolic. The type of collection used to iterate over the command nodes doesn't matter much, except that iteration should follow a predictable repeatable path. The commands themselves can be sent to one or more target devices, or to any other device or simulation with an interface to receive them. Command replies (measurement results or error messages in our ADC example) can go back to the host, to some other monitor, or even be ignored. This then is the bare minimum of what's needed to claim we have a small domain-specific language. This can be prototyped and running in a matter of a few days, completely avoiding the trap that ``nothing works until everything works.''
+Let's look at what we have. The class objects representing command nodes can live almost anywhere: on the host, on the target, in the cloud, or anywhere else that can interpret them into commands with the desired arguments. For now we think of the arguments as being hard-coded, but they could just as well be derived or symbolic. The type of collection used to iterate over the command nodes doesn't matter much, except that iteration should follow a predictable repeatable path. The commands themselves can be sent to one or more target devices, or to any other device or simulation with an interface to receive them. Command replies (motion results or error messages in our motion control example) can go back to the host, to some other monitor, or even be ignored. This then is the bare minimum of what's needed to claim we have a small domain-specific language. This can be prototyped and running in a matter of a few days, completely avoiding the trap that ``nothing works until everything works.''
 
-Now let's look at what's missing. To obtain a text representation of the program we'll need a means to serialize the collection of command nodes. We have many well-established choices such as JSON, XML, YAML, etc. We also have the freedom to design our own representation if warranted, or dispense with source code altogether. In this paper we will assume without loss of generality that JSON has been chosen. Experience shows that it is trivial to give command node classes a serialize method which is specialized for specific commands and arguments. Instead of iterating over the collection while executing each node, we iterate over the collection while serializing each node to obtain a program listing. If we have multiple interpreters (host, target, cloud, etc.) all should produce an identical program listing for a given collection of command nodes. It should be mentioned here that while off-target interpreters can use the monitor command prompt interface, on-target interpreters don't have to since they can also call directly into functions on the target.
+Now let's look at what's missing. To obtain a text representation of the program we'll need a means to serialize the collection of command nodes. We have many well-established choices such as JSON, XML, YAML, etc. We also have the freedom to design our own representation if warranted, or dispense with source code altogether. In this paper we will assume without loss of generality that JSON has been chosen. Experience shows that it is trivial to give command node classes a serialize method which is specialized for specific commands and arguments. Instead of iterating over the collection while executing each node, we iterate over the collection while serializing each node to obtain a program listing. If we have multiple interpreters (host, target, cloud, etc.) all should produce identical program listings for a given collection of command nodes. It should be mentioned here that while off-target interpreters can use the monitor command prompt interface, on-target interpreters don't have to since they can also call directly into functions on the target.
 
-Real programming implies branching and looping, which is easily added by defining command nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes, so conditional and repeated execution will only affect nodes which are after the control node in the list. Nested iterations are implemented by appending more than one repeat node to the list. Multiple conditional nodes in the list must evaluate as ``true'' for nodes following them to be reached, a logical AND relationship. Everything we've done so far has a small footprint in terms of resources used on the target.
+\begin{figure}
+\begin{lstlisting}
+[
+    {"cmd": "initControl"},
+    {"cmd": "setCurrent",  "axis": 1, "current_mA": 500},
+    {"cmd": "homeAxis",    "axis": 1},
+    {"cmd": "setVelocity", "axis": 1, "steps_sec": 100},
+    {"cmd": "setAccel",    "axis": 1, "steps_sec2": 100},
+    {"cmd": "setPosWait",  "axis": 1, "steps": 0},
+    {"cmd": "setPosWait",  "axis": 1, "steps": 200},
+    {"cmd": "setPosWait",  "axis": 1, "steps": -200},
+    {"cmd": "setPosWait",  "axis": 1, "steps": 0},
+    {"cmd": "setCurrent",  "axis": 1, "current_mA": 50}
+]
+\end{lstlisting}
+\caption{JSON representation of a simple command list being sent to an embedded motion controller. Arguments here are named, but could also be positional. Move commands are defined as ``set position and wait,'' to avoid sending new moves before the previous target is reached.}
+\label{simpleListing}
+\end{figure}
 
-[Need either a visual diagram of node list, including repeats and branches, or pseudo code for the node list.]
+Returning to the example of an embedded motion controller we can look at what the serialized JSON representation might look like in figure \ref{simpleListing}. Real programming implies branching and looping, which is easily added by defining control nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes, so conditional and repeated execution will only affect nodes which appear after the control node in the list. Nested iterations are implemented by appending more than one iterate node to the list. Multiple conditional nodes in the list must evaluate as ``true'' for nodes following them to be reached, a logical AND relationship. An example is shown in figure \ref{iterateListing} where we've defined a new command node to iterate over a range of positions, waiting for target reached at each step. This approach can be made to work, but it not yet satisfactory because it doesn't explicitly handle cleanup on completion or early exit. In the context of a multi-axis motion control, there is no provision to return from run current to idle current on completion or failure.
 
-An obvious choice for the collection container would be a linked list, with each node having a pointer or reference to the ``next'' node. If however one scans the list by calling node methods recursively, then one must be very aware of how much stack is used for each function call. I would urge readers to iterate without recursion whenever possible for this reason. If the list program being interpreted only changes at compile-time, then all nodes can be statically allocated. If the program may change at run-time then one must consider either a node pool or dynamic allocation. The linked list container is ideal for dynamic allocation and deallocation, since when you are done with the list you can iterate over it to release the memory used for each node.
+\begin{figure}
+\begin{lstlisting}
+[
+    {"cmd": "initControl"},
+    {"cmd": "setCurrent",  "axis": 1, "current_mA": 500},
+    {"cmd": "homeAxis",    "axis": 1},
+    {"cmd": "setVelocity", "axis": 1, "steps_sec": 100},
+    {"cmd": "setAccel",    "axis": 1, "steps_sec2": 100},
+    {"cmd": "setCurrent",  "axis": 2, "current_mA": 500},
+    {"cmd": "homeAxis",    "axis": 2},
+    {"cmd": "setVelocity", "axis": 2, "steps_sec": 100},
+    {"cmd": "setAccel",    "axis": 2, "steps_sec2": 100},
+    {"cmd": "iteratePosWait", "axis": 1,
+        "start": 0, "stop": 200, "step": 10},
+    {"cmd": "iteratePosWait", "axis": 2,
+        "start": 0, "stop": 200, "step": 10}
+]
+\end{lstlisting}
+\caption{JSON representation of a command list including nested iterations. A new command node ``iteratePosWait'' has been defined to iterate over a series of positions moves, waiting at each position for target reached, then handing control to the nodes which follow at each iteration.}
+\label{iterateListing}
+\end{figure}
+
+An obvious choice for the collection container would be a linked list, with each node having a pointer or reference to the ``next'' node. If the list program being interpreted only changes at compile-time, then all nodes can be statically allocated. If the program may change at run-time then one must consider either a node pool or dynamic allocation. The linked list container is ideal for dynamic allocation and deallocation, since when you are done with the list you can iterate over it to release the memory used for each node.
 
 The next step in our progression is to define list nodes so that they themselves can be lists of nodes, allowing our small language to represent lists of lists, which is to say composite tree structures. This incremental change, using all of the infrastructure we've developed so far, brings into focus a scalable, portable, and verifiable framework for representing interpreted programs of arbitrary size, complexity, and capability. Now we have an abstract syntax tree (AST) interpreter optimized for the application at hand. The composite tree structure maps directly to structured text representations such as JSON, XML, or YAML. Human-readable program listings are easily obtained by serializing each node while traversing the tree with recursive descent. We encounter each node exactly once when we ask the root node to serialize the command tree. In this picture we can now say clearly that command nodes are dictionaries composed of key-value pairs representing all of the command arguments, along with an ordered list container holding pointers or references to subordinate nodes. 
 
@@ -74,4 +116,21 @@ Say something about machine-readable versus human-readable source code, bringing
 
 Test and verification will lead naturally to my concept of an asymmetric tree comparison.
 
+Say something about granularity of command node objects. My guidance would be to package command nodes in the same sense as you would package monitor prompt commands. Problem solved!
+
+When to introduce toy motor? Should I use it for everything? I'd like to modify the toy motor demo to include a monitor prompt command interpreter. Should I use a console, a socket port, named pipe, anonymous pipe, or what? The obvious solution is to use my multi-client multi-server code already posted on GitHub. Note well that I can mix and match environments, running clients in Python, Java, C, etc. and also running servers in Python, Java, C, etc.
+
+If we append measurement results as attributes to existing command nodes, then we get serialization of results almost for free!
+
+Talk about entry and exit code for branch nodes. Which runs before and after iterating over subordinates. Implies returning control to the branch node after iteration is done. CanCmd must have had some concept of descending down levels, even though implemented as a list. Pseudocode would then be indented at each line, right? Can I get exit code to run without recursion? Will Visitor pattern do this? Cite Gang of Four book about Design Patterns.
+
+For the sake of discussion I've used the example of small embedded targets used for measurement/control/communication. But these techniques have much broader application, and are in fact universal.
+
+Should I bring in threads, tasks, and processes? Or is that out of scope?
+
+Bring into the picture how AI can develop, verify, and maintain AST command trees. Make the point that flow charts don't help to communicate with machines, but pseudocode does.
+
 \end{document}
+
+Is text after the end statement an error?
+
