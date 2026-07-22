@@ -82,7 +82,7 @@ class branch(leaf):
     def summarize(self, depth = None, number = None):
         depth, number = super().summarize(depth, number)
         for item in self.series:
-            depth, number = item.summarize(depth + 1,
+            temp, number = item.summarize(depth + 1,
                 number + 1)
         return depth, number
 
@@ -457,11 +457,24 @@ def consX():
             pass
         elif cmd[0] == "summarize":
             if theTree:
-                print ('Tree contains {} nodes.'.format(theTree.summarize()))
+                print ('Tree contains {} nodes.'.format(theTree.summarize()[-1]))
             else:
                 print ('Empty tree.')
         elif cmd[0] == 'help' or cmd[0] == '?':
-            print ("Help!")
+            print ("Available commands:")
+            print (" q -- quit")
+            print (" r -- run command tree")
+            print (" help -- print this list")
+            print (" initControl -- initialize motion controller")
+            print (" summarize -- update node and depth counters")
+            print (" setCurrent -- set motor current")
+            print (" setVelocity -- set motor velocity in steps/second")
+            print (" setAccel -- set motor acceleration in steps/sec/sec")
+            print (" setPosition -- set target position in steps")
+            print (" homeAxis -- home specified axis")
+            print (" waitPosition -- wait for target position reached")
+            print (" iterateRegister -- loop while iterating register")
+            print (" testInput -- test a digital input")
         else:
             print ('Say what?')
 
