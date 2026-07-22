@@ -2,8 +2,7 @@
 # ============================================================
 # Abstract syntax tree interpreter for motion control
 # M. Williamsen, Springleik Project
-# File target.py
-# 22 July 2026
+# File target.py, 22 July 2026
 
 import sys, time, json
 import tkinter, threading
@@ -19,11 +18,11 @@ theTree = None
 # ============================================================
 # classes to implement abstract syntax tree (AST)
 class node:
-    # Each node has a data dictionary
+    # each node has a data dictionary
     def __init__(self, name = ''):
-        self.data = {}                  # each node is a dictionary
+        self.data = {}                  # each node has a dictionary
         self.data['kind'] = 'node'      # placed here for serialization
-        self.data['name'] = name
+        self.data['name'] = name        # nodes may optionally be named
 
     # serialize to file
     def serialize(self, jFile):
@@ -31,26 +30,25 @@ class node:
         print(s, file = jFile, end = '')
         print(']}', file = jFile, end = '')
 
-    # count and number nodes
-    def summarize(self, depth = None, numb = None):
-        if depth is None: depth = 0
-        if numb is None: numb = 1
-        self.data['depth'] = depth
-        self.data['numb'] = numb
-        return numb
-
 class leaf(node):
     def __init__(self, name = ''):
         super().__init__(name)
         self.data['kind'] = 'leaf'
 
-class branch(node):
-    # Each node has a data dictionary and a series
-    # which is a list of subordinate nodes
+    # count and number leafs
+    def summarize(self, depth = None, number = None):
+        if depth is None: depth = 0
+        if number is None: number = 1
+        self.data['depth'] = depth
+        self.data['number'] = number
+        return number
+
+class branch(leaf):
+    # each branch has a list of subordinate nodes
     def __init__(self, name = ''):
         super().__init__(name)
         self.data['kind'] = 'branch'    # placed here for serialization
-        self.series = []                # each node has a list
+        self.series = []                # branch list
 
     # add nodes to this node's list
     def append(self, *nodes):
@@ -81,14 +79,12 @@ class branch(node):
         print(']}', file = jFile, end = '')
 
     # count and number nodes recursively
-    def summarize(self, depth = None, numb = None):
-        if depth is None: depth = 0
-        if numb is None: numb = 1
-        self.data['depth'] = depth
-        self.data['numb'] = numb
+    def summarize(self, depth = None, number = None):
+        super().summarize(depth, number)
         for item in self.series:
-            numb = item.summarize(depth + 1, numb + 1)
-        return numb
+            number = item.summarize(self.data['depth'] + 1,
+                self.data['number'] + 1)
+        return number
 
 # motor initiate move command
 class move(leaf):
@@ -125,8 +121,7 @@ class loop(branch):
 
     def execute(self):
         for n in range(self.data['count']):
-            for item in self.series:
-                item.execute()
+            super().execute()
 
 class delay(leaf):
     def __init__(self, name, interval):
@@ -352,17 +347,14 @@ Top Level
             Move motor 3 fast to home position (135)
 '''
 
-# ============================================================
-# factory method returns a command tree
-# global constants follow
-homePos = 135
-leftPos = 270
-rightPos = 0
-fastSpeed = 15
-slowSpeed = 3
 
 # factory method to produce a subtree
 def ctrlY(theTrack):
+    homePos = 135
+    leftPos = 270
+    rightPos = 0
+    fastSpeed = 15
+    slowSpeed = 3
     if theTrack == 1:
         posA = leftPos
         posB = leftPos
@@ -402,7 +394,6 @@ def ctrlY(theTrack):
         doneWait('Wait for ' + text, motB),
         delay('Wait track 1', 1.0),
         move('Move ' + text, motB, homePos, fastSpeed))
-
     return subTree
 
 # return a command tree implementing the desired program
@@ -464,6 +455,8 @@ def consX():
             pass
         elif cmd[0] == "testInput":
             pass
+        elif cmd[0] == "summarize":
+            theTree.summarize()
         else:
             print ('what?')
 
