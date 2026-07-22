@@ -1,11 +1,12 @@
+#!/usr/bin/env python3
 # ============================================================
-# asynInt.py, Abstract syntax tree interpreter for motion control
+# Abstract syntax tree interpreter for motion control
 # M. Williamsen, Springleik Project
-# File asynInt.py
-# 14 May 2024
+# File target.py
+# 22 July 2026
 
 import sys, time, json
-import tkinter, threading, json
+import tkinter, threading
 
 # ============================================================
 # global variables
@@ -13,33 +14,69 @@ current = 0         # milliamps
 velocity = 0        # steps/second
 acceleration = 0    # steps/second/second
 position = 0        # steps
+theTree = None
 
 # ============================================================
 # classes to implement abstract syntax tree (AST)
 class node:
-    # Each node has a value which is a data dictionary
-    # and a series which is a list of subordinate nodes
+    # Each node has a data dictionary
     def __init__(self, theName = ''):
         self.data = {}                  # each node is a dictionary
-        self.series = []                # each node has a list
         self.data['kind'] = 'node'      # placed here for serialization
         self.data['name'] = theName
 
-    # add nodes to this nodes list
-    def append(self, *nodes):
-        for node in nodes:
-            self.series.append(node)
-
+    # execute recursively
     # override to add entry and exit code
     def execute(self):
         for item in self.series:
             item.execute()
 
+    # analyze recursively
+    # override to add entry and exit code
     def analyze(self):
         for item in self.series:
             item.analyze()
 
     # serialize to file
+    def serialize(self, jFile):
+        s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
+        print(s, file = jFile, end = '')
+        print(']}', file = jFile, end = '')
+
+    # count and number nodes recursively
+    def summarize(self, depth = None, numb = None):
+        if depth is None: depth = 0
+        if numb is None: numb = 1
+        self.data['depth'] = depth
+        self.data['numb'] = numb
+        return numb
+
+class branch(node):
+    # Each node has a data dictionary and a series
+    # which is a list of subordinate nodes
+    def __init__(self, theName = ''):
+        super().__init__(theName)
+        self.series = []                # each node has a list
+        self.data['kind'] = 'branch'      # placed here for serialization
+
+    # add nodes to this node's list
+    def append(self, *nodes):
+        for node in nodes:
+            self.series.append(node)
+
+    # execute recursively
+    # override to add entry and exit code
+    def execute(self):
+        for item in self.series:
+            item.execute()
+
+    # analyze recursively
+    # override to add entry and exit code
+    def analyze(self):
+        for item in self.series:
+            item.analyze()
+
+    # serialize recursively to file
     def serialize(self, jFile):
         s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
         print(s, file = jFile, end = '')
@@ -50,7 +87,7 @@ class node:
             item.serialize(jFile)
         print(']}', file = jFile, end = '')
 
-    # add up levels and node numb
+    # count and number nodes recursively
     def summarize(self, depth = None, numb = None):
         if depth is None: depth = 0
         if numb is None: numb = 1
@@ -61,7 +98,7 @@ class node:
         return numb
 
 # motor initiate move command
-class move(node):
+class move(branch):
     def __init__(self, name, motor, target, increment):
         super().__init__(name)
         self.data['kind'] = 'move'
@@ -78,7 +115,7 @@ class move(node):
             item.execute()
 
 # motor wait for motion done command
-class doneWait(node):
+class doneWait(branch):
     def __init__(self, name, motor):
         super().__init__(name)
         self.data['kind'] = 'doneWait'
@@ -91,7 +128,7 @@ class doneWait(node):
             item.execute()
 
 # iteration command
-class loop(node):
+class loop(branch):
     def __init__(self, name, numb):
         super().__init__(name)
         self.data['kind'] = 'loop'
@@ -102,7 +139,7 @@ class loop(node):
             for item in self.series:
                 item.execute()
 
-class delay(node):
+class delay(branch):
     def __init__(self, name, interval):
         super().__init__(name)
         self.data['kind'] = 'delay'
@@ -113,7 +150,7 @@ class delay(node):
         for item in self.series:
             item.execute()
 
-class keyWait(node):
+class keyWait(branch):
     def __init__(self, name, key):
         super().__init__(name)
         self.data['kind'] = 'keyWait'
@@ -363,7 +400,7 @@ def ctrlY(theTrack):
         print ('Unexpected track: {}'.format(theTrack))
         return None
 
-    subTree = node('Track #{}'.format(str(theTrack)))
+    subTree = branch('Track #{}'.format(str(theTrack)))
     subTree.append(
         move('Move motor 1', motor1, homePos, fastSpeed),
         move('Move ' + text, motB, homePos, fastSpeed),
@@ -393,8 +430,8 @@ def ctrlX(name):
 # this thread can invoke a command tree
 def consX():
     global current, velocity, acceleration, position
-    global root, motor1, motor2, motor3
-    
+    global root, motor1, motor2, motor3, theTree
+
     done = False
     while not done:
         # tread carefully, due to notifier error on MacOS

@@ -1,24 +1,24 @@
 [{
   "name": "Motor 1",
-  "rot": 0,
-  "targ": 0,
-  "incr": 1,
+  "rot": 135,
+  "targ": 135,
+  "incr": 15,
   "run": false,
   "done": true,
   "wind": null
 },{
   "name": "Motor 2",
-  "rot": 0,
-  "targ": 0,
-  "incr": 1,
+  "rot": 135,
+  "targ": 135,
+  "incr": 15,
   "run": false,
   "done": true,
   "wind": null
 },{
   "name": "Motor 3",
-  "rot": 0,
-  "targ": 0,
-  "incr": 1,
+  "rot": 135,
+  "targ": 135,
+  "incr": 15,
   "run": false,
   "done": true,
   "wind": null
