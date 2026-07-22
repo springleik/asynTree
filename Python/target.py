@@ -20,22 +20,10 @@ theTree = None
 # classes to implement abstract syntax tree (AST)
 class node:
     # Each node has a data dictionary
-    def __init__(self, theName = ''):
+    def __init__(self, name = ''):
         self.data = {}                  # each node is a dictionary
         self.data['kind'] = 'node'      # placed here for serialization
-        self.data['name'] = theName
-
-    # execute recursively
-    # override to add entry and exit code
-    def execute(self):
-        for item in self.series:
-            item.execute()
-
-    # analyze recursively
-    # override to add entry and exit code
-    def analyze(self):
-        for item in self.series:
-            item.analyze()
+        self.data['name'] = name
 
     # serialize to file
     def serialize(self, jFile):
@@ -43,7 +31,7 @@ class node:
         print(s, file = jFile, end = '')
         print(']}', file = jFile, end = '')
 
-    # count and number nodes recursively
+    # count and number nodes
     def summarize(self, depth = None, numb = None):
         if depth is None: depth = 0
         if numb is None: numb = 1
@@ -51,13 +39,18 @@ class node:
         self.data['numb'] = numb
         return numb
 
+class leaf(node):
+    def __init__(self, name = ''):
+        super().__init__(name)
+        self.data['kind'] = 'leaf'
+
 class branch(node):
     # Each node has a data dictionary and a series
     # which is a list of subordinate nodes
-    def __init__(self, theName = ''):
-        super().__init__(theName)
+    def __init__(self, name = ''):
+        super().__init__(name)
+        self.data['kind'] = 'branch'    # placed here for serialization
         self.series = []                # each node has a list
-        self.data['kind'] = 'branch'      # placed here for serialization
 
     # add nodes to this node's list
     def append(self, *nodes):
@@ -98,7 +91,7 @@ class branch(node):
         return numb
 
 # motor initiate move command
-class move(branch):
+class move(leaf):
     def __init__(self, name, motor, target, increment):
         super().__init__(name)
         self.data['kind'] = 'move'
@@ -111,11 +104,9 @@ class move(branch):
 
     def execute(self):
         self.motor.movePosition(self.data['targ'], self.data['incr'])
-        for item in self.series:
-            item.execute()
 
 # motor wait for motion done command
-class doneWait(branch):
+class doneWait(leaf):
     def __init__(self, name, motor):
         super().__init__(name)
         self.data['kind'] = 'doneWait'
@@ -124,22 +115,20 @@ class doneWait(branch):
 
     def execute(self):
         self.motor.flag.wait()
-        for item in self.series:
-            item.execute()
 
 # iteration command
 class loop(branch):
-    def __init__(self, name, numb):
+    def __init__(self, name, count):
         super().__init__(name)
         self.data['kind'] = 'loop'
-        self.data['numb'] = numb
+        self.data['count'] = count
 
     def execute(self):
-        for n in range(self.data['numb']):
+        for n in range(self.data['count']):
             for item in self.series:
                 item.execute()
 
-class delay(branch):
+class delay(leaf):
     def __init__(self, name, interval):
         super().__init__(name)
         self.data['kind'] = 'delay'
@@ -147,10 +136,8 @@ class delay(branch):
 
     def execute(self):
         time.sleep(self.data['wait'])
-        for item in self.series:
-            item.execute()
 
-class keyWait(branch):
+class keyWait(leaf):
     def __init__(self, name, key):
         super().__init__(name)
         self.data['kind'] = 'keyWait'
@@ -439,18 +426,19 @@ def consX():
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
 
+        # split commands and arguments
+        cmd = cmd.split ()
+
         # interpret commands
-        if 'q' == cmd:
+        if cmd[0] == 'q':
             motor1.done = True
             motor2.done = True
             motor3.done = True
             done = True
             root.quit ()
-        elif 'r' == cmd: theTree.execute()
-
-        # split commands and arguments
-        cmd = cmd.split ()
-        if cmd[0] == "initControl":
+        elif cmd[0] == 'r':
+            theTree.execute()
+        elif cmd[0] == "initControl":
             # instantiate motors and command tree
             motor1 = motor('Motor 1')
             motor2 = motor('Motor 2')
@@ -476,9 +464,8 @@ def consX():
             pass
         elif cmd[0] == "testInput":
             pass
-
-        else: print ('what?')
-
+        else:
+            print ('what?')
 
 # kick off console thread to interact with user
 console = threading.Thread(target = consX)

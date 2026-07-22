@@ -1,7 +1,7 @@
 {
   "kind": "loop",
   "name": "Motor Control",
-  "numb": 3
+  "count": 3
 ,"list":[{
   "kind": "branch",
   "name": "Track #1"
