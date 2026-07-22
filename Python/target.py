@@ -41,7 +41,7 @@ class leaf(node):
         if number is None: number = 1
         self.data['depth'] = depth
         self.data['number'] = number
-        return number
+        return depth, number
 
 class branch(leaf):
     # each branch has a list of subordinate nodes
@@ -80,11 +80,11 @@ class branch(leaf):
 
     # count and number nodes recursively
     def summarize(self, depth = None, number = None):
-        super().summarize(depth, number)
+        depth, number = super().summarize(depth, number)
         for item in self.series:
-            number = item.summarize(self.data['depth'] + 1,
-                self.data['number'] + 1)
-        return number
+            depth, number = item.summarize(depth + 1,
+                number + 1)
+        return depth, number
 
 # motor initiate move command
 class move(leaf):
@@ -456,9 +456,14 @@ def consX():
         elif cmd[0] == "testInput":
             pass
         elif cmd[0] == "summarize":
-            theTree.summarize()
+            if theTree:
+                print ('Tree contains {} nodes.'.format(theTree.summarize()))
+            else:
+                print ('Empty tree.')
+        elif cmd[0] == 'help' or cmd[0] == '?':
+            print ("Help!")
         else:
-            print ('what?')
+            print ('Say what?')
 
 # kick off console thread to interact with user
 console = threading.Thread(target = consX)
