@@ -54,12 +54,6 @@ class branch(leaf):
         for item in self.series:
             item.execute()
 
-    # analyze recursively
-    # override to add entry and exit code
-    def analyze(self):
-        for item in self.series:
-            item.analyze()
-
     # serialize recursively to file
     def serialize(self, jFile):
         s = json.dumps(self.data, indent = 2)[:-2] + ',\n"list":['
