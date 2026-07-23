@@ -181,6 +181,9 @@ def setPosition(cmd):
     if len(cmd) < 3:
         return
     axis = int(cmd[1], 0)
+    if axis < 0 or len(motor.axes) <= axis:
+        print('Axis not found.')
+        return False
     newTarget = int(cmd[2], 0)
     if hasattr(motor.axes[axis], 'velocity'):
         newVelocity = motor.axes[axis].velocity
@@ -194,7 +197,23 @@ def waitPosition(cmd):
         print ('Expected an argument: axis number.')
         return False
     axis = int(cmd[1], 0)
+    if axis < 0 or len(motor.axes) <= axis:
+        print('Axis not found.')
+        return False
     motor.axes[axis].flag.wait()
+    return True
+
+# drive an axis to home position
+def homeAxis(cmd):
+    if len(cmd) == 1:
+        print('Expected an argument: axis number.')
+        return False
+    axis = int(cmd[1], 0)
+    if axis < 0 or len(motor.axes) <= axis:
+        print('Axis not found.')
+        return False
+    motor.axes[axis].movePosition(0, 1)
+    return True
 
 # initialize multi-axis motion controller
 def initializeControl():
@@ -260,12 +279,9 @@ def parseCommand(cmd):
             setPosition(cmd)
     elif cmd[0] == 'waitPosition':
         waitPosition(cmd)
-
-    # elif cmd[0] == 'waitPosition':
-    # elif cmd[0] == 'homeAxis':
-    # elif cmd[0] == 'iterateRegister':
+    elif cmd[0] == 'homeAxis':
+        homeAxis(cmd)
     # elif cmd[0] == 'testInput':
-
     elif cmd[0] == 'help' or cmd[0] == '?':
         showHelp()
     else:

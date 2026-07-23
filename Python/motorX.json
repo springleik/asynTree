@@ -2,13 +2,13 @@
   "name": "Motor 1",
   "xPos": 210,
   "yPos": 28,
-  "rot": 123,
-  "targ": 123,
+  "rot": 0,
+  "targ": 0,
   "incr": -1,
   "run": false,
   "done": true,
-  "position": 123,
-  "velocity": 1
+  "position": 1000,
+  "velocity": 10
 },{
   "name": "Motor 2",
   "xPos": 58,
