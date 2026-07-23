@@ -6,8 +6,7 @@
   "targ": 0,
   "incr": 1,
   "run": false,
-  "done": true,
-  "runCurrent": -432
+  "done": true
 },{
   "name": "Motor 2",
   "xPos": 58,
@@ -17,7 +16,11 @@
   "incr": 1,
   "run": false,
   "done": true,
-  "runCurrent": 234
+  "runCurrent": 1,
+  "holdCurrent": 2,
+  "velocity": 3,
+  "acceleration": 4,
+  "position": 5
 },{
   "name": "Motor 3",
   "xPos": 362,

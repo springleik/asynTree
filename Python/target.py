@@ -157,26 +157,62 @@ class motor:
 # ============================================================
 # command functions
 
-def setRunCurrent(cmd):
-    if len(cmd) == 2:   # return existing value
+# set axis attributes
+def setAttribute(cmd, theAttrib):
+    if len(cmd) == 1:
+        print('Expected two arguments: axis number and {}.'.format(theAttrib))
+        return
+    if len(cmd) > 1:
         axis = int(cmd[1], 0)
-        if len(motor.axes) > axis:
-            if hasattr(motor.axes[axis], 'runCurrent'):
-                print('Axis: {}, runCurrent: {} milliamps.'.format (axis, motor.axes[axis].runCurrent))
-            else:
-                print('Attribute not found.')
-        else:
-            print ('Axis not found.')
-    elif len(cmd) == 3: # set new value
-        axis = int(cmd[1], 0)
-        if len(motor.axes) > axis:
-            motor.axes[axis].runCurrent = int(cmd[2],0)
-            print('Axis: {}, runCurrent: {} milliamps.'.format (axis, motor.axes[axis].runCurrent))
-        else:
+        if axis < 0 or len(motor.axes) <= axis:
             print('Axis not found.')
-    else:               # usage text if wrong number of args
-        print('Expected two arguments: axis number and run current (mA).')
+            return
+        if len(cmd) > 2:
+            setattr(motor.axes[axis], theAttrib, int(cmd[2],0))
+        if hasattr(motor.axes[axis], theAttrib):
+            print('Axis: {}, {}: {}'.format(axis, theAttrib,
+                getattr(motor.axes[axis], theAttrib)))
+        else:
+            print('Attribute not found.')
 
+# initialize multi-axis motion controller
+def initializeControl():
+    if 0 == len(motor.axes):
+        motor.axes.append(motor('Motor 1', 210,  28))
+        motor.axes.append(motor('Motor 2',  58, 354))
+        motor.axes.append(motor('Motor 3', 362, 354))
+    else:
+        print('Control already initialized.')
+
+# halt program and exit
+def haltProgram():
+    with open('motorX.json', 'w') as motorFile:
+        first = True
+        motorFile.write('[')
+        for axis in motor.axes:
+            if first: first = False
+            else: motorFile.write(',')
+            axis.done = True
+            axis.serialize(motorFile)
+            print(axis.getSpeed(), axis.getPosition(), end = ' ')
+        motorFile.write(']\n')
+    print()
+    root.quit ()
+
+def showHelp():
+    print ('Available commands:')
+    print (' quit -- halt program and exit')
+    print (' help -- print this list')
+    print (' initControl -- initialize motion controller')
+    print (' setRunCurrent -- set axis run current')
+    print (' setHoldCurrent -- set axis hold current')
+    print (' setVelocity -- set axis velocity in steps/second')
+    print (' setAccel -- set axis acceleration in steps/sec/sec')
+    print (' setPosition -- set axis target position in steps')
+    print (' homeAxis -- home specified axis')
+    print (' waitPosition -- wait for target position reached')
+    print (' iterateRegister -- loop while iterating register')
+    print (' testInput -- test a digital input')
 
 # ============================================================
 # thread to run console
@@ -187,83 +223,34 @@ def consX():
         print ('@:', end = ' ')
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
-
-        # split commands and arguments
-        cmd = cmd.split ()
-
-        # ignore empty lines
-        if len(cmd) == 0: continue
-
-        # ignore comment lines
-        if cmd[0][0] == '#': continue
+        cmd = cmd.split ()# split commands and arguments
+        if len(cmd) == 0: continue# ignore empty lines
+        if cmd[0][0] == '#': continue# ignore comment lines
 
         # interpret commands
-        if cmd[0] == 'q':
-            # motor objects are outside of tree structure
-            with open('motorX.json', 'w') as motorFile:
-                first = True
-                motorFile.write('[')
-                for axis in motor.axes:
-                    if first: first = False
-                    else: motorFile.write(',')
-                    axis.done = True
-                    axis.serialize(motorFile)
-                    print(axis.getSpeed(), axis.getPosition(), end = ' ')
-                motorFile.write(']\n')
-            print()
+        if cmd[0] == 'quit':
+            haltProgram()
             done = True
-            root.quit ()
-
         elif cmd[0] == 'initControl':
-            # instantiate motors and command tree
-            if 0 == len(motor.axes):
-                motor.axes.append(motor('Motor 1', 210,  28))
-                motor.axes.append(motor('Motor 2',  58, 354))
-                motor.axes.append(motor('Motor 3', 362, 354))
-            else:
-                print('Control already initialized.')
-
+            initializeControl()
         elif cmd[0] == 'setRunCurrent':
-            setRunCurrent(cmd)
-        # elif cmd[0] == 'setVelocity':
-        #     if len (cmd) == 2: velocity = int (cmd[1], 0)
-        #     print ('velocity: {} steps/second'.format (velocity))
-        # elif cmd[0] == 'setAccel':
-        #     if len (cmd) == 2: acceleration = int (cmd[1], 0)
-        #     print ('acceleration: {} steps/second'.format (acceleration))
-        # elif cmd[0] == 'homeAxis':
-        #     pass
-        # elif cmd[0] == 'setPosition':
-        #     if len (cmd) == 2: position = int (cmd[1], 0)
-        #     print ('position: {} steps/second'.format (position))
+            setAttribute(cmd, 'runCurrent')
+        elif cmd[0] == 'setHoldCurrent':
+            setAttribute(cmd, 'holdCurrent')
+        elif cmd[0] == 'setVelocity':
+            setAttribute(cmd, 'velocity')
+        elif cmd[0] == 'setAccel':
+            setAttribute(cmd, 'acceleration')
+        elif cmd[0] == 'setPosition':
+            setAttribute(cmd, 'position')
+
         # elif cmd[0] == 'waitPosition':
-        #     pass
+        # elif cmd[0] == 'homeAxis':
         # elif cmd[0] == 'iterateRegister':
-        #     pass
         # elif cmd[0] == 'testInput':
-        #     pass
-        # elif cmd[0] == 'summarize':
-        #     if theTree:
-        #         print ('Tree contains {} nodes.'.format(theTree.summarize(0, 1)))
-        #     else:
-        #         print ('Empty tree.')
 
         elif cmd[0] == 'help' or cmd[0] == '?':
-            print ('Available commands:')
-            print (' q -- quit')
-            print (' r -- run command tree')
-            print (' help -- print this list')
-            print (' initControl -- initialize motion controller')
-            print (' summarize -- update node and depth counters')
-            print (' setCurrent -- set motor current')
-            print (' setVelocity -- set motor velocity in steps/second')
-            print (' setAccel -- set motor acceleration in steps/sec/sec')
-            print (' setPosition -- set target position in steps')
-            print (' homeAxis -- home specified axis')
-            print (' waitPosition -- wait for target position reached')
-            print (' iterateRegister -- loop while iterating register')
-            print (' testInput -- test a digital input')
-
+            showHelp()
         else:
             print ('Say what?')
 
