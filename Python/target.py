@@ -156,17 +156,16 @@ class motor:
 
 # ============================================================
 # command functions
-
-# set axis attributes
+# set axis attributes, return False on error
 def setAttribute(cmd, theAttrib):
     if len(cmd) == 1:
         print('Expected two arguments: axis number and {}.'.format(theAttrib))
-        return
+        return False
     if len(cmd) > 1:
         axis = int(cmd[1], 0)
         if axis < 0 or len(motor.axes) <= axis:
             print('Axis not found.')
-            return
+            return False
         if len(cmd) > 2:
             setattr(motor.axes[axis], theAttrib, int(cmd[2],0))
         if hasattr(motor.axes[axis], theAttrib):
@@ -174,6 +173,28 @@ def setAttribute(cmd, theAttrib):
                 getattr(motor.axes[axis], theAttrib)))
         else:
             print('Attribute not found.')
+            return False
+    return True
+
+# update axis target position
+def setPosition(cmd):
+    if len(cmd) < 3:
+        return
+    axis = int(cmd[1], 0)
+    newTarget = int(cmd[2], 0)
+    if hasattr(motor.axes[axis], 'velocity'):
+        newVelocity = motor.axes[axis].velocity
+        motor.axes[axis].movePosition(newTarget, newVelocity)
+    else:
+        print ('Velocity not set.')
+
+# wait until target position reached, return False on error
+def waitPosition(cmd):
+    if len(cmd) == 1:
+        print ('Expected an argument: axis number.')
+        return False
+    axis = int(cmd[1], 0)
+    motor.axes[axis].flag.wait()
 
 # initialize multi-axis motion controller
 def initializeControl():
@@ -199,6 +220,7 @@ def haltProgram():
     print()
     root.quit ()
 
+# show help text on console
 def showHelp():
     print ('Available commands:')
     print (' quit -- halt program and exit')
@@ -214,6 +236,42 @@ def showHelp():
     print (' iterateRegister -- loop while iterating register')
     print (' testInput -- test a digital input')
 
+def parseCommand(cmd):
+    cmd = cmd.split ()          # split commands and arguments
+    if len(cmd) == 0: return    # ignore empty lines
+    if cmd[0][0] == '#': return # ignore comment lines
+
+    # interpret commands
+    if cmd[0] == 'quit':
+        haltProgram()
+        return True
+    elif cmd[0] == 'initControl':
+        initializeControl()
+    elif cmd[0] == 'setRunCurrent':
+        setAttribute(cmd, 'runCurrent')
+    elif cmd[0] == 'setHoldCurrent':
+        setAttribute(cmd, 'holdCurrent')
+    elif cmd[0] == 'setVelocity':
+        setAttribute(cmd, 'velocity')
+    elif cmd[0] == 'setAccel':
+        setAttribute(cmd, 'acceleration')
+    elif cmd[0] == 'setPosition':
+        if setAttribute(cmd, 'position'):
+            setPosition(cmd)
+    elif cmd[0] == 'waitPosition':
+        waitPosition(cmd)
+
+    # elif cmd[0] == 'waitPosition':
+    # elif cmd[0] == 'homeAxis':
+    # elif cmd[0] == 'iterateRegister':
+    # elif cmd[0] == 'testInput':
+
+    elif cmd[0] == 'help' or cmd[0] == '?':
+        showHelp()
+    else:
+        print ('Say what?')
+    return False
+
 # ============================================================
 # thread to run console
 def consX():
@@ -223,36 +281,7 @@ def consX():
         print ('@:', end = ' ')
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
-        cmd = cmd.split ()# split commands and arguments
-        if len(cmd) == 0: continue# ignore empty lines
-        if cmd[0][0] == '#': continue# ignore comment lines
-
-        # interpret commands
-        if cmd[0] == 'quit':
-            haltProgram()
-            done = True
-        elif cmd[0] == 'initControl':
-            initializeControl()
-        elif cmd[0] == 'setRunCurrent':
-            setAttribute(cmd, 'runCurrent')
-        elif cmd[0] == 'setHoldCurrent':
-            setAttribute(cmd, 'holdCurrent')
-        elif cmd[0] == 'setVelocity':
-            setAttribute(cmd, 'velocity')
-        elif cmd[0] == 'setAccel':
-            setAttribute(cmd, 'acceleration')
-        elif cmd[0] == 'setPosition':
-            setAttribute(cmd, 'position')
-
-        # elif cmd[0] == 'waitPosition':
-        # elif cmd[0] == 'homeAxis':
-        # elif cmd[0] == 'iterateRegister':
-        # elif cmd[0] == 'testInput':
-
-        elif cmd[0] == 'help' or cmd[0] == '?':
-            showHelp()
-        else:
-            print ('Say what?')
+        done = parseCommand (cmd)
 
 # kick off console thread to interact with user
 console = threading.Thread(target = consX)

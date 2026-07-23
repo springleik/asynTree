@@ -2,11 +2,13 @@
   "name": "Motor 1",
   "xPos": 210,
   "yPos": 28,
-  "rot": 0,
-  "targ": 0,
-  "incr": 1,
+  "rot": 123,
+  "targ": 123,
+  "incr": -1,
   "run": false,
-  "done": true
+  "done": true,
+  "position": 123,
+  "velocity": 1
 },{
   "name": "Motor 2",
   "xPos": 58,
@@ -15,12 +17,7 @@
   "targ": 0,
   "incr": 1,
   "run": false,
-  "done": true,
-  "runCurrent": 1,
-  "holdCurrent": 2,
-  "velocity": 3,
-  "acceleration": 4,
-  "position": 5
+  "done": true
 },{
   "name": "Motor 3",
   "xPos": 362,
