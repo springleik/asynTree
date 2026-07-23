@@ -25,22 +25,23 @@ def render (cursor, level):
     theKind = cursor['kind']
     theName = cursor['name']
     if theKind == 'loop':
-        print ('{}{}: Iterate {} times.'.format('  ' * level, theName, cursor ['count']))
+        print ('{}{}: Iterate {} times.'.format(
+            '  ' * level, theName, cursor ['count']))
     elif theKind == 'delay':
-        print ('{}{}: Wait for {} seconds.'.format('  ' * level, theName, cursor['wait']))
+        print ('{}{}: Wait for {} seconds.'.format(
+            '  ' * level, theName, cursor['wait']))
     elif theKind == 'move':
-        print ('{}{} to target {} with increment {} deg.'.format('  ' * level, theName, cursor['targ'], cursor ['incr']))
+        print ('{}{} to target {} with increment {} deg.'.format(
+            '  ' * level, theName, cursor['targ'], cursor ['incr']))
     elif theKind == 'doneWait':
         print ('{}{} target reached.'.format('  ' * level, theName))
     elif theKind == 'keyWait':
         print ('{}{} input.'.format('  ' * level, theName))
-    elif theKind == 'branch':
-        print ('{}{}:'.format('  ' * level, theName))
     else:
-        print ('  ' * level, 'Unexpected node kind: {}'.format(theKind))
+        print ('{}{}:'.format('  ' * level, theName))
 
     level += 1
-    if cursor['list']:
+    if 'list' in cursor:
         for node in cursor['list']:
             render (node, level)
 

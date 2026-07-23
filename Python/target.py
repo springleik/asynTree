@@ -7,154 +7,35 @@
 import sys, time, json
 import tkinter, threading
 
-# ============================================================
-# global variables
-# TODO should probably be motor class or instance variables
-current = 0         # milliamps
-velocity = 0        # steps/second
-acceleration = 0    # steps/second/second
-position = 0        # steps
-theTree = None
-
-# ============================================================
-# classes to implement abstract syntax tree (AST)
-class node:
-    # each node has a data dictionary
-    def __init__(self, kind = 'node', name = ''):
-        self.data = {'kind':kind,'name':name}
-
-    # serialize to file
-    def serialize(self, jFile):
-        s = json.dump(self.data, jFile, indent = 2)
-
-class leaf(node):
-    def __init__(self, kind = 'leaf', name = ''):
-        super().__init__(kind, name)
-
-    # count and number leafs
-    def summarize(self, depth, number):
-        self.data['depth'] = depth
-        self.data['number'] = number
-        return number
-
-class branch(leaf):
-    # each branch has a list of subordinate nodes
-    def __init__(self, kind = 'branch', name = ''):
-        super().__init__(kind, name)
-        self.series = []    # branch list
-
-    # add nodes to this node's list
-    def append(self, *nodes):
-        for node in nodes:
-            self.series.append(node)
-
-    # execute recursively
-    # override to add entry and exit code
-    def execute(self):
-        for item in self.series:
-            item.execute()
-
-    # serialize recursively to file
-    def serialize(self, jFile):
-        s = json.dumps(self.data, indent = 2)[:-2] + ',\n"list":['
-        print(s, file = jFile, end = '')
-        first = True
-        for item in self.series:
-            if first: first = False
-            else: print(',', file = jFile, end = '')
-            item.serialize(jFile)
-        print(']}', file = jFile, end = '')
-
-    # count and number nodes recursively
-    def summarize(self, depth, number):
-        super().summarize(depth, number)
-        for item in self.series:
-            number = item.summarize(depth + 1, number + 1)
-        return number
-
-# motor initiate move command
-class move(leaf):
-    def __init__(self, name, motor, target, increment):
-        super().__init__('move', name)
-
-        # motor object isn't serializable for now
-        self.motor = motor
-        self.data['motor'] = motor.name
-        self.data['targ'] = target
-        self.data['incr'] = increment
-
-    def execute(self):
-        self.motor.movePosition(self.data['targ'], self.data['incr'])
-
-# motor wait for motion done command
-class doneWait(leaf):
-    def __init__(self, name, motor):
-        super().__init__('doneWait', name)
-        self.motor = motor
-        self.data['motor'] = motor.name
-
-    def execute(self):
-        self.motor.flag.wait()
-
-# iteration command
-class loop(branch):
-    def __init__(self, name, count):
-        super().__init__('loop', name)
-        self.data['count'] = count
-
-    def execute(self):
-        for n in range(self.data['count']):
-            super().execute()
-
-class delay(leaf):
-    def __init__(self, name, interval):
-        super().__init__('delay', name)
-        self.data['wait'] = interval
-
-    def execute(self):
-        time.sleep(self.data['wait'])
-
-class keyWait(leaf):
-    def __init__(self, name, key):
-        super().__init__('keyWait', name)
-        self.data['key'] = key
-
-    def execute(self):
-        time.sleep(1.0)
-
 # class representing a function motor
 class motor:
     # class variables
-    width = 300
+    width = 300     # pixel size of axis window
     height = 300
-    radius = 100
-    arc = 270
-    index = 1
+    radius = 100    # pixel size of axis rotor
+    arc = 270       # degrees arc of rotor
+    index = 1       # sequence number
+    axes = []       # axis list
 
-    def __init__(self, name):
+    def __init__(self, name, xPos, yPos):
         # initialize instance variables
-        self.name = name
-        self.rot = 0
-        self.targ = self.rot
-        self.incr = 1
-        self.run = False
-        self.done = False
+        self.name = name        # axis window title
+        self.xPos = xPos        # axis window position
+        self.yPos = yPos
+        self.rot = 0            # rotation
+        self.targ = self.rot    # target
+        self.incr = 1           # velocity
+        self.run = False        # status
+        self.done = False       # while !done
         self.lock = threading.Lock()
         self.flag = threading.Event()
 
         # create top level, set window title and position
         self.wind = tkinter.Toplevel()
         self.wind.title(self.name)
-        if 1 == motor.index:
-            motor.xPos, motor.yPos = 210, 28
-        elif 2 == motor.index:
-            motor.xPos, motor.yPos = 58, 354
-        elif 3 == motor.index:
-            motor.xPos, motor.yPos = 362, 354
-        else: print ('Unexpected index: {}'.format (index))
         motor.index += 1
         self.wind.geometry ('{}x{}+{}+{}'.format (
-            motor.width, motor.height, motor.xPos, motor.yPos))
+            motor.width, motor.height, self.xPos, self.yPos))
         self.wind.resizable(width = False, height = False)
 
         # create the canvas
@@ -273,124 +154,33 @@ class motor:
                 jsonValues[key] = value
         json.dump(jsonValues, jFile, indent = 2)
 
-'''
-Pseudocode for motion profile:
+# ============================================================
+# command functions
 
-Top Level
-    Initialize all motors to receive products
-    Iterate until halted
-        Forward a product to track 1
-            Move motor 1 and motor 2 fast to home position (135)
-            Wait for motors 1 and 2
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to left position (270)
-            Wait for product to arrive at motor 2 (key 'j')
-            Move motor 2 slow to left position (270)
-            Move motor 1 fast to home position
-            Wait for motor 2
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 2 fast to home position (135)
+def setRunCurrent(cmd):
+    if len(cmd) == 2:   # return existing value
+        axis = int(cmd[1], 0)
+        if len(motor.axes) > axis:
+            if hasattr(motor.axes[axis], 'runCurrent'):
+                print('Axis: {}, runCurrent: {} milliamps.'.format (axis, motor.axes[axis].runCurrent))
+            else:
+                print('Attribute not found.')
+        else:
+            print ('Axis not found.')
+    elif len(cmd) == 3: # set new value
+        axis = int(cmd[1], 0)
+        if len(motor.axes) > axis:
+            motor.axes[axis].runCurrent = int(cmd[2],0)
+            print('Axis: {}, runCurrent: {} milliamps.'.format (axis, motor.axes[axis].runCurrent))
+        else:
+            print('Axis not found.')
+    else:               # usage text if wrong number of args
+        print('Expected two arguments: axis number and run current (mA).')
 
-        Forward a product to track 2
-            Move motor 1 and motor 2 fast to home position (135)
-            Wait for motors 1 and 2
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to left position (270)
-            Wait for product to arrive at motor 2 (key 'j')
-            Move motor 2 slow to right position (0)
-            Move motor 1 fast to home position
-            Wait for motor 2
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 2 fast to home position (135)
-
-        Forward a product to track 3
-            Move motor 1 and motor 3 fast to home position (135)
-            Wait for motors 1 and 3
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to right position (0)
-            Wait for product to arrive at motor 3 (key 'k')
-            Move motor 3 slow to left position (270)
-            Move motor 1 fast to home position
-            Wait for motor 3
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 3 fast to home position (135)
-
-        Forward a product to track 4
-            Move motor 1 and motor 3 fast to home position (135)
-            Wait for motors 1 and 3
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to right position (0)
-            Wait for product to arrive at motor 3 (key 'k')
-            Move motor 3 slow to right position (270)
-            Move motor 1 fast to home position
-            Wait for motor 3
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 3 fast to home position (135)
-'''
-
-
-# factory method to produce a subtree
-def ctrlY(theTrack):
-    homePos = 135
-    leftPos = 270
-    rightPos = 0
-    fastSpeed = 15
-    slowSpeed = 3
-    if theTrack == 1:
-        posA = leftPos
-        posB = leftPos
-        motB = motor2
-        text = 'motor 2'
-    elif theTrack == 2:
-        posA = leftPos
-        posB = rightPos
-        motB = motor2
-        text = 'motor 2'
-    elif theTrack == 3:
-        posA = rightPos
-        posB = leftPos
-        motB = motor3
-        text = 'motor 3'
-    elif theTrack == 4:
-        posA = rightPos
-        posB = rightPos
-        motB = motor3
-        text = 'motor 3'
-    else:
-        print ('Unexpected track: {}'.format(theTrack))
-        return None
-
-    subTree = branch('track', 'Track #{}'.format(str(theTrack)))
-    subTree.append(
-        move('Move motor 1', motor1, homePos, fastSpeed),
-        move('Move ' + text, motB, homePos, fastSpeed),
-        doneWait('Wait for motor 1', motor1),
-        keyWait('Wait for key i', 'i'),
-        doneWait('Wait for ' + text, motB),
-        move('Move motor 1', motor1, posA, slowSpeed),
-        doneWait('Wait for motor 1', motor1),
-        keyWait('Wait for key o', 'o'),
-        move('Move motor 1', motor1, homePos, fastSpeed),
-        move('Move ' + text, motB, posB, slowSpeed),
-        doneWait('Wait for ' + text, motB),
-        delay('Wait track 1', 1.0),
-        move('Move ' + text, motB, homePos, fastSpeed))
-    return subTree
-
-# return a command tree implementing the desired program
-def ctrlX(name):
-    # instantiate some nodes
-    top = loop(name, 3)
-    top.append(ctrlY(1), ctrlY(2), ctrlY(3), ctrlY(4))
-    return top
 
 # ============================================================
 # thread to run console
-# this thread can invoke a command tree
 def consX():
-    global current, velocity, acceleration, position
-    global root, motor1, motor2, motor3, theTree
-
     done = False
     while not done:
         # tread carefully, due to notifier error on MacOS
@@ -401,49 +191,63 @@ def consX():
         # split commands and arguments
         cmd = cmd.split ()
 
+        # ignore empty lines
+        if len(cmd) == 0: continue
+
+        # ignore comment lines
+        if cmd[0][0] == '#': continue
+
         # interpret commands
         if cmd[0] == 'q':
-            motor1.done = True
-            motor2.done = True
-            motor3.done = True
+            # motor objects are outside of tree structure
+            with open('motorX.json', 'w') as motorFile:
+                first = True
+                motorFile.write('[')
+                for axis in motor.axes:
+                    if first: first = False
+                    else: motorFile.write(',')
+                    axis.done = True
+                    axis.serialize(motorFile)
+                    print(axis.getSpeed(), axis.getPosition(), end = ' ')
+                motorFile.write(']\n')
+            print()
             done = True
             root.quit ()
-        elif cmd[0] == 'r':
-            theTree.execute()
+
         elif cmd[0] == 'initControl':
-            if not theTree:
-                # instantiate motors and command tree
-                motor1 = motor('Motor 1')
-                motor2 = motor('Motor 2')
-                motor3 = motor('Motor 3')
-                theTree = ctrlX('Motor Control')
+            # instantiate motors and command tree
+            if 0 == len(motor.axes):
+                motor.axes.append(motor('Motor 1', 210,  28))
+                motor.axes.append(motor('Motor 2',  58, 354))
+                motor.axes.append(motor('Motor 3', 362, 354))
             else:
-                print ('Already initialized.')
-        elif cmd[0] == 'setCurrent':
-            if len (cmd) == 2: current = int (cmd[1], 0)
-            print ('current: {} milliamps'.format (current))
-        elif cmd[0] == 'setVelocity':
-            if len (cmd) == 2: velocity = int (cmd[1], 0)
-            print ('velocity: {} steps/second'.format (velocity))
-        elif cmd[0] == 'setAccel':
-            if len (cmd) == 2: acceleration = int (cmd[1], 0)
-            print ('acceleration: {} steps/second'.format (acceleration))
-        elif cmd[0] == 'homeAxis':
-            pass
-        elif cmd[0] == 'setPosition':
-            if len (cmd) == 2: position = int (cmd[1], 0)
-            print ('position: {} steps/second'.format (position))
-        elif cmd[0] == 'waitPosition':
-            pass
-        elif cmd[0] == 'iterateRegister':
-            pass
-        elif cmd[0] == 'testInput':
-            pass
-        elif cmd[0] == 'summarize':
-            if theTree:
-                print ('Tree contains {} nodes.'.format(theTree.summarize(0, 1)))
-            else:
-                print ('Empty tree.')
+                print('Control already initialized.')
+
+        elif cmd[0] == 'setRunCurrent':
+            setRunCurrent(cmd)
+        # elif cmd[0] == 'setVelocity':
+        #     if len (cmd) == 2: velocity = int (cmd[1], 0)
+        #     print ('velocity: {} steps/second'.format (velocity))
+        # elif cmd[0] == 'setAccel':
+        #     if len (cmd) == 2: acceleration = int (cmd[1], 0)
+        #     print ('acceleration: {} steps/second'.format (acceleration))
+        # elif cmd[0] == 'homeAxis':
+        #     pass
+        # elif cmd[0] == 'setPosition':
+        #     if len (cmd) == 2: position = int (cmd[1], 0)
+        #     print ('position: {} steps/second'.format (position))
+        # elif cmd[0] == 'waitPosition':
+        #     pass
+        # elif cmd[0] == 'iterateRegister':
+        #     pass
+        # elif cmd[0] == 'testInput':
+        #     pass
+        # elif cmd[0] == 'summarize':
+        #     if theTree:
+        #         print ('Tree contains {} nodes.'.format(theTree.summarize(0, 1)))
+        #     else:
+        #         print ('Empty tree.')
+
         elif cmd[0] == 'help' or cmd[0] == '?':
             print ('Available commands:')
             print (' q -- quit')
@@ -459,6 +263,7 @@ def consX():
             print (' waitPosition -- wait for target position reached')
             print (' iterateRegister -- loop while iterating register')
             print (' testInput -- test a digital input')
+
         else:
             print ('Say what?')
 
@@ -471,24 +276,5 @@ console.start()
 root = tkinter.Tk()
 root.mainloop()
 
-# join threads
+# join console thread on exit
 console.join()
-
-# capture tree state on exit
-with open('ctrlX.json', 'w') as treeFile:
-    theTree.serialize(treeFile)
-    treeFile.write('\n')
-
-# motor objects are outside of tree structure
-with open('motorX.json', 'w') as motorFile:
-    motorFile.write('[')
-    motor1.serialize(motorFile)
-    motorFile.write(',')
-    motor2.serialize(motorFile)
-    motorFile.write(',')
-    motor3.serialize(motorFile)
-    motorFile.write(']\n')
-
-# show console output
-print(motor1.getSpeed(), motor1.getPosition(), motor2.getSpeed(),
-    motor2.getPosition(), motor3.getSpeed(), motor3.getPosition())

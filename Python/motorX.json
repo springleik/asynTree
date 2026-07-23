@@ -1,25 +1,30 @@
 [{
   "name": "Motor 1",
-  "rot": 135,
-  "targ": 135,
-  "incr": 15,
+  "xPos": 210,
+  "yPos": 28,
+  "rot": 0,
+  "targ": 0,
+  "incr": 1,
   "run": false,
   "done": true,
-  "wind": null
+  "runCurrent": -432
 },{
   "name": "Motor 2",
-  "rot": 135,
-  "targ": 135,
-  "incr": 15,
+  "xPos": 58,
+  "yPos": 354,
+  "rot": 0,
+  "targ": 0,
+  "incr": 1,
   "run": false,
   "done": true,
-  "wind": null
+  "runCurrent": 234
 },{
   "name": "Motor 3",
-  "rot": 135,
-  "targ": 135,
-  "incr": 15,
+  "xPos": 362,
+  "yPos": 354,
+  "rot": 0,
+  "targ": 0,
+  "incr": 1,
   "run": false,
-  "done": true,
-  "wind": null
+  "done": true
 }]
