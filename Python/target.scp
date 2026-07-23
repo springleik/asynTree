@@ -1,0 +1,14 @@
+# target.scp script file for target.py motion control emulator
+# ==============================================
+# M. Williamsen, 23 July 2026
+# Springleik project
+initControl
+setRunCurrent 1 500
+setIdleCurrent 1 500
+setVelocity 1 5
+setAccel 1 5
+homeAxis 1
+setPosition 1 400
+waitPosition 1
+setPosition 1 0
+waitPosition 1

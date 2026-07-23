@@ -189,12 +189,12 @@ def setPosition(cmd):
         newVelocity = motor.axes[axis].velocity
         motor.axes[axis].movePosition(newTarget, newVelocity)
     else:
-        print ('Velocity not set.')
+        print('Velocity not set.')
 
 # wait until target position reached, return False on error
 def waitPosition(cmd):
     if len(cmd) == 1:
-        print ('Expected an argument: axis number.')
+        print('Expected an argument: axis number.')
         return False
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
@@ -237,23 +237,23 @@ def haltProgram():
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
     print()
-    root.quit ()
+    root.quit()
 
 # show help text on console
 def showHelp():
-    print ('Available commands:')
-    print (' quit -- halt program and exit')
-    print (' help -- print this list')
-    print (' initControl -- initialize motion controller')
-    print (' setRunCurrent -- set axis run current')
-    print (' setHoldCurrent -- set axis hold current')
-    print (' setVelocity -- set axis velocity in steps/second')
-    print (' setAccel -- set axis acceleration in steps/sec/sec')
-    print (' setPosition -- set axis target position in steps')
-    print (' homeAxis -- home specified axis')
-    print (' waitPosition -- wait for target position reached')
-    print (' iterateRegister -- loop while iterating register')
-    print (' testInput -- test a digital input')
+    print('Available commands:')
+    print(' quit -- halt program and exit')
+    print(' help -- print this list')
+    print(' initControl -- initialize motion controller')
+    print(' setRunCurrent -- set axis run current')
+    print(' setIdleCurrent -- set axis idle current')
+    print(' setVelocity -- set axis velocity in steps/second')
+    print(' setAccel -- set axis acceleration in steps/sec/sec')
+    print(' setPosition -- set axis target position in steps')
+    print(' homeAxis -- home specified axis')
+    print(' waitPosition -- wait for target position reached')
+    print(' iterateRegister -- loop while iterating register')
+    print(' testInput -- test a digital input')
 
 def parseCommand(cmd):
     cmd = cmd.split ()          # split commands and arguments
@@ -268,8 +268,8 @@ def parseCommand(cmd):
         initializeControl()
     elif cmd[0] == 'setRunCurrent':
         setAttribute(cmd, 'runCurrent')
-    elif cmd[0] == 'setHoldCurrent':
-        setAttribute(cmd, 'holdCurrent')
+    elif cmd[0] == 'setIdleCurrent':
+        setAttribute(cmd, 'idleCurrent')
     elif cmd[0] == 'setVelocity':
         setAttribute(cmd, 'velocity')
     elif cmd[0] == 'setAccel':
@@ -285,27 +285,37 @@ def parseCommand(cmd):
     elif cmd[0] == 'help' or cmd[0] == '?':
         showHelp()
     else:
-        print ('Say what?')
+        print('Say what?')
     return False
 
 # ============================================================
 # thread to run console
 def consX():
+    # check for script file argument
     done = False
+    if len(sys.argv) == 2:
+        inFileName = sys.argv[1]
+        with open(inFileName) as inFile:
+            for line in inFile:
+                done = parseCommand(line)
+
+    # wait for user input at command prompt
     while not done:
         # tread carefully, due to notifier error on MacOS
-        print ('@:', end = ' ')
+        print('@:', end = ' ')
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
-        done = parseCommand (cmd)
+        done = parseCommand(cmd)
+
+
+# Tkinter startup
+root = tkinter.Tk()
 
 # kick off console thread to interact with user
 console = threading.Thread(target = consX)
 console.start()
 
 # invoke Tkinter main loop, which blocks until all windows are closed
-# this must be in Python's main thread
-root = tkinter.Tk()
 root.mainloop()
 
 # join console thread on exit
