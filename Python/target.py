@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ============================================================
-# Abstract syntax tree interpreter for motion control
+# Abstract syntax tree interpreter for motion control demo
 # M. Williamsen, Springleik Project
 # File target.py, 22 July 2026
 
@@ -26,9 +26,8 @@ class node:
 
     # serialize to file
     def serialize(self, jFile):
-        s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
+        s = json.dumps(self.data, indent = 2)[:-1]
         print(s, file = jFile, end = '')
-        print(']}', file = jFile, end = '')
 
 class leaf(node):
     def __init__(self, name = ''):
@@ -69,7 +68,7 @@ class branch(leaf):
 
     # serialize recursively to file
     def serialize(self, jFile):
-        s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
+        s = json.dumps(self.data, indent = 2)[:-2] + ',\n"list":['
         print(s, file = jFile, end = '')
         first = True
         for item in self.series:
