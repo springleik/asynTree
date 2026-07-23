@@ -156,7 +156,7 @@ class motor:
 
 # ============================================================
 # command functions
-# set axis attributes, return False on error
+# set axis attributes, return True on error
 def setAttribute(cmd, theAttrib):
     if len(cmd) == 1:
         print('Expected two arguments: axis number and {}.'.format(theAttrib))
@@ -176,44 +176,45 @@ def setAttribute(cmd, theAttrib):
             return False
     return True
 
-# update axis target position
+# update axis target position, return True on error
 def setPosition(cmd):
     if len(cmd) < 3:
         return
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
         print('Axis not found.')
-        return False
+        return
     newTarget = int(cmd[2], 0)
     if hasattr(motor.axes[axis], 'velocity'):
         newVelocity = motor.axes[axis].velocity
         motor.axes[axis].movePosition(newTarget, newVelocity)
     else:
         print('Velocity not set.')
+    return
 
-# wait until target position reached, return False on error
+# wait until target position reached, return True on error
 def waitPosition(cmd):
     if len(cmd) == 1:
         print('Expected an argument: axis number.')
-        return False
+        return
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
         print('Axis not found.')
-        return False
+        return
     motor.axes[axis].flag.wait()
-    return True
+    return
 
 # drive an axis to home position
 def homeAxis(cmd):
     if len(cmd) == 1:
         print('Expected an argument: axis number.')
-        return False
+        return
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
         print('Axis not found.')
-        return False
+        return
     motor.axes[axis].movePosition(0, 1)
-    return True
+    return
 
 # initialize multi-axis motion controller
 def initializeControl():
@@ -238,6 +239,7 @@ def haltProgram():
         motorFile.write(']\n')
     print()
     root.quit()
+    return
 
 # show help text on console
 def showHelp():
@@ -256,9 +258,11 @@ def showHelp():
     print(' testInput -- test a digital input')
 
 def parseCommand(cmd):
-    cmd = cmd.split ()          # split commands and arguments
-    if len(cmd) == 0: return    # ignore empty lines
-    if cmd[0][0] == '#': return # ignore comment lines
+    cmd = cmd.split ()      # split commands and arguments
+    if len(cmd) == 0:
+        return False        # ignore empty lines
+    if cmd[0][0] == '#':
+        return False        # ignore comment lines
 
     # interpret commands
     if cmd[0] == 'quit':
@@ -296,6 +300,7 @@ def consX():
     if len(sys.argv) == 2:
         inFileName = sys.argv[1]
         with open(inFileName) as inFile:
+            print('Reading file: {}.'.format(inFileName))
             for line in inFile:
                 done = parseCommand(line)
 
@@ -306,7 +311,6 @@ def consX():
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
         done = parseCommand(cmd)
-
 
 # Tkinter startup
 root = tkinter.Tk()
