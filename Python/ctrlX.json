@@ -5,7 +5,7 @@
   "depth": 0,
   "number": 1,
 "list":[{
-  "kind": "branch",
+  "kind": "track",
   "name": "Track #1",
   "depth": 1,
   "number": 2,
@@ -16,91 +16,91 @@
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 3,
-"list":[]},{
+  "number": 3
+},{
   "kind": "move",
   "name": "Move motor 2",
   "motor": "Motor 2",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 4,
-"list":[]},{
+  "number": 4
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 5,
-"list":[]},{
+  "number": 5
+},{
   "kind": "keyWait",
   "name": "Wait for key i",
   "key": "i",
   "depth": 2,
-  "number": 6,
-"list":[]},{
+  "number": 6
+},{
   "kind": "doneWait",
   "name": "Wait for motor 2",
   "motor": "Motor 2",
   "depth": 2,
-  "number": 7,
-"list":[]},{
+  "number": 7
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 270,
   "incr": 3,
   "depth": 2,
-  "number": 8,
-"list":[]},{
+  "number": 8
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 9,
-"list":[]},{
+  "number": 9
+},{
   "kind": "keyWait",
   "name": "Wait for key o",
   "key": "o",
   "depth": 2,
-  "number": 10,
-"list":[]},{
+  "number": 10
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 11,
-"list":[]},{
+  "number": 11
+},{
   "kind": "move",
   "name": "Move motor 2",
   "motor": "Motor 2",
   "targ": 270,
   "incr": 3,
   "depth": 2,
-  "number": 12,
-"list":[]},{
+  "number": 12
+},{
   "kind": "doneWait",
   "name": "Wait for motor 2",
   "motor": "Motor 2",
   "depth": 2,
-  "number": 13,
-"list":[]},{
+  "number": 13
+},{
   "kind": "delay",
   "name": "Wait track 1",
   "wait": 1.0,
   "depth": 2,
-  "number": 14,
-"list":[]},{
+  "number": 14
+},{
   "kind": "move",
   "name": "Move motor 2",
   "motor": "Motor 2",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 15,
-"list":[]}]},{
-  "kind": "branch",
+  "number": 15
+}]},{
+  "kind": "track",
   "name": "Track #2",
   "depth": 1,
   "number": 16,
@@ -111,91 +111,91 @@
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 17,
-"list":[]},{
+  "number": 17
+},{
   "kind": "move",
   "name": "Move motor 2",
   "motor": "Motor 2",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 18,
-"list":[]},{
+  "number": 18
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 19,
-"list":[]},{
+  "number": 19
+},{
   "kind": "keyWait",
   "name": "Wait for key i",
   "key": "i",
   "depth": 2,
-  "number": 20,
-"list":[]},{
+  "number": 20
+},{
   "kind": "doneWait",
   "name": "Wait for motor 2",
   "motor": "Motor 2",
   "depth": 2,
-  "number": 21,
-"list":[]},{
+  "number": 21
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 270,
   "incr": 3,
   "depth": 2,
-  "number": 22,
-"list":[]},{
+  "number": 22
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 23,
-"list":[]},{
+  "number": 23
+},{
   "kind": "keyWait",
   "name": "Wait for key o",
   "key": "o",
   "depth": 2,
-  "number": 24,
-"list":[]},{
+  "number": 24
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 25,
-"list":[]},{
+  "number": 25
+},{
   "kind": "move",
   "name": "Move motor 2",
   "motor": "Motor 2",
   "targ": 0,
   "incr": 3,
   "depth": 2,
-  "number": 26,
-"list":[]},{
+  "number": 26
+},{
   "kind": "doneWait",
   "name": "Wait for motor 2",
   "motor": "Motor 2",
   "depth": 2,
-  "number": 27,
-"list":[]},{
+  "number": 27
+},{
   "kind": "delay",
   "name": "Wait track 1",
   "wait": 1.0,
   "depth": 2,
-  "number": 28,
-"list":[]},{
+  "number": 28
+},{
   "kind": "move",
   "name": "Move motor 2",
   "motor": "Motor 2",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 29,
-"list":[]}]},{
-  "kind": "branch",
+  "number": 29
+}]},{
+  "kind": "track",
   "name": "Track #3",
   "depth": 1,
   "number": 30,
@@ -206,91 +206,91 @@
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 31,
-"list":[]},{
+  "number": 31
+},{
   "kind": "move",
   "name": "Move motor 3",
   "motor": "Motor 3",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 32,
-"list":[]},{
+  "number": 32
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 33,
-"list":[]},{
+  "number": 33
+},{
   "kind": "keyWait",
   "name": "Wait for key i",
   "key": "i",
   "depth": 2,
-  "number": 34,
-"list":[]},{
+  "number": 34
+},{
   "kind": "doneWait",
   "name": "Wait for motor 3",
   "motor": "Motor 3",
   "depth": 2,
-  "number": 35,
-"list":[]},{
+  "number": 35
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 0,
   "incr": 3,
   "depth": 2,
-  "number": 36,
-"list":[]},{
+  "number": 36
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 37,
-"list":[]},{
+  "number": 37
+},{
   "kind": "keyWait",
   "name": "Wait for key o",
   "key": "o",
   "depth": 2,
-  "number": 38,
-"list":[]},{
+  "number": 38
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 39,
-"list":[]},{
+  "number": 39
+},{
   "kind": "move",
   "name": "Move motor 3",
   "motor": "Motor 3",
   "targ": 270,
   "incr": 3,
   "depth": 2,
-  "number": 40,
-"list":[]},{
+  "number": 40
+},{
   "kind": "doneWait",
   "name": "Wait for motor 3",
   "motor": "Motor 3",
   "depth": 2,
-  "number": 41,
-"list":[]},{
+  "number": 41
+},{
   "kind": "delay",
   "name": "Wait track 1",
   "wait": 1.0,
   "depth": 2,
-  "number": 42,
-"list":[]},{
+  "number": 42
+},{
   "kind": "move",
   "name": "Move motor 3",
   "motor": "Motor 3",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 43,
-"list":[]}]},{
-  "kind": "branch",
+  "number": 43
+}]},{
+  "kind": "track",
   "name": "Track #4",
   "depth": 1,
   "number": 44,
@@ -301,87 +301,87 @@
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 45,
-"list":[]},{
+  "number": 45
+},{
   "kind": "move",
   "name": "Move motor 3",
   "motor": "Motor 3",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 46,
-"list":[]},{
+  "number": 46
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 47,
-"list":[]},{
+  "number": 47
+},{
   "kind": "keyWait",
   "name": "Wait for key i",
   "key": "i",
   "depth": 2,
-  "number": 48,
-"list":[]},{
+  "number": 48
+},{
   "kind": "doneWait",
   "name": "Wait for motor 3",
   "motor": "Motor 3",
   "depth": 2,
-  "number": 49,
-"list":[]},{
+  "number": 49
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 0,
   "incr": 3,
   "depth": 2,
-  "number": 50,
-"list":[]},{
+  "number": 50
+},{
   "kind": "doneWait",
   "name": "Wait for motor 1",
   "motor": "Motor 1",
   "depth": 2,
-  "number": 51,
-"list":[]},{
+  "number": 51
+},{
   "kind": "keyWait",
   "name": "Wait for key o",
   "key": "o",
   "depth": 2,
-  "number": 52,
-"list":[]},{
+  "number": 52
+},{
   "kind": "move",
   "name": "Move motor 1",
   "motor": "Motor 1",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 53,
-"list":[]},{
+  "number": 53
+},{
   "kind": "move",
   "name": "Move motor 3",
   "motor": "Motor 3",
   "targ": 0,
   "incr": 3,
   "depth": 2,
-  "number": 54,
-"list":[]},{
+  "number": 54
+},{
   "kind": "doneWait",
   "name": "Wait for motor 3",
   "motor": "Motor 3",
   "depth": 2,
-  "number": 55,
-"list":[]},{
+  "number": 55
+},{
   "kind": "delay",
   "name": "Wait track 1",
   "wait": 1.0,
   "depth": 2,
-  "number": 56,
-"list":[]},{
+  "number": 56
+},{
   "kind": "move",
   "name": "Move motor 3",
   "motor": "Motor 3",
   "targ": 135,
   "incr": 15,
   "depth": 2,
-  "number": 57,
-"list":[]}]}]}
+  "number": 57
+}]}]}

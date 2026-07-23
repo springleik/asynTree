@@ -9,6 +9,7 @@ import tkinter, threading
 
 # ============================================================
 # global variables
+# TODO should probably be motor class or instance variables
 current = 0         # milliamps
 velocity = 0        # steps/second
 acceleration = 0    # steps/second/second
@@ -19,35 +20,28 @@ theTree = None
 # classes to implement abstract syntax tree (AST)
 class node:
     # each node has a data dictionary
-    def __init__(self, name = ''):
-        self.data = {}                  # each node has a dictionary
-        self.data['kind'] = 'node'      # placed here for serialization
-        self.data['name'] = name        # nodes may optionally be named
+    def __init__(self, kind = 'node', name = ''):
+        self.data = {'kind':kind,'name':name}
 
     # serialize to file
     def serialize(self, jFile):
-        s = json.dumps(self.data, indent = 2)[:-1]
-        print(s, file = jFile, end = '')
+        s = json.dump(self.data, jFile, indent = 2)
 
 class leaf(node):
-    def __init__(self, name = ''):
-        super().__init__(name)
-        self.data['kind'] = 'leaf'
+    def __init__(self, kind = 'leaf', name = ''):
+        super().__init__(kind, name)
 
     # count and number leafs
-    def summarize(self, depth = None, number = None):
-        if depth is None: depth = 0
-        if number is None: number = 1
+    def summarize(self, depth, number):
         self.data['depth'] = depth
         self.data['number'] = number
-        return depth, number
+        return number
 
 class branch(leaf):
     # each branch has a list of subordinate nodes
-    def __init__(self, name = ''):
-        super().__init__(name)
-        self.data['kind'] = 'branch'    # placed here for serialization
-        self.series = []                # branch list
+    def __init__(self, kind = 'branch', name = ''):
+        super().__init__(kind, name)
+        self.series = []    # branch list
 
     # add nodes to this node's list
     def append(self, *nodes):
@@ -78,18 +72,16 @@ class branch(leaf):
         print(']}', file = jFile, end = '')
 
     # count and number nodes recursively
-    def summarize(self, depth = None, number = None):
-        depth, number = super().summarize(depth, number)
+    def summarize(self, depth, number):
+        super().summarize(depth, number)
         for item in self.series:
-            temp, number = item.summarize(depth + 1,
-                number + 1)
-        return depth, number
+            number = item.summarize(depth + 1, number + 1)
+        return number
 
 # motor initiate move command
 class move(leaf):
     def __init__(self, name, motor, target, increment):
-        super().__init__(name)
-        self.data['kind'] = 'move'
+        super().__init__('move', name)
 
         # motor object isn't serializable for now
         self.motor = motor
@@ -103,8 +95,7 @@ class move(leaf):
 # motor wait for motion done command
 class doneWait(leaf):
     def __init__(self, name, motor):
-        super().__init__(name)
-        self.data['kind'] = 'doneWait'
+        super().__init__('doneWait', name)
         self.motor = motor
         self.data['motor'] = motor.name
 
@@ -114,8 +105,7 @@ class doneWait(leaf):
 # iteration command
 class loop(branch):
     def __init__(self, name, count):
-        super().__init__(name)
-        self.data['kind'] = 'loop'
+        super().__init__('loop', name)
         self.data['count'] = count
 
     def execute(self):
@@ -124,8 +114,7 @@ class loop(branch):
 
 class delay(leaf):
     def __init__(self, name, interval):
-        super().__init__(name)
-        self.data['kind'] = 'delay'
+        super().__init__('delay', name)
         self.data['wait'] = interval
 
     def execute(self):
@@ -133,8 +122,7 @@ class delay(leaf):
 
 class keyWait(leaf):
     def __init__(self, name, key):
-        super().__init__(name)
-        self.data['kind'] = 'keyWait'
+        super().__init__('keyWait', name)
         self.data['key'] = key
 
     def execute(self):
@@ -181,12 +169,12 @@ class motor:
         self.canvas.pack()
 
         # set up events, start animation timer
-        self.wind.bind("<Button-1>", lambda event: self.mousePressed(event))
-        self.wind.bind("<Key>", lambda event: self.keyPressed(event))
-        self.wind.bind("<Left>", lambda event: self.leftPressed(event))
-        self.wind.bind("<Right>", lambda event: self.rightPressed(event))
-        self.wind.bind("<Up>", lambda event: self.upPressed(event))
-        self.wind.bind("<Down>", lambda event: self.downPressed(event))
+        self.wind.bind('<Button-1>', lambda event: self.mousePressed(event))
+        self.wind.bind('<Key>', lambda event: self.keyPressed(event))
+        self.wind.bind('<Left>', lambda event: self.leftPressed(event))
+        self.wind.bind('<Right>', lambda event: self.rightPressed(event))
+        self.wind.bind('<Up>', lambda event: self.upPressed(event))
+        self.wind.bind('<Down>', lambda event: self.downPressed(event))
         self.timerFired(25)
         self.redrawAll()
 
@@ -289,7 +277,7 @@ class motor:
         for key, value in vars(self).items():
             if '.' not in str(type(value)):
                 jsonValues[key] = value
-        print (json.dumps(jsonValues, indent = 2), end = '', file = jFile)
+        json.dump(jsonValues, jFile, indent = 2)
 
 '''
 Pseudocode for motion profile:
@@ -378,7 +366,7 @@ def ctrlY(theTrack):
         print ('Unexpected track: {}'.format(theTrack))
         return None
 
-    subTree = branch('Track #{}'.format(str(theTrack)))
+    subTree = branch('track', 'Track #{}'.format(str(theTrack)))
     subTree.append(
         move('Move motor 1', motor1, homePos, fastSpeed),
         move('Move ' + text, motB, homePos, fastSpeed),
@@ -428,52 +416,55 @@ def consX():
             root.quit ()
         elif cmd[0] == 'r':
             theTree.execute()
-        elif cmd[0] == "initControl":
-            # instantiate motors and command tree
-            motor1 = motor('Motor 1')
-            motor2 = motor('Motor 2')
-            motor3 = motor('Motor 3')
-            theTree = ctrlX('Motor Control')
-        elif cmd[0] == "setCurrent":
+        elif cmd[0] == 'initControl':
+            if not theTree:
+                # instantiate motors and command tree
+                motor1 = motor('Motor 1')
+                motor2 = motor('Motor 2')
+                motor3 = motor('Motor 3')
+                theTree = ctrlX('Motor Control')
+            else:
+                print ('Already initialized.')
+        elif cmd[0] == 'setCurrent':
             if len (cmd) == 2: current = int (cmd[1], 0)
-            print ("current: {} milliamps".format (current))
-        elif cmd[0] == "setVelocity":
+            print ('current: {} milliamps'.format (current))
+        elif cmd[0] == 'setVelocity':
             if len (cmd) == 2: velocity = int (cmd[1], 0)
-            print ("velocity: {} steps/second".format (velocity))
-        elif cmd[0] == "setAccel":
+            print ('velocity: {} steps/second'.format (velocity))
+        elif cmd[0] == 'setAccel':
             if len (cmd) == 2: acceleration = int (cmd[1], 0)
-            print ("acceleration: {} steps/second".format (acceleration))
-        elif cmd[0] == "homeAxis":
+            print ('acceleration: {} steps/second'.format (acceleration))
+        elif cmd[0] == 'homeAxis':
             pass
-        elif cmd[0] == "setPosition":
+        elif cmd[0] == 'setPosition':
             if len (cmd) == 2: position = int (cmd[1], 0)
-            print ("position: {} steps/second".format (position))
-        elif cmd[0] == "waitPosition":
+            print ('position: {} steps/second'.format (position))
+        elif cmd[0] == 'waitPosition':
             pass
-        elif cmd[0] == "iterateRegister":
+        elif cmd[0] == 'iterateRegister':
             pass
-        elif cmd[0] == "testInput":
+        elif cmd[0] == 'testInput':
             pass
-        elif cmd[0] == "summarize":
+        elif cmd[0] == 'summarize':
             if theTree:
-                print ('Tree contains {} nodes.'.format(theTree.summarize()[-1]))
+                print ('Tree contains {} nodes.'.format(theTree.summarize(0, 1)))
             else:
                 print ('Empty tree.')
         elif cmd[0] == 'help' or cmd[0] == '?':
-            print ("Available commands:")
-            print (" q -- quit")
-            print (" r -- run command tree")
-            print (" help -- print this list")
-            print (" initControl -- initialize motion controller")
-            print (" summarize -- update node and depth counters")
-            print (" setCurrent -- set motor current")
-            print (" setVelocity -- set motor velocity in steps/second")
-            print (" setAccel -- set motor acceleration in steps/sec/sec")
-            print (" setPosition -- set target position in steps")
-            print (" homeAxis -- home specified axis")
-            print (" waitPosition -- wait for target position reached")
-            print (" iterateRegister -- loop while iterating register")
-            print (" testInput -- test a digital input")
+            print ('Available commands:')
+            print (' q -- quit')
+            print (' r -- run command tree')
+            print (' help -- print this list')
+            print (' initControl -- initialize motion controller')
+            print (' summarize -- update node and depth counters')
+            print (' setCurrent -- set motor current')
+            print (' setVelocity -- set motor velocity in steps/second')
+            print (' setAccel -- set motor acceleration in steps/sec/sec')
+            print (' setPosition -- set target position in steps')
+            print (' homeAxis -- home specified axis')
+            print (' waitPosition -- wait for target position reached')
+            print (' iterateRegister -- loop while iterating register')
+            print (' testInput -- test a digital input')
         else:
             print ('Say what?')
 
