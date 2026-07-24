@@ -4,22 +4,19 @@
   "targ": 135,
   "incr": 15,
   "run": false,
-  "done": true,
-  "wind": null
+  "done": true
 },{
   "name": "Motor 2",
   "rot": 135,
   "targ": 135,
   "incr": 15,
   "run": false,
-  "done": true,
-  "wind": null
+  "done": true
 },{
   "name": "Motor 3",
   "rot": 135,
   "targ": 135,
   "incr": 15,
   "run": false,
-  "done": true,
-  "wind": null
+  "done": true
 }]

@@ -4,7 +4,7 @@
 # File motorSim.py
 # 14 May 2024
 
-import tkinter, threading, json
+import tkinter, threading, json, time
 # ============================================================
 # class representing a function motor
 class motor:
@@ -37,6 +37,7 @@ class motor:
             motor.xPos, motor.yPos = 362, 354
         else: print ('Unexpected index: {}'.format (index))
         motor.index += 1
+        time.sleep(0.1)
         self.wind.geometry ('{}x{}+{}+{}'.format (
             motor.width, motor.height, motor.xPos, motor.yPos))
         self.wind.resizable(width = False, height = False)
@@ -153,6 +154,6 @@ class motor:
     def serialize(self, jFile):
         jsonValues = {}
         for key, value in vars(self).items():
-            if '.' not in str(type(value)):
+            if '.' not in str(type(value)) and 'wind' not in key:
                 jsonValues[key] = value
         print (json.dumps(jsonValues, indent = 2), end = '', file = jFile)
