@@ -34,6 +34,7 @@ class motor:
         self.wind = tkinter.Toplevel()
         self.wind.title(self.name)
         motor.index += 1
+        time.sleep(0.1)
         self.wind.geometry ('{}x{}+{}+{}'.format (
             motor.width, motor.height, self.xPos, self.yPos))
         self.wind.resizable(width = False, height = False)
@@ -265,6 +266,7 @@ def parseCommand(cmd):
         return False        # ignore comment lines
 
     # interpret commands
+    time.sleep(0.001)
     if cmd[0] == 'quit':
         haltProgram()
         return True
@@ -312,14 +314,12 @@ def consX():
         cmd = sys.stdin.readline().rstrip()
         done = parseCommand(cmd)
 
-# Tkinter startup
-root = tkinter.Tk()
-
 # kick off console thread to interact with user
 console = threading.Thread(target = consX)
 console.start()
 
 # invoke Tkinter main loop, which blocks until all windows are closed
+root = tkinter.Tk()
 root.mainloop()
 
 # join console thread on exit
