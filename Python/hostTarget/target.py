@@ -6,6 +6,40 @@
 
 import sys, time, json
 import tkinter, threading
+import socket, socketserver
+
+class TCPHandler(socketserver.StreamRequestHandler):
+    def handle(self):
+        # maintain connection until dropped or closed
+        notDone = True
+        while notDone:
+            # show prompt
+            theThread = threading.current_thread()
+            thePrompt = '@: '
+            self.wfile.write(bytes(thePrompt, 'ascii'))
+
+            # check for dropped connection
+            self.data = self.rfile.readline()
+            if not len(self.data):
+                notDone = False
+                print ('Connection dropped.')
+                break
+
+            # check for closed connection
+            self.data = self.data.strip()
+            if self.data == b'close':
+                notDone = False
+                print ('Connection closed.')
+                break
+
+            # handle client input
+            parseCommand(self.data.decode('utf-8'))
+            # response = '{} typed: {}'.format(self.client_address, self.data.decode('utf-8'))
+            # print(response)
+            # self.wfile.write(bytes(response + '\r\n', 'ascii'))
+
+class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
 
 # class representing a function motor
 class motor:
@@ -320,9 +354,17 @@ def consX():
 consoleThread = threading.Thread(target = consX)
 consoleThread.start()
 
+# kick off socket thread to interact with remote user
+tcpServer = TCPServer(('', 12345), TCPHandler)
+tcpServer.daemon_threads = True
+tcpThread = threading.Thread(target = tcpServer.serve_forever)
+tcpThread.daemon = True
+tcpThread.start()
+
 # invoke Tkinter main loop, which blocks until all windows are closed
 root = tkinter.Tk()
 root.mainloop()
 
 # join threads on exit
+tcpServer.shutdown()
 consoleThread.join()
