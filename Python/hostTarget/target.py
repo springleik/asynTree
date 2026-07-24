@@ -45,7 +45,7 @@ class TCPHandler(socketserver.StreamRequestHandler):
                 notDone = False
             else:
                 parseCommand(cmd)
-            self.wfile.write(bytes(globals.reply + '\r\n', 'ascii'))
+            self.wfile.write(bytes(globals.reply, 'ascii'))
 
 class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -203,20 +203,20 @@ class motor:
 # set axis attributes, return True on error
 def setAttribute(cmd, theAttrib):
     if len(cmd) == 1:
-        globals.reply = 'Expected two arguments: axis number and {}.'.format(theAttrib)
+        globals.reply = 'Expected two arguments: axis number and {}.\n'.format(theAttrib)
         return False
     if len(cmd) > 1:
         axis = int(cmd[1], 0)
         if axis < 0 or len(motor.axes) <= axis:
-            globals.reply = ('Axis not found.')
+            globals.reply = ('Axis not found.\n')
             return False
         if len(cmd) > 2:
             setattr(motor.axes[axis], theAttrib, int(cmd[2],0))
         if hasattr(motor.axes[axis], theAttrib):
-            globals.reply = ('Axis: {}, {}: {}'.format(axis, theAttrib,
+            globals.reply = ('Axis: {}, {}: {}\n'.format(axis, theAttrib,
                 getattr(motor.axes[axis], theAttrib)))
         else:
-            globals.reply = ('Attribute not found.')
+            globals.reply = ('Attribute not found.\n')
             return False
     return True
 
@@ -226,30 +226,30 @@ def setPosition(cmd):
         return
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
-        globals.reply = 'Axis not found.'
+        globals.reply = 'Axis not found.\n'
         return
     newTarget = int(cmd[2], 0)
     if hasattr(motor.axes[axis], 'velocity'):
         newVelocity = motor.axes[axis].velocity
         motor.axes[axis].movePosition(newTarget, newVelocity)
     else:
-        globals.reply = 'Velocity not set.'
+        globals.reply = 'Velocity not set.\n'
     return
 
 # update emulated digital inputs
 def setInputs(cmd):
     if len(cmd) > 1:
         globals.inputs = int(cmd[1], 0)
-    globals.reply = 'Digital inputs: {}'.format(hex(globals.inputs))
+    globals.reply = 'Digital inputs: {}\n'.format(hex(globals.inputs))
 
 # wait until target position reached, return True on error
 def waitPosition(cmd):
     if len(cmd) == 1:
-        globals.reply = 'Expected an argument: axis number.'
+        globals.reply = 'Expected an argument: axis number.\n'
         return
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
-        globals.reply = 'Axis not found.'
+        globals.reply = 'Axis not found.\n'
         return
     motor.axes[axis].flag.wait()
     return
@@ -257,11 +257,11 @@ def waitPosition(cmd):
 # drive an axis to home position
 def homeAxis(cmd):
     if len(cmd) == 1:
-        globals.reply = 'Expected an argument: axis number.'
+        globals.reply = 'Expected an argument: axis number.\n'
         return
     axis = int(cmd[1], 0)
     if axis < 0 or len(motor.axes) <= axis:
-        globals.reply = 'Axis not found.'
+        globals.reply = 'Axis not found.\n'
         return
     motor.axes[axis].movePosition(0, 1)
     return
@@ -273,12 +273,12 @@ def initializeControl():
         motor.axes.append(motor('Motor 2',  58, 354))
         motor.axes.append(motor('Motor 3', 362, 354))
     else:
-        globals.reply = 'Control already initialized.'
+        globals.reply = 'Control already initialized.\n'
 
 # halt program and exit
 def haltProgram():
+    first = True
     with open('motorX.json', 'w') as motorFile:
-        first = True
         motorFile.write('[')
         for axis in motor.axes:
             if first: first = False
@@ -287,26 +287,25 @@ def haltProgram():
             axis.serialize(motorFile)
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
-    print()
     globals.done = True
+    if not first: print()
     root.quit()
     return
 
 # show help text on console
 def showHelp():
-    globals.reply = ('Available commands:' +
-    '\n quit -- halt program and exit' +
-    '\n help -- print this list' +
-    '\n initControl -- initialize motion controller' +
-    '\n setRunCurrent -- set axis run current' +
-    '\n setIdleCurrent -- set axis idle current' +
-    '\n setVelocity -- set axis velocity in steps/second' +
-    '\n setAccel -- set axis acceleration in steps/sec/sec' +
-    '\n setPosition -- set axis target position in steps' +
-    '\n homeAxis -- home specified axis' +
-    '\n setInputs -- set state of emulated inputs' +
-    '\n waitPosition -- wait for target position reached' +
-    '\n iterateRegister -- loop while iterating register')
+    globals.reply = ('Available commands:\n' +
+    'quit -- halt program and exit\n' +
+    'help -- print this list\n' +
+    'initControl -- initialize motion controller\n' +
+    'setRunCurrent -- set axis run current\n' +
+    'setIdleCurrent -- set axis idle current\n' +
+    'setVelocity -- set axis velocity in steps/second\n' +
+    'setAccel -- set axis acceleration in steps/sec/sec\n' +
+    'setPosition -- set axis target position in steps\n' +
+    'homeAxis -- home specified axis\n' +
+    'setInputs -- set state of emulated inputs\n' +
+    'waitPosition -- wait for target position reached\n')
 
 def parseCommand(cmd):
     globals.reply = ''      # clear reply string
@@ -356,7 +355,7 @@ def consX():
             print('Reading file: {}.'.format(inFileName))
             for line in inFile:
                 parseCommand(line)
-                print(globals.reply)
+                print(globals.reply, end = '')
                 if globals.done: break
 
     # wait for user input at command prompt
@@ -366,7 +365,7 @@ def consX():
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
         parseCommand(cmd)
-        print(globals.reply)
+        print(globals.reply, end = '')
 
 # kick off socket thread to interact with remote user
 socketserver.TCPServer.allow_reuse_address = True
