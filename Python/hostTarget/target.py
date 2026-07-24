@@ -8,6 +8,10 @@ import sys, time, json
 import tkinter, threading
 import socket, socketserver
 
+class globals:
+    done = False    # set done flag to exit program
+    reply = ''
+
 class TCPHandler(socketserver.StreamRequestHandler):
     def handle(self):
         # maintain connection until dropped or closed
@@ -33,10 +37,14 @@ class TCPHandler(socketserver.StreamRequestHandler):
                 break
 
             # handle client input
-            parseCommand(self.data.decode('utf-8'))
-            # response = '{} typed: {}'.format(self.client_address, self.data.decode('utf-8'))
-            # print(response)
-            # self.wfile.write(bytes(response + '\r\n', 'ascii'))
+            cmd = self.data.decode('utf-8')
+
+            # special handling for 'quit' command
+            if len(cmd) > 3 and cmd[0:4] == 'quit':
+                notDone = False
+            else:
+                parseCommand(cmd)
+            self.wfile.write(bytes(globals.reply + '\r\n', 'ascii'))
 
 class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -50,7 +58,6 @@ class motor:
     arc = 270       # degrees arc of rotor
     index = 1       # sequence number
     axes = []       # axis list
-    done = False    # set done flag to exit program
 
     def __init__(self, name, xPos, yPos):
         # initialize instance variables
@@ -61,7 +68,7 @@ class motor:
         self.targ = self.rot    # target
         self.incr = 1           # velocity
         self.run = False        # status
-        self.done = False       # while !done
+        self.done = False       # while not done
         self.lock = threading.Lock()
         self.flag = threading.Event()
 
@@ -274,7 +281,7 @@ def haltProgram():
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
     print()
-    motor.done = True
+    globals.done = True
     root.quit()
     return
 
@@ -295,17 +302,18 @@ def showHelp():
     print(' testInput -- test a digital input')
 
 def parseCommand(cmd):
+    globals.reply = ''
     cmd = cmd.split ()      # split commands and arguments
     if len(cmd) == 0:
-        return False        # ignore empty lines
+        return        # ignore empty lines
     if cmd[0][0] == '#':
-        return False        # ignore comment lines
+        return        # ignore comment lines
 
     # interpret commands
     time.sleep(0.001)
     if cmd[0] == 'quit':
         haltProgram()
-        return True
+        return
     elif cmd[0] == 'initControl':
         initializeControl()
     elif cmd[0] == 'setRunCurrent':
@@ -328,7 +336,9 @@ def parseCommand(cmd):
         showHelp()
     else:
         print('Say what?')
-    return False
+
+    globals.reply = 'Cmd: {}'.format(cmd[0])
+    return
 
 # ============================================================
 # thread to run console
@@ -340,19 +350,17 @@ def consX():
             print('Reading file: {}.'.format(inFileName))
             for line in inFile:
                 parseCommand(line)
-                if motor.done: break
+                print(globals.reply)
+                if globals.done: break
 
     # wait for user input at command prompt
-    while not motor.done:
+    while not globals.done:
         # tread carefully, due to notifier error on MacOS
         print('@:', end = ' ')
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
         parseCommand(cmd)
-
-# kick off console thread to interact with local user
-consoleThread = threading.Thread(target = consX)
-consoleThread.start()
+        print(globals.reply)
 
 # kick off socket thread to interact with remote user
 tcpServer = TCPServer(('', 12345), TCPHandler)
@@ -360,6 +368,10 @@ tcpServer.daemon_threads = True
 tcpThread = threading.Thread(target = tcpServer.serve_forever)
 tcpThread.daemon = True
 tcpThread.start()
+
+# kick off console thread to interact with local user
+consoleThread = threading.Thread(target = consX)
+consoleThread.start()
 
 # invoke Tkinter main loop, which blocks until all windows are closed
 root = tkinter.Tk()
