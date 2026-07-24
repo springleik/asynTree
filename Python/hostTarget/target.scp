@@ -23,6 +23,7 @@ setPosition 0 200
 waitPosition 0
 waitPosition 1
 waitPosition 2
+# quit
 
 homeAxis 0
 homeAxis 1
@@ -31,4 +32,4 @@ homeAxis 2
 waitPosition 0
 waitPosition 1
 waitPosition 2
-quit
+# quit

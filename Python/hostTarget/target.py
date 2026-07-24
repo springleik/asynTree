@@ -16,6 +16,7 @@ class motor:
     arc = 270       # degrees arc of rotor
     index = 1       # sequence number
     axes = []       # axis list
+    done = False    # set done flag to exit program
 
     def __init__(self, name, xPos, yPos):
         # initialize instance variables
@@ -239,6 +240,7 @@ def haltProgram():
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
     print()
+    motor.done = True
     root.quit()
     return
 
@@ -297,30 +299,30 @@ def parseCommand(cmd):
 # ============================================================
 # thread to run console
 def consX():
-    # check for script file argument
-    done = False
+    # check for file name argument
     if len(sys.argv) == 2:
         inFileName = sys.argv[1]
         with open(inFileName) as inFile:
             print('Reading file: {}.'.format(inFileName))
             for line in inFile:
-                done = parseCommand(line)
+                parseCommand(line)
+                if motor.done: break
 
     # wait for user input at command prompt
-    while not done:
+    while not motor.done:
         # tread carefully, due to notifier error on MacOS
         print('@:', end = ' ')
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
-        done = parseCommand(cmd)
+        parseCommand(cmd)
 
-# kick off console thread to interact with user
-console = threading.Thread(target = consX)
-console.start()
+# kick off console thread to interact with local user
+consoleThread = threading.Thread(target = consX)
+consoleThread.start()
 
 # invoke Tkinter main loop, which blocks until all windows are closed
 root = tkinter.Tk()
 root.mainloop()
 
-# join console thread on exit
-console.join()
+# join threads on exit
+consoleThread.join()
