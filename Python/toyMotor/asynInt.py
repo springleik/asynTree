@@ -41,15 +41,15 @@ class node:
             item.serialize(jFile)
         print(']}', file = jFile, end = '')
 
-    # add up levels and node numb
-    def summarize(self, depth = None, numb = None):
+    # add up levels and node number
+    def summarize(self, depth = None, number = None):
         if depth is None: depth = 0
-        if numb is None: numb = 1
+        if number is None: number = 1
         self.data['depth'] = depth
-        self.data['numb'] = numb
+        self.data['number'] = number
         for item in self.series:
-            numb = item.summarize(depth + 1, numb + 1)
-        return numb
+            number = item.summarize(depth + 1, number + 1)
+        return number
 
 # motor initiate move command
 class move(node):
@@ -83,13 +83,13 @@ class doneWait(node):
 
 # iteration command
 class loop(node):
-    def __init__(self, name, numb):
+    def __init__(self, name, count):
         super().__init__(name)
         self.data['kind'] = 'loop'
-        self.data['numb'] = numb
+        self.data['count'] = count
 
     def execute(self):
-        for n in range(self.data['numb']):
+        for n in range(self.data['count']):
             for item in self.series:
                 item.execute()
 
