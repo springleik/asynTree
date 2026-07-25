@@ -190,7 +190,7 @@ class motor:
         # wait for next interval
         self.canvas.after(interval, self.timerFired, interval)
 
-    # serialize motor instance attributes to JSON
+    # serialize motor class and instance attributes to JSON
     def serialize(self, jFile):
         jsonValues = {}
         for key, value in vars(self).items():
@@ -280,32 +280,40 @@ def haltProgram():
     first = True
     with open('motorX.json', 'w') as motorFile:
         motorFile.write('[')
+        # class variables first, integers only
+        classValues = {}
+        for key, value in vars(motor).items():
+            if type(value) == type(int(0)):
+                classValues[key] = value
+        json.dump(classValues, motorFile, indent = 2)
+
+        # then instance variables for each axis
         for axis in motor.axes:
             if first: first = False
-            else: motorFile.write(',')
+            motorFile.write(',')
             axis.done = True
             axis.serialize(motorFile)
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
+        if not first: print()
     globals.done = True
-    if not first: print()
     root.quit()
     return
 
 # show help text on console
 def showHelp():
     globals.reply = ('Available commands:\n' +
-    'quit -- halt program and exit\n' +
-    'help -- print this list\n' +
-    'initControl -- initialize motion controller\n' +
-    'setRunCurrent -- set axis run current\n' +
-    'setIdleCurrent -- set axis idle current\n' +
-    'setVelocity -- set axis velocity in steps/second\n' +
-    'setAccel -- set axis acceleration in steps/sec/sec\n' +
-    'setPosition -- set axis target position in steps\n' +
-    'homeAxis -- home specified axis\n' +
-    'setInputs -- set state of emulated inputs\n' +
-    'waitPosition -- wait for target position reached\n')
+    ' quit -- halt program and exit\n' +
+    ' help -- print this list\n' +
+    ' initControl -- initialize motion controller\n' +
+    ' setRunCurrent -- set axis run current\n' +
+    ' setIdleCurrent -- set axis idle current\n' +
+    ' setVelocity -- set axis velocity in steps/second\n' +
+    ' setAccel -- set axis acceleration in steps/sec/sec\n' +
+    ' setPosition -- set axis target position in steps\n' +
+    ' homeAxis -- home specified axis\n' +
+    ' setInputs -- set state of emulated inputs\n' +
+    ' waitPosition -- wait for target position reached\n')
 
 def parseCommand(cmd):
     globals.reply = ''      # clear reply string

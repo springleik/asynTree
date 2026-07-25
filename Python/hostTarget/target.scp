@@ -1,5 +1,6 @@
-# target.scp script file for target.py motion control emulator
 # ==============================================
+# target.scp script file
+# for target.py motion control emulator
 # M. Williamsen, 23 July 2026
 # Springleik project
 
@@ -32,4 +33,4 @@ homeAxis 2
 waitPosition 0
 waitPosition 1
 waitPosition 2
-# quit
+quit
