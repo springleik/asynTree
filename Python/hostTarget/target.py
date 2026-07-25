@@ -19,6 +19,7 @@ class globals:
 class TCPHandler(socketserver.StreamRequestHandler):
     def handle(self):
         # maintain connection until dropped or closed
+        print('Connected to: {}'.format(self.client_address))
         notDone = True
         while notDone:
             # show prompt

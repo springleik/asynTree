@@ -28,7 +28,28 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
     # check for script file
     if fileName:
-        print('file: ', fileName)
+        with open(fileName) as inFile:
+            print('Reading file: {}.'.format(fileName))
+            for line in inFile:
+                # skip empty lines and comments
+                if len(line.strip()) == 0 or line[0] == '#':
+                    continue
+
+                # send command to target
+                print(line, end = '')
+                sock.sendall(bytes(line, 'utf-8'))
+
+                # receive reply, wait until prompt
+                while True:
+                    reply = str(sock.recv(1024), 'utf-8')
+                    if not len(reply):
+                        print('Connection dropped.')
+                        break
+                    elif '@: ' in reply:
+                        print(reply, end = '')
+                        break
+                    elif len(reply.strip()):
+                        print(reply, end = '')
 
     # prompt for user input
     done = False
