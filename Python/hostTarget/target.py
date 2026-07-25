@@ -10,9 +10,11 @@ import tkinter, threading
 import socket, socketserver
 
 class globals:
+    # global class variables
     done = False    # set done flag to exit program
     reply = ''
     inputs = 0
+    lock = threading.Lock()
 
 class TCPHandler(socketserver.StreamRequestHandler):
     def handle(self):
@@ -32,20 +34,14 @@ class TCPHandler(socketserver.StreamRequestHandler):
                 break
 
             # check for closed connection
-            self.data = self.data.strip()
-            if self.data == b'close':
+            cmd = self.data.decode('utf-8').strip()
+            if 'close' in cmd or 'quit' in cmd:
                 notDone = False
                 print ('Connection closed.')
                 break
 
             # handle client input
-            cmd = self.data.decode('utf-8')
-
-            # special handling for 'quit' command
-            if len(cmd) > 3 and cmd[0:4] == 'quit':
-                notDone = False
-            else:
-                parseCommand(cmd)
+            parseCommand(cmd)
             self.wfile.write(bytes(globals.reply, 'ascii'))
 
 class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -317,18 +313,18 @@ def showHelp():
     ' waitPosition -- wait for target position reached\n')
 
 def parseCommand(cmd):
+    globals.lock.acquire()  # this is a critical section
     globals.reply = ''      # clear reply string
     cmd = cmd.split ()      # split commands and arguments
-    if len(cmd) == 0:
-        return              # ignore empty lines
-    if cmd[0][0] == '#':
-        return              # ignore comment lines
+    time.sleep(0.001)
 
     # interpret commands
-    time.sleep(0.001)
-    if cmd[0] == 'quit':
+    if len(cmd) == 0:
+        pass            # ignore empty lines
+    elif cmd[0][0] == '#':
+        pass            # ignore comment lines
+    elif cmd[0] == 'quit':
         haltProgram()
-        return
     elif cmd[0] == 'initControl':
         initializeControl()
     elif cmd[0] == 'setRunCurrent':
@@ -352,6 +348,7 @@ def parseCommand(cmd):
         showHelp()
     else:
         print('Say what?')
+    globals.lock.release()
     return
 
 # ============================================================
@@ -372,7 +369,7 @@ def consX():
         # tread carefully, due to notifier error on MacOS
         print('@:', end = ' ')
         sys.stdout.flush()
-        cmd = sys.stdin.readline().rstrip()
+        cmd = sys.stdin.readline().strip()
         parseCommand(cmd)
         print(globals.reply, end = '')
 
