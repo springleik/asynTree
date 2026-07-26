@@ -16,9 +16,10 @@ class globals:
     inputs = 0      # emulate digital inputs
     lock = threading.Lock() # for critical sections
 
+# a handler is instantiated for each connection
 class TCPHandler(socketserver.StreamRequestHandler):
     def handle(self):
-        # send first prompt
+        # send first prompt to client
         print('Connected to: {}'.format(self.client_address))
         self.wfile.write(bytes('@: ', 'ascii'))
 
@@ -192,8 +193,8 @@ class motor:
         json.dump(jsonValues, jFile, indent = 2)
 
 # ============================================================
-# command functions
-# set axis attributes, return True on error
+# command functions, cmd is a string array
+# set/get axis attributes, return False on error
 def setAttribute(cmd, theAttrib):
     if len(cmd) == 1:
         globals.reply = 'Expected two arguments: axis number and {}.\n'.format(theAttrib)
@@ -213,7 +214,7 @@ def setAttribute(cmd, theAttrib):
             return False
     return True
 
-# update axis target position, return True on error
+# update axis target position
 def setPosition(cmd):
     if len(cmd) < 3:
         return
@@ -229,13 +230,14 @@ def setPosition(cmd):
         globals.reply = 'Velocity not set.\n'
     return
 
-# update emulated digital inputs
+# set/get emulated digital inputs
 def setInputs(cmd):
     if len(cmd) > 1:
         globals.inputs = int(cmd[1], 0)
     globals.reply = 'Digital inputs: {}\n'.format(hex(globals.inputs))
 
-# wait until target position reached, return True on error
+# wait until target position reached
+# returns immediately on error
 def waitPosition(cmd):
     if len(cmd) == 1:
         globals.reply = 'Expected an argument: axis number.\n'
@@ -247,7 +249,7 @@ def waitPosition(cmd):
     motor.axes[axis].flag.wait()
     return
 
-# drive an axis to home position
+# drive an axis to home position (non-blocking)
 def homeAxis(cmd):
     if len(cmd) == 1:
         globals.reply = 'Expected an argument: axis number.\n'
@@ -270,6 +272,7 @@ def initializeControl():
 
 # halt program and exit
 def haltProgram():
+    # serialize motor configuration to file
     with open('motorX.json', 'w') as motorFile:
         motorFile.write('[')
         # class variables first, integers only
@@ -286,14 +289,17 @@ def haltProgram():
             motorFile.write(',')
             axis.done = True
             axis.serialize(motorFile)
+            # send some diagnostic info to console
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
         if not first: print()
+    # break out of command loop
     globals.done = True
+    # close Tkinter windows
     root.quit()
     return
 
-# show help text on console
+# show help text
 def showHelp():
     globals.reply = ('Available commands:\n' +
     ' quit -- halt program and exit\n' +
@@ -308,11 +314,13 @@ def showHelp():
     ' setInputs -- set state of emulated inputs\n' +
     ' waitPosition -- wait for target position reached\n')
 
+# motion control command parser, used by
+# console, script file, and socket server
 def parseCommand(cmd):
     globals.lock.acquire()  # this is a critical section
     globals.reply = ''      # clear reply string
     cmd = cmd.split ()      # split commands and arguments
-    time.sleep(0.001)
+    time.sleep(0.001)       # give other threads a chance
 
     # interpret commands
     if len(cmd) == 0:
@@ -349,7 +357,7 @@ def parseCommand(cmd):
     return
 
 # ============================================================
-# thread to run console
+# thread to run local console
 def consX():
     # check for file name argument
     if len(sys.argv) == 2:
@@ -380,7 +388,8 @@ tcpThread.start()
 consoleThread = threading.Thread(target = consX)
 consoleThread.start()
 
-# invoke Tkinter main loop, which blocks until all windows are closed
+# invoke Tkinter main loop
+# this blocks until all windows are closed
 root = tkinter.Tk()
 root.mainloop()
 

@@ -3,7 +3,7 @@
 # Abstract syntax tree interpreter for motion control demo
 # M. Williamsen, Springleik Project
 # File host.py, 22 July 2026
-# implements TCP client to connect to target
+# implements TCP client to connect to target server
 
 import socket, sys
 
@@ -22,7 +22,7 @@ if len(args) > 2:
 if len(args) > 3:
     fileName = args[3]
 
-# Create a TCP socket and connect to host
+# Create a TCP socket to connect to target
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.connect((HOST, PORT))
 
@@ -43,7 +43,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 # send command to target
                 sock.sendall(bytes(line, 'utf-8'))
 
-                # receive reply, wait until prompt
+                # receive reply, check connection
                 reply = str(sock.recv(1024), 'utf-8')
                 if not len(reply):
                     print('Connection dropped.')

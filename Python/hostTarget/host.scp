@@ -1,3 +1,9 @@
+# ==============================================
+# Demo script file for
+# host.py motion control emulator
+# M. Williamsen, 23 July 2026
+# Springleik project
+
 setVelocity 0 1
 initControl
 setVelocity 0 1
