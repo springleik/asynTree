@@ -9,41 +9,36 @@ import sys, time, json
 import tkinter, threading
 import socket, socketserver
 
+# global class variables
 class globals:
-    # global class variables
     done = False    # set done flag to exit program
-    reply = ''
-    inputs = 0
-    lock = threading.Lock()
+    reply = ''      # append results to reply string
+    inputs = 0      # emulate digital inputs
+    lock = threading.Lock() # for critical sections
 
 class TCPHandler(socketserver.StreamRequestHandler):
     def handle(self):
-        # maintain connection until dropped or closed
+        # send first prompt
         print('Connected to: {}'.format(self.client_address))
-        notDone = True
-        while notDone:
-            # show prompt
-            theThread = threading.current_thread()
-            thePrompt = '@: '
-            self.wfile.write(bytes(thePrompt, 'ascii'))
+        self.wfile.write(bytes('@: ', 'ascii'))
 
+        # maintain connection until dropped or closed
+        while True:
             # check for dropped connection
             self.data = self.rfile.readline()
             if not len(self.data):
-                notDone = False
                 print ('Connection dropped.')
                 break
 
-            # check for closed connection
-            cmd = self.data.decode('utf-8').strip()
+            # check for close request
+            cmd = self.data.decode('utf-8')
             if 'close' in cmd or 'quit' in cmd:
-                notDone = False
                 print ('Connection closed.')
                 break
 
-            # handle client input
-            parseCommand(cmd)
-            self.wfile.write(bytes(globals.reply, 'ascii'))
+            # handle client request
+            parseCommand(cmd.strip())
+            self.wfile.write(bytes(globals.reply + '@: ', 'ascii'))
 
 class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -275,7 +270,6 @@ def initializeControl():
 
 # halt program and exit
 def haltProgram():
-    first = True
     with open('motorX.json', 'w') as motorFile:
         motorFile.write('[')
         # class variables first, integers only
@@ -286,6 +280,7 @@ def haltProgram():
         json.dump(classValues, motorFile, indent = 2)
 
         # then instance variables for each axis
+        first = True
         for axis in motor.axes:
             if first: first = False
             motorFile.write(',')
@@ -348,7 +343,8 @@ def parseCommand(cmd):
     elif cmd[0] == 'help' or cmd[0] == '?':
         showHelp()
     else:
-        print('Say what?')
+        globals.reply = 'Say what?\n'
+    print(globals.reply, end = '')
     globals.lock.release()
     return
 
@@ -362,7 +358,6 @@ def consX():
             print('Reading file: {}.'.format(inFileName))
             for line in inFile:
                 parseCommand(line)
-                print(globals.reply, end = '')
                 if globals.done: break
 
     # wait for user input at command prompt
@@ -372,7 +367,6 @@ def consX():
         sys.stdout.flush()
         cmd = sys.stdin.readline().strip()
         parseCommand(cmd)
-        print(globals.reply, end = '')
 
 # kick off socket thread to interact with remote user
 socketserver.TCPServer.allow_reuse_address = True

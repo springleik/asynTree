@@ -14,7 +14,7 @@ fileName = ''
 # check command line args
 args = sys.argv
 if len(args) == 1:
-    print(' Usage: host.py [host=localhost [port=12345 [file]]]')
+    print(' Usage: host.py [host=localhost [port=12345 [file.scp]]]')
 if len(args) > 1:
     HOST = args[1]
 if len(args) > 2:
@@ -26,40 +26,43 @@ if len(args) > 3:
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.connect((HOST, PORT))
 
+    # consume first prompt
+    prompt = sock.recv(1024)
+    print(str(prompt, 'utf-8'), end = '')
+    sys.stdout.flush()
+
     # check for script file
+    done = False
     if fileName:
         with open(fileName) as inFile:
-            print('Reading file: {}.'.format(fileName))
             for line in inFile:
                 # skip empty lines and comments
                 if len(line.strip()) == 0 or line[0] == '#':
                     continue
 
                 # send command to target
-                print(line, end = '')
                 sock.sendall(bytes(line, 'utf-8'))
 
                 # receive reply, wait until prompt
-                while True:
-                    reply = str(sock.recv(1024), 'utf-8')
-                    if not len(reply):
-                        print('Connection dropped.')
-                        break
-                    elif '@: ' in reply:
-                        print(reply, end = '')
-                        break
-                    elif len(reply.strip()):
-                        print(reply, end = '')
+                reply = str(sock.recv(1024), 'utf-8')
+                if not len(reply):
+                    print('Connection dropped.')
+                    done = True
+                print(reply, end = '')
 
-    # prompt for user input
-    done = False
+    # console prompt for user input
     while not done:
+        # send a command to target
+        cmd = sys.stdin.readline()
+        sock.sendall(bytes(cmd, 'utf-8'))
+
+        # wait for reply from target
         reply = str(sock.recv(1024), 'utf-8')
+
+        # check for lost connection
         if not len(reply):
-            done = True
             print('Connection dropped.')
+            done = True
         else:
             print(reply, end = '')
             sys.stdout.flush()
-            cmd = sys.stdin.readline()
-            sock.sendall(bytes(cmd, 'utf-8'))
