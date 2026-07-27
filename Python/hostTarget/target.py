@@ -278,7 +278,7 @@ def haltProgram():
         # class variables first, integers only
         classValues = {}
         for key, value in vars(motor).items():
-            if type(value) == type(int(0)):
+            if type(value) == type(int(0)) and '__' not in key:
                 classValues[key] = value
         json.dump(classValues, motorFile, indent = 2)
 
