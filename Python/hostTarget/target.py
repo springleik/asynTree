@@ -371,9 +371,8 @@ def consX():
     # wait for user input at command prompt
     while not globals.done:
         # tread carefully, due to notifier error on MacOS
-        print('@:', end = ' ')
-        sys.stdout.flush()
-        cmd = sys.stdin.readline().strip()
+        print('@:', end = ' ', flush = True)
+        cmd = sys.stdin.readline()
         parseCommand(cmd)
 
 # kick off socket thread to interact with remote user
