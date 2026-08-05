@@ -24,7 +24,7 @@ if len(args) > 3:
 
 # abstract base class for tree nodes
 class node():
-    tree = []
+    tree = {}
     def __init__(self, name):
         self.name = name
 
@@ -38,12 +38,16 @@ class node():
 class leaf(node):
     def __init__(self, name):
         super().__init__(name)
+        self.command = '# do nothing'
+
+    def assembleCommand(self):
+        return self.command
 
     def execute(self):
-        pass
+        localCommand(self.command)
 
     def serialize(self):
-        pass
+        print('{{"name": "{}", "command": "{}"}}'.format(self.name, self.command))
 
 # branch nodes represent iteration and flow control
 class branch(node):
@@ -56,34 +60,46 @@ class branch(node):
             item.execute()
 
     def serialize(self):
+        print ('{{"name": "{}", "list": ['.format(self.name))
+        first = True
         for item in self.list:
+            if first: first = False
+            else: print(',', end = '')
             item.serialize()
+        print(']}')
 
     def append(self, item):
-        node.list.append(item)
+        self.list.append(item)
 
 # factory method to instantiate local command trees
 # figure numbers match those in the arXiv paper
 def figureFactory(cmd):
-    node.tree = [leaf('a'), leaf('b'), leaf('c')]
-    print(node.tree)
+    node.tree = branch('root')
+    node.tree.append(leaf('a'))
+    node.tree.append(leaf('b'))
+    node.tree.append(leaf('c'))
+
+# help text for local command handler
+def localHelp():
+    print('Some help...')
 
 # local command handler
-# return false if command not recognized
+# return true if local command
+# return false if remote command
 def localCommand(cmd):
     cmd = cmd.split()
     if 0 == len(cmd):
-        return False
+        pass
+    elif cmd[0] == '#':
+        pass
     elif 'fig' in cmd[0]:
         figureFactory(cmd)
     elif 'exec' in cmd[0]:
-        for item in node.tree:
-            item.execute()
+        node.tree.execute()
     elif 'serial' in cmd[0]:
-        for item in node.tree:
-            item.serialize()
+        node.tree.serialize()
     elif cmd[0] == 'help':
-        print('Some help...')
+        localHelp()
     else:
         return False
     return True
