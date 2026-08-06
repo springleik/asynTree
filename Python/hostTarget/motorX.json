@@ -10,36 +10,30 @@
   "yPos": 28,
   "rot": 0,
   "targ": 0,
-  "incr": -1,
+  "incr": 1,
   "run": false,
-  "done": true,
-  "velocity": 3,
-  "acceleration": 30,
-  "position": 200
+  "done": true
 },{
   "name": "Motor 2",
   "xPos": 58,
   "yPos": 354,
   "rot": 0,
   "targ": 0,
-  "incr": -1,
+  "incr": -10,
   "run": false,
   "done": true,
   "runCurrent": 500,
   "idleCurrent": 500,
-  "velocity": 4,
-  "acceleration": 40,
-  "position": 400
+  "velocity": 10,
+  "acceleration": 10,
+  "position": 0
 },{
   "name": "Motor 3",
   "xPos": 362,
   "yPos": 354,
   "rot": 0,
   "targ": 0,
-  "incr": -1,
+  "incr": 1,
   "run": false,
-  "done": true,
-  "velocity": 5,
-  "acceleration": 50,
-  "position": 300
+  "done": true
 }]
