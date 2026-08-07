@@ -30,7 +30,7 @@ class node():
 # leaf nodes represent commands being sent to target
 class leaf(node):
     def __init__(self):
-        self.cmd = '# do nothing leaf'
+        self.cmd = '# empty'
 
     # send command to remote
     def execute(self, cmd = ''):
@@ -42,6 +42,7 @@ class leaf(node):
             print('Connection dropped.')
             node.done = True
         else:
+            # save reply minus the prompt
             reply = reply[:-3].strip()
             if reply:
                 self.reply = reply
@@ -56,33 +57,38 @@ class leaf(node):
         print(json.dumps(jsonValues), end = '', file = file)
 
 # branch nodes represent iteration and flow control
-class branch(node):
-    def __init__(self):
-        self.list = []
-
+class branch(leaf):
     # traverse and execute subordinate nodes
     def execute(self):
-        # subclass to insert entry code here
-        for item in self.list:
-            item.execute()
-        # subclass to insert exit code here
+        if hasattr(self, 'cmd'):
+            super().execute()
+        if hasattr(self, 'list'):
+            for item in self.list:
+                item.execute()
 
     # traverse and serialize subordinate nodes
     def serialize(self, file):
-        print ('{"list": [', file = file)
-        first = True
-        for item in self.list:
-            if first: first = False
-            else: print(',', file = file)
-            item.serialize(file)
-        print(']}', file = file)
+        print('{', end = '', file = file)
+        if hasattr(self, 'cmd'):
+            print ('"cmd": "{}"'.format(self.cmd), end = '', file = file)
+        if hasattr(self, 'list'):
+            print (', "list": [', file = file)
+            first = True
+            for item in self.list:
+                if first: first = False
+                else: print(',', file = file)
+                item.serialize(file)
+            print(']', end = '', file = file)
+        print('}', end = '', file = file)
 
     # compose node tree
     def append(self, item):
+        if not hasattr(self, 'list'):
+            self.list = []
         self.list.append(item)
 
 # initControl command
-class initControl(leaf):
+class initControl(branch):
     def __init__(self):
         self.cmd = 'initControl'
 
@@ -181,7 +187,7 @@ def figureFactory(cmd):
         return
     index = int(cmd[1], 0)
 
-    # flat instruction list
+    # flat instruction list from figure 1
     if index == 1:
         node.tree = branch()
         node.tree.append(initControl())
@@ -196,16 +202,19 @@ def figureFactory(cmd):
         node.tree.append(setPosition(1, 0))
         node.tree.append(waitPosition(1))
         node.tree.append(setPosition(1))
+
+    # composite command tree from figure 2
     elif index == 2:
-        pass
+        node.tree = initControl()
+        node.tree.append(homeAxis(1))
     else:
         print('Unexpected index.')
 
 # help text for local command handler
 def localHelp():
     print('Available local commands:\n' +
-    ' figur N       -- compose command tree for figure N\n' +
-    ' exec          -- execute command tree\n' +
+    ' figure N      -- compose command tree for figure N\n' +
+    ' execute       -- execute command tree\n' +
     ' serial [file] -- render command tree as JSON text\n' +
     ' clear         -- delete command tree\n' +
     ' close         -- close remote connection and exit\n' +
@@ -220,23 +229,25 @@ def localCommand(cmd):
         pass
     elif cmd[0] == '#':
         pass
-    elif 'figur' in cmd[0]:
+    elif 'figu' in cmd[0]:
         figureFactory(cmd)
     elif 'exec' in cmd[0]:
         if node.tree:
             node.tree.execute()
         else:
             print('Nothing to execute.')
-    elif 'serial' in cmd[0]:
+    elif 'seri' in cmd[0]:
         if node.tree:
             if len(cmd) == 1:
                 node.tree.serialize(sys.stdout)
+                print()
             else:
                 with open(cmd[1], 'w') as file:
                     node.tree.serialize(file)
+                    print(file = file)
         else:
             print('Nothing to serialize.')
-    elif 'clear' in cmd[0]:
+    elif 'clea' in cmd[0]:
         if node.tree:
             node.tree = None
         else:
