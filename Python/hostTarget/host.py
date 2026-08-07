@@ -32,6 +32,7 @@ class leaf(node):
     def __init__(self):
         self.cmd = '# do nothing leaf'
 
+    # send command to remote
     def execute(self, cmd = ''):
         if not cmd: cmd = self.cmd
         sock.sendall(bytes(cmd + '\n', 'utf-8'))
@@ -46,32 +47,37 @@ class leaf(node):
                 self.reply = reply
                 print(reply)
 
-    def serialize(self, first):
-        if not first: print(',')
+    # render attributes as JSON text
+    def serialize(self, file):
         jsonValues = {}
         for key, value in vars(self).items():
             if '.' not in str(type(value)):
                 jsonValues[key] = value
-        print(json.dumps(jsonValues), end = '')
+        print(json.dumps(jsonValues), end = '', file = file)
 
 # branch nodes represent iteration and flow control
 class branch(node):
     def __init__(self):
         self.list = []
 
+    # traverse and execute subordinate nodes
     def execute(self):
+        # subclass to insert entry code here
         for item in self.list:
             item.execute()
+        # subclass to insert exit code here
 
-    def serialize(self, first):
-        if not first: print(',', end = '')
-        print ('{"list": [')
+    # traverse and serialize subordinate nodes
+    def serialize(self, file):
+        print ('{"list": [', file = file)
         first = True
         for item in self.list:
-            item.serialize(first)
             if first: first = False
-        print(']}')
+            else: print(',', file = file)
+            item.serialize(file)
+        print(']}', file = file)
 
+    # compose node tree
     def append(self, item):
         self.list.append(item)
 
@@ -198,12 +204,12 @@ def figureFactory(cmd):
 # help text for local command handler
 def localHelp():
     print('Available local commands:\n' +
-    ' figure N  -- compose command tree for figure N\n' +
-    ' execute   -- execute command tree\n' +
-    ' serialize -- render command tree as JSON text\n' +
-    ' clear     -- delete command tree\n' +
-    ' close     -- close remote connection and exit\n' +
-    ' ?         -- print this list')
+    ' figur N       -- compose command tree for figure N\n' +
+    ' exec          -- execute command tree\n' +
+    ' serial [file] -- render command tree as JSON text\n' +
+    ' clear         -- delete command tree\n' +
+    ' close         -- close remote connection and exit\n' +
+    ' ?             -- print this list')
 
 # local command handler
 # return true if local command
@@ -214,7 +220,7 @@ def localCommand(cmd):
         pass
     elif cmd[0] == '#':
         pass
-    elif 'fig' in cmd[0]:
+    elif 'figur' in cmd[0]:
         figureFactory(cmd)
     elif 'exec' in cmd[0]:
         if node.tree:
@@ -223,7 +229,11 @@ def localCommand(cmd):
             print('Nothing to execute.')
     elif 'serial' in cmd[0]:
         if node.tree:
-            node.tree.serialize(True)
+            if len(cmd) == 1:
+                node.tree.serialize(sys.stdout)
+            else:
+                with open(cmd[1], 'w') as file:
+                    node.tree.serialize(file)
         else:
             print('Nothing to serialize.')
     elif 'clear' in cmd[0]:
