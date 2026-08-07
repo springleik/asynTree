@@ -130,7 +130,7 @@ def consX():
     done = False
     while not done:
         # tread carefully, due to notifier error on MacOS
-        print ('@:', end = ' ')
+        print ('@:', end = ' ', flush = True)
         sys.stdout.flush()
         cmd = sys.stdin.readline().rstrip()
 

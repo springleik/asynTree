@@ -14,7 +14,7 @@ fileName = ''
 # check command line args
 args = sys.argv
 if len(args) == 1:
-    print(' Usage: host.py [host=localhost [port=12345 [file.scp]]]')
+    print(' Usage: python3 host.py [host=localhost [port=12345 [file.scp]]]')
 if len(args) > 1:
     HOST = args[1]
 if len(args) > 2:
@@ -25,6 +25,7 @@ if len(args) > 3:
 # abstract base class for tree nodes
 class node():
     tree = {}       # global class variable
+    done = False    # global exit flag
 
 # leaf nodes represent commands being sent to target
 class leaf(node):
@@ -38,7 +39,7 @@ class leaf(node):
         reply = str(sock.recv(1024), 'utf-8')
         if not len(reply):
             print('Connection dropped.')
-            done = True
+            node.done = True
         else:
             reply = reply[:-3].strip()
             if reply:
@@ -196,7 +197,13 @@ def figureFactory(cmd):
 
 # help text for local command handler
 def localHelp():
-    print('Some help...')
+    print('Available local commands:\n' +
+    ' figure N  -- compose command tree for figure N\n' +
+    ' execute   -- execute command tree\n' +
+    ' serialize -- render command tree as JSON text\n' +
+    ' clear     -- delete command tree\n' +
+    ' close     -- close remote connection and exit\n' +
+    ' ?         -- print this list')
 
 # local command handler
 # return true if local command
@@ -224,10 +231,11 @@ def localCommand(cmd):
             node.tree = None
         else:
             print('Nothing to clear.')
-    elif cmd[0] == 'help':
+    elif cmd[0] == '?':
         localHelp()
     else:
         return False
+    print('@:', end = ' ', flush = True)
     return True
 
 # Create a TCP socket to connect to target
@@ -253,13 +261,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     reply = str(sock.recv(1024), 'utf-8')
                     if not len(reply):
                         print('Connection dropped.')
-                        done = True
+                        node.done = True
+                        break
                     else:
                         print(reply, end = '', flush = True)
 
     # console prompt for user input
-    done = False
-    while not done:
+    while not node.done:
         cmd = sys.stdin.readline()
         # send to local command handler
         if not localCommand(cmd):
@@ -269,6 +277,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             reply = str(sock.recv(1024), 'utf-8')
             if not len(reply):
                 print('Connection dropped.')
-                done = True
+                node.done = True
             else:
                 print(reply, end = '', flush = True)

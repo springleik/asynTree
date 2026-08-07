@@ -301,7 +301,7 @@ def haltProgram():
 
 # show help text
 def showHelp():
-    globals.reply = ('Available commands:\n' +
+    globals.reply = ('Available remote commands:\n' +
     ' quit -- halt program and exit\n' +
     ' help -- print this list\n' +
     ' initControl -- initialize motion controller\n' +
@@ -360,8 +360,8 @@ def parseCommand(cmd):
 # thread to run local console
 def consX():
     # check for file name argument
-    if len(sys.argv) == 2:
-        inFileName = sys.argv[1]
+    if len(sys.argv) > 2:
+        inFileName = sys.argv[2]
         with open(inFileName) as inFile:
             print('Reading file: {}.'.format(inFileName))
             for line in inFile:
@@ -375,9 +375,17 @@ def consX():
         cmd = sys.stdin.readline()
         parseCommand(cmd)
 
+# check for port number argument
+HOST, PORT = '', 12345
+if len(sys.argv) == 1:
+    print(' Usage: python3 target.py [port=12345 [file.scp]]')
+if len(sys.argv) > 1:
+    PORT = int(sys.argv[1], 0)
+
 # kick off socket thread to interact with remote user
 socketserver.TCPServer.allow_reuse_address = True
-tcpServer = TCPServer(('', 12345), TCPHandler)
+print(' listening at: {}'.format((HOST, PORT)))
+tcpServer = TCPServer((HOST, PORT), TCPHandler)
 tcpServer.daemon_threads = True
 tcpThread = threading.Thread(target = tcpServer.serve_forever)
 tcpThread.daemon = True
