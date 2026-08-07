@@ -49,11 +49,12 @@ class leaf(node):
                 print(reply)
 
     # render attributes as JSON text
-    def serialize(self, file):
+    def serialize(self, file, indent):
         jsonValues = {}
         for key, value in vars(self).items():
             if '.' not in str(type(value)):
                 jsonValues[key] = value
+        print(indent * '  ', end = '', file = file)
         print(json.dumps(jsonValues), end = '', file = file)
 
 # branch nodes represent iteration and flow control
@@ -67,8 +68,8 @@ class branch(leaf):
                 item.execute()
 
     # traverse and serialize subordinate nodes
-    def serialize(self, file):
-        print('{', end = '', file = file)
+    def serialize(self, file, indent = 0):
+        print(indent * '  ' + '{', end = '', file = file)
         if hasattr(self, 'cmd'):
             print ('"cmd": "{}"'.format(self.cmd), end = '', file = file)
         if hasattr(self, 'list'):
@@ -77,7 +78,7 @@ class branch(leaf):
             for item in self.list:
                 if first: first = False
                 else: print(',', file = file)
-                item.serialize(file)
+                item.serialize(file, indent + 1)
             print(']', end = '', file = file)
         print('}', end = '', file = file)
 
@@ -206,7 +207,27 @@ def figureFactory(cmd):
     # composite command tree from figure 2
     elif index == 2:
         node.tree = initControl()
+        node.tree.append(setRunCurrent(1, 500))
         node.tree.append(homeAxis(1))
+        node.tree.append(setVelocity(1, 10))
+        node.tree.append(setAccel(1, 10))
+        node.tree.append(setRunCurrent(2, 500))
+        node.tree.append(homeAxis(2))
+        node.tree.append(setVelocity(2, 10))
+        node.tree.append(setAccel(2, 10))
+        outerLoop = branch()
+        node.tree.append(outerLoop)
+        outerLoop.append(setPosition(1, -1))
+        outerLoop.append(waitPosition(1))
+        innerLoop = branch()
+        outerLoop.append(innerLoop)
+        innerLoop.append(setPosition(2, -2))
+        innerLoop.append(waitPosition(2))
+        testBranch = branch()
+        node.tree.append(testBranch)
+        testBranch.append(setIdleCurrent(1, 50))
+        testBranch.append(setIdleCurrent(2,25))
+
     else:
         print('Unexpected index.')
 
