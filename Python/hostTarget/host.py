@@ -59,7 +59,7 @@ class leaf(node):
             if '.' not in str(type(value)):
                 jsonValues[key] = value
         print(indent * '  ', end = '', file = file)
-        print(json.dumps(jsonValues), end = '', file = file)
+        json.dump(jsonValues, file)
 
 # branch nodes represent iteration and flow control
 class branch(leaf):
@@ -77,8 +77,9 @@ class branch(leaf):
     # traverse and serialize subordinate nodes
     def serialize(self, file, indent = 0):
         print(indent * '  ' + '{', end = '', file = file)
-        if hasattr(self, 'cmd'):
-            print ('"cmd": "{}"'.format(self.cmd), end = '', file = file)
+        print ('"cmd": "{}"'.format(self.cmd), end = '', file = file)
+        if hasattr(self, 'reply'):
+            print (', "reply": "{}"'.format(self.reply), end = '', file = file)
         if hasattr(self, 'list'):
             print (', "list": [', file = file)
             first = True
@@ -189,10 +190,10 @@ class waitPosition(leaf):
 
 # check state of digital inputs
 class testInput(branch):
-    def __init__(self, digIn = None, trueIf = None):
+    def __init__(self, digIn, trueIf):
         self.cmd = 'testInput'
-        if digIn != None: self.digIn = digIn
-        if trueIf != None: self.trueIf = trueIf
+        self.digIn = digIn
+        self.trueIf = trueIf
 
     # traverse and execute subordinate nodes if condition true
     def execute(self):
@@ -208,10 +209,23 @@ class testInput(branch):
                     inBit = inputs & (1 << self.digIn)
                     if hasattr(self, 'trueIf'):
                         descend = (bool(inBit) == bool(self.trueIf))
-
-        # descend to next level if states matche
         if descend:
+        # descend to next level if states match
             self.executeList()
+
+# loop over a register value
+class iterateRegister(branch):
+    def __init__(self, reg, start, stop, step = 1):
+        self.cmd = 'iterateRegister'
+        self.reg = reg
+        self.start = start
+        self.stop = stop
+        self.step = step
+
+    def execute(self):
+        if hasattr(self, 'list'):
+            for n in range(self.start, self.stop, self.step):
+                self.executeList()
 
 # factory method to instantiate local command trees
 # figure numbers match those in the arXiv paper
@@ -248,11 +262,11 @@ def figureFactory(cmd):
         node.tree.append(homeAxis(2))
         node.tree.append(setVelocity(2, 10))
         node.tree.append(setAccel(2, 10))
-        outerLoop = branch()
+        outerLoop = iterateRegister(0, 200, 20)
         node.tree.append(outerLoop)
         outerLoop.append(setPosition(1, -1))
         outerLoop.append(waitPosition(1))
-        innerLoop = branch()
+        innerLoop = iterateRegister(0, 100, 10)
         outerLoop.append(innerLoop)
         innerLoop.append(setPosition(2, -2))
         innerLoop.append(waitPosition(2))
