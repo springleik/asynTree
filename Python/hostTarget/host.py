@@ -33,7 +33,7 @@ class leaf(node):
         self.cmd = '# empty'
 
     # send command to remote
-    def execute(self, cmd = ''):
+    def executeCmd(self, cmd = ''):
         if not cmd: cmd = self.cmd
         sock.sendall(bytes(cmd + '\n', 'utf-8'))
         # receive reply, check connection
@@ -48,6 +48,10 @@ class leaf(node):
                 self.reply = reply
                 print(reply)
 
+    # override this method to subclass
+    def execute(self, cmd = ''):
+        self.executeCmd(cmd)
+
     # render attributes as JSON text
     def serialize(self, file, indent):
         jsonValues = {}
@@ -60,12 +64,15 @@ class leaf(node):
 # branch nodes represent iteration and flow control
 class branch(leaf):
     # traverse and execute subordinate nodes
-    def execute(self):
-        if hasattr(self, 'cmd'):
-            super().execute()
+    def executeList(self):
         if hasattr(self, 'list'):
             for item in self.list:
                 item.execute()
+
+    # override this method to subclass
+    def execute(self):
+        self.executeCmd()
+        self.executeList()
 
     # traverse and serialize subordinate nodes
     def serialize(self, file, indent = 0):
@@ -180,6 +187,32 @@ class waitPosition(leaf):
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         super().execute(cmd)
 
+# check state of digital inputs
+class testInput(branch):
+    def __init__(self, digIn = None, trueIf = None):
+        self.cmd = 'testInput'
+        if digIn != None: self.digIn = digIn
+        if trueIf != None: self.trueIf = trueIf
+
+    # traverse and execute subordinate nodes if condition true
+    def execute(self):
+        # obtain input state
+        self.executeCmd('setInputs')
+        # test input state
+        descend = False
+        if hasattr(self, 'reply'):
+            reply = self.reply.split()
+            if len(reply) == 3:
+                inputs = int(reply[2], 0)
+                if hasattr(self, 'digIn'):
+                    inBit = inputs & (1 << self.digIn)
+                    if hasattr(self, 'trueIf'):
+                        descend = (bool(inBit) == bool(self.trueIf))
+
+        # descend to next level if states matche
+        if descend:
+            self.executeList()
+
 # factory method to instantiate local command trees
 # figure numbers match those in the arXiv paper
 def figureFactory(cmd):
@@ -223,7 +256,7 @@ def figureFactory(cmd):
         outerLoop.append(innerLoop)
         innerLoop.append(setPosition(2, -2))
         innerLoop.append(waitPosition(2))
-        testBranch = branch()
+        testBranch = testInput(1, 1)
         node.tree.append(testBranch)
         testBranch.append(setIdleCurrent(1, 50))
         testBranch.append(setIdleCurrent(2,25))
