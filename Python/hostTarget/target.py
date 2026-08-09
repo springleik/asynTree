@@ -278,7 +278,7 @@ def haltProgram():
         # class variables first, integers only
         classValues = {}
         for key, value in vars(motor).items():
-            if type(value) == type(int(0)) and '__' not in key:
+            if isinstance(value, int) and '__' not in key:
                 classValues[key] = value
         json.dump(classValues, motorFile, indent = 2)
 
@@ -286,7 +286,7 @@ def haltProgram():
         first = True
         for axis in motor.axes:
             if first: first = False
-            motorFile.write(',')
+            motorFile.write(',\n')
             axis.done = True
             axis.serialize(motorFile)
             # send some diagnostic info to console

@@ -4,8 +4,7 @@
   "radius": 100,
   "arc": 270,
   "index": 4
-},
-{
+},{
   "name": "Motor 1",
   "xPos": 210,
   "yPos": 28,
@@ -17,8 +16,7 @@
   "velocity": 3,
   "acceleration": 30,
   "position": 200
-},
-{
+},{
   "name": "Motor 2",
   "xPos": 58,
   "yPos": 354,
@@ -32,8 +30,7 @@
   "velocity": 4,
   "acceleration": 40,
   "position": 400
-},
-{
+},{
   "name": "Motor 3",
   "xPos": 362,
   "yPos": 354,
