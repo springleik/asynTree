@@ -1,0 +1,13 @@
+{"cmd": "# empty", "list": [
+  {"cmd": "initControl"},
+  {"cmd": "setRunCurrent", "axis": 1, "current_mA": 500, "reply": "Axis: 1, runCurrent: 500"},
+  {"cmd": "setIdleCurrent", "axis": 1, "current_mA": 500, "reply": "Axis: 1, idleCurrent: 500"},
+  {"cmd": "setVelocity", "axis": 1, "steps_sec": 10, "reply": "Axis: 1, velocity: 10"},
+  {"cmd": "setAccel", "axis": 1, "steps_sec2": 10, "reply": "Axis: 1, acceleration: 10"},
+  {"cmd": "homeAxis", "axis": 1},
+  {"cmd": "waitPosition", "axis": 1},
+  {"cmd": "setPosition", "axis": 1, "steps": 200, "reply": "Axis: 1, position: 200"},
+  {"cmd": "waitPosition", "axis": 1},
+  {"cmd": "setPosition", "axis": 1, "steps": 0, "reply": "Axis: 1, position: 0"},
+  {"cmd": "waitPosition", "axis": 1},
+  {"cmd": "setPosition", "axis": 1, "reply": "Axis: 1, position: 0"}]}

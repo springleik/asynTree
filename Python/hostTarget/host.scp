@@ -4,6 +4,14 @@
 # M. Williamsen, 23 July 2026
 # Springleik project
 
-setVelocity 0 1
-initControl
-setVelocity 0 1
+serial zero.json
+figu 1
+serial one.json
+exec
+serial oneX.json
+figu 2
+serial two.json
+exec
+serial twoX.json
+clear
+quit

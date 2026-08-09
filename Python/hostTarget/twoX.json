@@ -1,0 +1,18 @@
+{"cmd": "initControl", "reply": "Control already initialized.", "list": [
+  {"cmd": "setRunCurrent", "axis": 1, "current_mA": 500, "reply": "Axis: 1, runCurrent: 500"},
+  {"cmd": "homeAxis", "axis": 1},
+  {"cmd": "setVelocity", "axis": 1, "steps_sec": 10, "reply": "Axis: 1, velocity: 10"},
+  {"cmd": "setAccel", "axis": 1, "steps_sec2": 10, "reply": "Axis: 1, acceleration: 10"},
+  {"cmd": "setRunCurrent", "axis": 2, "current_mA": 500, "reply": "Axis: 2, runCurrent: 500"},
+  {"cmd": "homeAxis", "axis": 2},
+  {"cmd": "setVelocity", "axis": 2, "steps_sec": 10, "reply": "Axis: 2, velocity: 10"},
+  {"cmd": "setAccel", "axis": 2, "steps_sec2": 10, "reply": "Axis: 2, acceleration: 10"},
+  {"cmd": "iterateRegister", "reg": "$1", "start": 0, "stop": 200, "step": 20, "list": [
+    {"cmd": "setPosition", "axis": 1, "steps": "$1", "reply": "Axis: 1, position: 180"},
+    {"cmd": "waitPosition", "axis": 1},
+    {"cmd": "iterateRegister", "reg": "$2", "start": 0, "stop": 100, "step": 10, "list": [
+      {"cmd": "setPosition", "axis": 2, "steps": "$2", "reply": "Axis: 2, position: 90"},
+      {"cmd": "waitPosition", "axis": 2}]}]},
+  {"cmd": "testInput", "digIn": 1, "trueIf": 1, "reply": "Digital inputs: 0x0", "list": [
+    {"cmd": "setIdleCurrent", "axis": 1, "current_mA": 50},
+    {"cmd": "setIdleCurrent", "axis": 2, "current_mA": 25}]}]}

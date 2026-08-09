@@ -24,8 +24,9 @@ if len(args) > 3:
 
 # abstract base class for tree nodes
 class node():
-    tree = {}       # global class variable
+    tree = {}       # global composite tree
     done = False    # global exit flag
+    iter = {}       # global iterators
 
 # leaf nodes represent commands being sent to target
 class leaf(node):
@@ -181,7 +182,15 @@ class setPosition(leaf):
     def execute(self):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
-        if hasattr(self, 'steps'): cmd += ' {}'.format(self.steps)
+        if hasattr(self, 'steps'):
+            if isinstance(self.steps, str):
+                cmd += ' {}'.format(node.iter[self.steps])
+            elif isinstance(self.steps, int):
+                cmd += ' {}'.format(self.steps)
+            else:
+                print('Unexpected steps attribute.')
+
+            cmd += ' {}'.format(self.steps)
         super().execute(cmd)
 
 # waitPosition command
@@ -231,7 +240,7 @@ class iterateRegister(branch):
 
     def execute(self):
         if hasattr(self, 'list'):
-            for n in range(self.start, self.stop, self.step):
+            for node.iter[self.reg] in range(self.start, self.stop, self.step):
                 self.executeList()
 
 # factory method to instantiate local command trees
@@ -269,13 +278,13 @@ def figureFactory(cmd):
         node.tree.append(homeAxis(2))
         node.tree.append(setVelocity(2, 10))
         node.tree.append(setAccel(2, 10))
-        outerLoop = iterateRegister(0, 200, 20)
+        outerLoop = iterateRegister('$1', 0, 200, 20)
         node.tree.append(outerLoop)
-        outerLoop.append(setPosition(1, -1))
+        outerLoop.append(setPosition(1, '$1'))
         outerLoop.append(waitPosition(1))
-        innerLoop = iterateRegister(0, 100, 10)
+        innerLoop = iterateRegister('$2', 0, 100, 10)
         outerLoop.append(innerLoop)
-        innerLoop.append(setPosition(2, -2))
+        innerLoop.append(setPosition(2, '$2'))
         innerLoop.append(waitPosition(2))
         testBranch = testInput(1, 1)
         node.tree.append(testBranch)
