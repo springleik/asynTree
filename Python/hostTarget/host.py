@@ -53,13 +53,18 @@ class leaf(node):
         self.executeCmd(cmd)
 
     # render attributes as JSON text
-    def serialize(self, file, indent):
+    def serializeAttr(self, file, indent):
         jsonValues = {}
         for key, value in vars(self).items():
-            if '.' not in str(type(value)):
+            if (key != 'list') and ('.' not in str(type(value))):
                 jsonValues[key] = value
-        print(indent * '  ', end = '', file = file)
-        json.dump(jsonValues, file)
+        print(json.dumps(jsonValues).strip('{}'), end = '', file = file)
+
+    # override this method to subclass
+    def serialize(self, file, indent):
+        print(indent * '  ' + '{', end = '', file = file)
+        self.serializeAttr(file, indent)
+        print('}', end = '', file = file)
 
 # branch nodes represent iteration and flow control
 class branch(leaf):
@@ -75,11 +80,7 @@ class branch(leaf):
         self.executeList()
 
     # traverse and serialize subordinate nodes
-    def serialize(self, file, indent = 0):
-        print(indent * '  ' + '{', end = '', file = file)
-        print ('"cmd": "{}"'.format(self.cmd), end = '', file = file)
-        if hasattr(self, 'reply'):
-            print (', "reply": "{}"'.format(self.reply), end = '', file = file)
+    def serializeList(self, file, indent):
         if hasattr(self, 'list'):
             print (', "list": [', file = file)
             first = True
@@ -88,6 +89,12 @@ class branch(leaf):
                 else: print(',', file = file)
                 item.serialize(file, indent + 1)
             print(']', end = '', file = file)
+
+    # override this method to subclass
+    def serialize(self, file, indent = 0):
+        print(indent * '  ' + '{', end = '', file = file)
+        self.serializeAttr(file, indent)
+        self.serializeList(file, indent)
         print('}', end = '', file = file)
 
     # compose node tree
