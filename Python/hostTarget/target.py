@@ -58,7 +58,7 @@ class motor:
         # initialize instance variables
         self.name = name        # axis window title
         self.xPos = xPos        # axis window position
-        self.yPos = yPos
+        self.yPos = yPos        #
         self.rot = 0            # rotation
         self.targ = self.rot    # target
         self.incr = 1           # velocity

@@ -340,6 +340,8 @@ def localCommand(cmd):
         localHelp()
     else:
         return False
+
+    # prompt for next command
     print('@:', end = ' ', flush = True)
     return True
 
@@ -352,7 +354,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     print(str(prompt, 'utf-8'), end = '', flush = True)
 
     # check for script file
-    # remote commands only
     if fileName:
         with open(fileName) as inFile:
             for line in inFile:
