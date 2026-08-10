@@ -1,0 +1,13 @@
+I had ChatGPT write me an introduction for the paper. Here it is, copied directly from the web interface:
+
+----------------------------------------
+Software developers often assume that the first implementation milestone for an interpreted language is a parser capable of translating human-readable source code into an internal representation. This assumption is reasonable for general-purpose programming languages, where source code is the primary means by which programs are created and maintained. However, it is not necessarily true for small domain-specific languages developed for a single application or product.
+
+This paper explores an alternative development strategy. Rather than beginning with a parser, the executable representation is constructed directly in memory using ordinary programming language facilities. The resulting structure is then executed, verified, serialized, analyzed, and ultimately deployed without ever interpreting a source file. Human-readable representations are treated as derived views of the underlying execution model rather than as the primary artifact.
+
+This approach offers several practical advantages. Interpreter development, command semantics, verification, testing, serialization, visualization, and documentation can proceed independently of the considerably different task of deserializing structured text. In our experience, this separation shortens the path to a deployable system while encouraging a clear distinction between execution and analysis. A parser remains valuable, but its implementation can be deferred until there is a genuine operational need for humans or external tools to author executable descriptions directly.
+
+The central claim of this paper is therefore not that parsing is unnecessary, but that it need not be the first step. For many bespoke interpreted languages, a complete and useful product can be designed, implemented, verified, and shipped before a source-language parser is ever written.
+----------------------------------------
+
+This is near the end of the chat "Hierarchical State Machines" from a prompt dated Sat. 18 July 2026 at 1:39pm. Hover text says it was written by GPT-5.5. Chat cites another conversation about the immunoassay project with an undated prompt at the end of the chat "LLMs and Small Languages."
