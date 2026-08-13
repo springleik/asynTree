@@ -155,7 +155,7 @@ def main() -> int:
         refFileName = args[1]
         tstFileName = args[2]
     else:
-        print ('Usage: python3 TreeCompare.py Ref.json Tst.json [errorDelta]')
+        print ('Usage: python3 CompTree.py Ref.json Tst.json [errorDelta]')
         return -2
 
     # check for third argument specifying delta for number compare
