@@ -18,7 +18,7 @@
 # Interesting to compare class instances vs. dictionaries for tree nodes
 # Dictionaries and lists are mutable, and so are class objects
 
-import time, math
+import time, math, sys
 
 # Root class for polymorphic tree nodes
 class node:
@@ -38,23 +38,23 @@ class node:
         print ('Analyzing node')
         pass
 
-    def serializeValue(self):
+    def serializeValue(self, file):
         theValue = self.value
         theType = type(theValue)
-        if theValue is True: print ('true', end = '')
-        elif theValue is False: print ('false', end = '')
-        elif theValue is None: print ('null', end = '')
-        elif theType is int: print (theValue, end = '')
-        elif theType is str: print ('"' + theValue + '"', end = '')
+        if theValue is True: print ('true', end = '', file = file)
+        elif theValue is False: print ('false', end = '', file = file)
+        elif theValue is None: print ('null', end = '', file = file)
+        elif theType is int: print (theValue, end = '', file = file)
+        elif theType is str: print ('"' + theValue + '"', end = '', file = file)
         elif theType is float:
-            if math.isnan(theValue): print ('NaN', end = '')
-            elif math.isinf(theValue): print ('Infinity', end = '')
-            else: print (theValue, end = '')
+            if math.isnan(theValue): print ('NaN', end = '', file = file)
+            elif math.isinf(theValue): print ('Infinity', end = '', file = file)
+            else: print (theValue, end = '', file = file)
 
-    def serialize(self):
-        print ('{{"level":{0},"count":{1},"value":'.format(self.level, self.count), end = '')
-        self.serializeValue()
-        print ('}', end = '')
+    def serialize(self, file):
+        print ('{{"level":{0},"count":{1},"value":'.format(self.level, self.count), end = '', file = file)
+        self.serializeValue(file)
+        print ('}', end = '', file = file)
 
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
@@ -91,17 +91,17 @@ class branch (node):
             item.analyze()
         pass
 
-    def serialize(self):
-        print ('{"value":', end = '')
-        self.serializeValue()
-        print (',"level":{0},"count":{1},"series":['.format(self.level, self.count), end = '')
+    def serialize(self, file):
+        print ('{"value":', end = '', file = file)
+        self.serializeValue(file)
+        print (',"level":{0},"count":{1},"series":['.format(self.level, self.count), end = '', file = file)
         first = True
         for item in self.series:
             if first: first = False
-            else: print (',', end = '')
-            print ('\n' + item.level * '   ', end = '')
-            item.serialize()
-        print ('\n' + self.level * '   ' + ']}', end = '')
+            else: print (',', end = '', file = file)
+            print ('\n' + item.level * '   ', end = '', file = file)
+            item.serialize(file)
+        print ('\n' + self.level * '   ' + ']}', end = '', file = file)
 
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
@@ -160,7 +160,7 @@ aTree = loop(3,
 # summarize the tree
 summary = node ('visitor')
 aTree.summarize(summary)
-summary.serialize ()
+summary.serialize (sys.stdout)
 print ()
 
 # execute the tree
@@ -170,5 +170,6 @@ aTree.execute()
 aTree.analyze()
 
 # serialize the tree
-aTree.serialize()
-print ()
+with open('asynTree.json', 'w') as file:
+    aTree.serialize(file)
+    file.write('\n')
