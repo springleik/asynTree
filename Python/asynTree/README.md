@@ -9,11 +9,11 @@ MarksiMac:asynTree williamm$ pwd
 
 MarksiMac:asynTree williamm$ python3 asynTree.py > asynTree.txt
 
-MarksiMac:asynTree williamm$ ../CompTree.py asynTreeRef.json asynTree.json
+MarksiMac:asynTree williamm$ python3 ../CompTree.py asynTreeRef.json asynTree.json
 []
 
 MarksiMac:asynTree williamm$ git diff asynTree.txt
 MarksiMac:asynTree williamm$
 ```
 
-First make sure you have navigated to the right directory. Then run the Python script asynTree.py. In this example I've redirected the console output to the file asynTree.txt. Running the script will create or overwrite the file asynTree.json. We can compare it to a checked-in reference file using CompTree.py one level up. Finally we use git to see if anything changed in the console output. Now it's your turn, to make changes in the source code and see how the output changes.
+First make sure you have navigated to the right directory. Then run the Python script _asynTree.py_. In this example I've redirected the console output to the file _asynTree.txt_. Running the script will create or overwrite the file _asynTree.json_. We can compare it to a checked-in reference file using _CompTree.py_ one level up. Finally we use git to see if anything changed in the console output. Now it's your turn, to make changes in the source code and see how the output changes.
