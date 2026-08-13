@@ -13,10 +13,10 @@ typedef struct node
     // instance variables
     int depth;
     int seq;
-    struct node *next;
-    struct node *list;
+    struct node *next;  // singly linked list at the same level
+    struct node *list;  // singly linked list at level beneath
 
-    // instance methods
+    // instance method pointers allow polymorphic behavior
     void (*execute) (void *this);
     void (*serial)  (void *this);
 } node;
