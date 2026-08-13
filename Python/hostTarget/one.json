@@ -1,13 +1,13 @@
 {"cmd": "# empty", "list": [
   {"cmd": "initControl"},
   {"cmd": "setRunCurrent", "axis": 1, "current_mA": 500},
-  {"cmd": "setIdleCurrent", "axis": 1, "current_mA": 500},
+  {"cmd": "setHoldCurrent", "axis": 1, "current_mA": 500},
   {"cmd": "setVelocity", "axis": 1, "steps_sec": 10},
   {"cmd": "setAccel", "axis": 1, "steps_sec2": 10},
   {"cmd": "homeAxis", "axis": 1},
   {"cmd": "waitPosition", "axis": 1},
-  {"cmd": "setPosition", "axis": 1, "steps": 200},
+  {"cmd": "setPosition", "axis": 1, "degrees": 200},
   {"cmd": "waitPosition", "axis": 1},
-  {"cmd": "setPosition", "axis": 1, "steps": 0},
+  {"cmd": "setPosition", "axis": 1, "degrees": 0},
   {"cmd": "waitPosition", "axis": 1},
   {"cmd": "setPosition", "axis": 1}]}

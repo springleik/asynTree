@@ -14,7 +14,7 @@ import socket, socketserver
 class globals:
     done = False    # set done flag to exit program
     reply = ''      # append results to reply string
-    inputs = 0      # emulate digital inputs
+    inputs = 0      # emulate digital inputs and outputs
     lock = threading.Lock() # for critical sections
 
 # a handler is instantiated for each connection
@@ -23,7 +23,6 @@ class TCPHandler(socketserver.StreamRequestHandler):
         # send first prompt to client
         print('Connected to: {}'.format(self.client_address))
         self.wfile.write(bytes('@: ', 'ascii'))
-
         # maintain connection until dropped or closed
         while True:
             # check for dropped connection
@@ -31,25 +30,24 @@ class TCPHandler(socketserver.StreamRequestHandler):
             if not len(self.data):
                 print ('Connection dropped.')
                 break
-
             # check for close request
             cmd = self.data.decode('utf-8')
             if 'close' in cmd or 'quit' in cmd:
                 print ('Connection closed.')
                 break
-
             # handle client request
             parseCommand(cmd.strip())
             self.wfile.write(bytes(globals.reply + '@: ', 'ascii'))
 
+# mixin with multiple inheritance
 class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
-# class representing a function motor
+# class representing a stepper motor
 class motor:
     # class variables
-    width = 300     # pixel size of axis window
-    height = 300
+    width = 300     # pixel width of axis window
+    height = 300    # pixel height of axis window
     radius = 100    # pixel size of axis rotor
     arc = 270       # degrees arc of rotor
     index = 1       # sequence number
@@ -58,8 +56,8 @@ class motor:
     def __init__(self, name, xPos, yPos):
         # initialize instance variables
         self.name = name        # axis window title
-        self.xPos = xPos        # axis window position
-        self.yPos = yPos        #
+        self.xPos = xPos        # axis window x position
+        self.yPos = yPos        # axis window y position
         self.rot = 0            # rotation
         self.targ = self.rot    # target
         self.incr = 1           # velocity
@@ -231,11 +229,11 @@ def setPosition(cmd):
         globals.reply = 'Velocity not set.\n'
     return
 
-# set/get emulated digital inputs
-def setInputs(cmd):
+# set/get emulated digital inputs and outputs
+def setFlags(cmd):
     if len(cmd) > 1:
         globals.inputs = int(cmd[1], 0)
-    globals.reply = 'Digital inputs: {}\n'.format(hex(globals.inputs))
+    globals.reply = 'flags: {} {}\n'.format(hex(globals.inputs), globals.inputs)
 
 # wait until target position reached
 # returns immediately on error
@@ -282,7 +280,6 @@ def haltProgram():
             if isinstance(value, int) and '__' not in key:
                 classValues[key] = value
         json.dump(classValues, motorFile, indent = 2)
-
         # then instance variables for each axis
         first = True
         for axis in motor.axes:
@@ -294,25 +291,27 @@ def haltProgram():
             print(axis.getSpeed(), axis.getPosition(), end = ' ')
         motorFile.write(']\n')
         if not first: print()
+
     # break out of command loop
     globals.done = True
+
     # close Tkinter windows
     root.quit()
     return
 
-# show help text
+# show remote help text
 def showHelp():
     globals.reply = ('Available remote commands:\n' +
     ' quit -- halt program and exit\n' +
     ' help -- print this list\n' +
     ' initControl -- initialize motion controller\n' +
-    ' setRunCurrent -- set axis run current\n' +
-    ' setIdleCurrent -- set axis idle current\n' +
+    ' setRunCurrent -- set axis run current in mA\n' +
+    ' setHoldCurrent -- set axis hold current in mA\n' +
     ' setVelocity -- set axis velocity in steps/second\n' +
     ' setAccel -- set axis acceleration in steps/sec/sec\n' +
-    ' setPosition -- set axis target position in steps\n' +
+    ' setPosition -- set axis target position in degrees\n' +
     ' homeAxis -- home specified axis\n' +
-    ' setInputs -- set state of emulated inputs\n' +
+    ' setFlags -- set state of emulated inputs and outputs\n' +
     ' waitPosition -- wait for target position reached\n')
 
 # motion control command parser, used by
@@ -334,8 +333,8 @@ def parseCommand(cmd):
         initializeControl()
     elif cmd[0] == 'setRunCurrent':
         setAttribute(cmd, 'runCurrent')
-    elif cmd[0] == 'setIdleCurrent':
-        setAttribute(cmd, 'idleCurrent')
+    elif cmd[0] == 'setHoldCurrent':
+        setAttribute(cmd, 'holdCurrent')
     elif cmd[0] == 'setVelocity':
         setAttribute(cmd, 'velocity')
     elif cmd[0] == 'setAccel':
@@ -347,8 +346,8 @@ def parseCommand(cmd):
         waitPosition(cmd)
     elif cmd[0] == 'homeAxis':
         homeAxis(cmd)
-    elif cmd[0] == 'setInputs':
-        setInputs(cmd)
+    elif cmd[0] == 'setFlags':
+        setFlags(cmd)
     elif cmd[0] == 'help' or cmd[0] == '?':
         showHelp()
     else:

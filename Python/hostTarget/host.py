@@ -123,10 +123,10 @@ class setRunCurrent(leaf):
         if hasattr(self, 'current_mA'): cmd += ' {}'.format(self.current_mA)
         super().execute(cmd)
 
-# setIdleCurrent command
-class setIdleCurrent(leaf):
+# setHoldCurrent command
+class setHoldCurrent(leaf):
     def __init__(self, axis = None, current_mA = None):
-        self.cmd = 'setIdleCurrent'
+        self.cmd = 'setHoldCurrent'
         if axis != None: self.axis = axis
         if current_mA != None: self.current_mA = current_mA
 
@@ -175,23 +175,23 @@ class homeAxis(leaf):
 
 # setPosition command
 class setPosition(leaf):
-    def __init__(self, axis = None, steps = None):
+    def __init__(self, axis = None, degrees = None):
         self.cmd = 'setPosition'
         if axis != None: self.axis = axis
-        if steps != None: self.steps = steps
+        if degrees != None: self.degrees = degrees
 
     def execute(self):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
-        if hasattr(self, 'steps'):
-            if isinstance(self.steps, str):
-                cmd += ' {}'.format(node.iter[self.steps])
-            elif isinstance(self.steps, int):
-                cmd += ' {}'.format(self.steps)
+        if hasattr(self, 'degrees'):
+            if isinstance(self.degrees, str):
+                cmd += ' {}'.format(node.iter[self.degrees])
+            elif isinstance(self.degrees, int):
+                cmd += ' {}'.format(self.degrees)
             else:
-                print('Unexpected steps attribute.')
+                print('Unexpected degrees attribute.')
 
-            cmd += ' {}'.format(self.steps)
+            cmd += ' {}'.format(self.degrees)
         super().execute(cmd)
 
 # waitPosition command
@@ -205,29 +205,29 @@ class waitPosition(leaf):
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         super().execute(cmd)
 
-# check state of digital inputs
-class testInput(branch):
-    def __init__(self, digIn, trueIf):
-        self.cmd = 'testInput'
-        self.digIn = digIn
+# check state of emulated digital inputs and outputs
+class testFlag(branch):
+    def __init__(self, flag, trueIf):
+        self.cmd = 'testFlag'
+        self.flag = flag
         self.trueIf = trueIf
 
     # traverse and execute subordinate nodes if condition true
     def execute(self):
         # obtain input state
-        self.executeCmd('setInputs')
+        self.executeCmd('setFlags')
         # test input state
         descend = False
         if hasattr(self, 'reply'):
             reply = self.reply.split()
             if len(reply) == 3:
-                inputs = int(reply[2], 0)
-                if hasattr(self, 'digIn'):
-                    inBit = inputs & (1 << self.digIn)
+                flags = int(reply[1], 0)
+                if hasattr(self, 'flag'):
+                    inBit = flags & (1 << self.flag)
                     if hasattr(self, 'trueIf'):
                         descend = (bool(inBit) == bool(self.trueIf))
-        if descend:
         # descend to next level if states match
+        if descend:
             self.executeList()
 
 # loop over a register value
@@ -257,7 +257,7 @@ def figureFactory(cmd):
         node.tree = branch()
         node.tree.append(initControl())
         node.tree.append(setRunCurrent(1, 500))
-        node.tree.append(setIdleCurrent(1, 500))
+        node.tree.append(setHoldCurrent(1, 500))
         node.tree.append(setVelocity(1, 10))
         node.tree.append(setAccel(1, 10))
         node.tree.append(homeAxis(1))
@@ -287,10 +287,10 @@ def figureFactory(cmd):
         outerLoop.append(innerLoop)
         innerLoop.append(setPosition(2, '$2'))
         innerLoop.append(waitPosition(2))
-        testBranch = testInput(1, 1)
+        testBranch = testFlag(1, 1)
         node.tree.append(testBranch)
-        testBranch.append(setIdleCurrent(1, 50))
-        testBranch.append(setIdleCurrent(2,25))
+        testBranch.append(setHoldCurrent(1, 50))
+        testBranch.append(setHoldCurrent(2,25))
 
     else:
         print('Unexpected index.')

@@ -6,7 +6,7 @@
 
 initControl
 setRunCurrent 1 500
-setIdleCurrent 1 500
+setHoldCurrent 1 500
 setVelocity 0 3
 setVelocity 1 4
 setVelocity 2 5

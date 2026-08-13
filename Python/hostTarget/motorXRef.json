@@ -26,7 +26,7 @@
   "run": false,
   "done": true,
   "runCurrent": 500,
-  "idleCurrent": 500,
+  "holdCurrent": 500,
   "velocity": 4,
   "acceleration": 40,
   "position": 400

@@ -5,13 +5,18 @@
 # Springleik project
 
 serial zero.json
-figu 1
+clear
+figure 1
 serial one.json
-exec
+execute
 serial oneX.json
-figu 2
+figure 2
 serial two.json
-exec
+setFlags 0
+execute
 serial twoX.json
+setFlags 2
+execute
+serial twoY.json
 clear
 quit
