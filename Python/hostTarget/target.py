@@ -233,7 +233,7 @@ def setPosition(cmd):
 def setFlags(cmd):
     if len(cmd) > 1:
         globals.inputs = int(cmd[1], 0)
-    globals.reply = 'flags: {} {}\n'.format(hex(globals.inputs), globals.inputs)
+    globals.reply = 'Flags: {} {}\n'.format(hex(globals.inputs), globals.inputs)
 
 # wait until target position reached
 # returns immediately on error
