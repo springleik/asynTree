@@ -2,6 +2,7 @@
 # ============================================================
 # Abstract syntax tree interpreter for motion control demo
 # M. Williamsen, Springleik Project
+# https://github.com/springleik/asynTree
 # File host.py, 22 July 2026
 # implements TCP client to connect to target server
 

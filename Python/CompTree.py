@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-# CompTree.py directional JSON tree comparison
-# https://github.com/springleik/PompTree
-# M. Williamsen  26 November 2023
+# ============================================================
+# Abstract syntax tree interpreter for motion control demo
+# M. Williamsen, Springleik Project
+# https://github.com/springleik/asynTree
+# File CompTree.py, 26 November 2023
+# asymmetric JSON tree compare
 
 import json, sys, math
 
@@ -38,23 +41,23 @@ def locatePair(key, value, data):
 # Compare two JSON tree structures for equality
 # returns true if matched, false if not.
 # Pass in an error list to obtain detailed report
-# Do not pass in a path list, the error list contains path info 
+# Do not pass in a path list, the error list contains path info
 # Note this quirk of Python: that default objects like
 # lists get reused as if they were static!
 def treeCompare (ref, tst, error = None, path = None) -> bool:
     if error is None: error = []
     if path is None: path = []
-    
+
     # try to match dictionary keys
     if isinstance (ref, dict) and isinstance (tst, dict):
         # The following three lines of code allow for an early exit, if uncommented.
         # The early exit means that no dictionary entries will be compared, if the
         # test dictionary has less entries than the reference dictionary.
-        
+
         # if len(tst) < len(ref):
         #     error.append ({'dictErr':len(tst),'path':path})
         #     return False
-        
+
         noErrs = True
         for key in ref:
             if key not in tst:
@@ -69,11 +72,11 @@ def treeCompare (ref, tst, error = None, path = None) -> bool:
         # The following three lines of code allow for an early exit.
         # The early exit means that no array elements will be compared
         # if the test array has less entries than the reference array.
-        
+
         if len(tst) < len(ref):
             error.append ({'listErr':len(tst),'path':path})
             return False
-            
+
         noErrs = True
         for n, r in enumerate(ref):
             if not treeCompare (r, tst[n], error, path + [n]):
@@ -96,7 +99,7 @@ def treeCompare (ref, tst, error = None, path = None) -> bool:
 # helper function for treeCompare
 def leafCompare (ref, tst, error, path) -> bool:
     if ref == tst: return True
-    elif isinstance (ref, float) and isinstance (tst, float): 
+    elif isinstance (ref, float) and isinstance (tst, float):
         if abs (ref - tst) < errorDelta: return True
     error.append ({'valErr':[ref, tst],'path':path})
     return False
@@ -121,29 +124,29 @@ def locateTree(sub, data, match = None) -> bool:
 # compare two JSON trees, given two file names
 def compareTrees (refFileName, tstFileName) -> int:
     # parse json input files
-    # print ('Ref: {}, Tst: {}'.format(refFileName, tstFileName), file = sys.stderr)
+    # print ('Ref: {}, Tst: {}'.format(refFileName, tstFileName))
     try:
         with open(refFileName, 'r') as refFile:
             refData = json.load(refFile)
     except ValueError as e:
-        print ('Ref file {} is not valid JSON'.format(refFileName), file = sys.stderr)
+        print ('Ref file {} is not valid JSON'.format(refFileName))
         return -3
     try:
         with open(tstFileName, 'r') as tstFile:
             tstData = json.load(tstFile)
     except ValueError as e:
-        print ('Tst file {} is not valid JSON'.format(tstFileName), file = sys.stderr)
+        print ('Tst file {} is not valid JSON'.format(tstFileName))
         return -4
     rept = []
     rslt = treeCompare(refData, tstData, rept)
-    print (json.dumps(rept, indent = 2), file = sys.stderr)
+    print (json.dumps(rept, indent = 2))
     if not rslt: return -1
     else: return 0
-    
+
 # ---------------- Main Entry Point ---------------- #
 def main() -> int:
     global errorDelta
-    
+
     # check command line args, expect two file names
     refFileName = 'Ref.json'
     tstFileName = 'Tst.json'
@@ -152,7 +155,7 @@ def main() -> int:
         refFileName = args[1]
         tstFileName = args[2]
     else:
-        print ('Usage: python3 TreeCompare.py Ref.json Tst.json [errorDelta]', file = sys.stderr)
+        print ('Usage: python3 TreeCompare.py Ref.json Tst.json [errorDelta]')
         return -2
 
     # check for third argument specifying delta for number compare
@@ -160,7 +163,7 @@ def main() -> int:
         errorDelta = float (args[3])
 
     return compareTrees (refFileName, tstFileName)
-    
+
 # ------------------------------------------- #
 # this doesn't run, when invoked as a library
 if __name__ == '__main__':
