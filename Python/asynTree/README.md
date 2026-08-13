@@ -1,5 +1,4 @@
-# asynTree
-Abstract Syntax Tree (AST) interpreters in Python.
+# Abstract Syntax Tree (AST) interpreter in Python
 
 This folder contains a skeleton interpreter, which could be developed into a small domain-specific language. Run it at the command line without arguments and get some console text showing what happened, and a JSON file rendering the interpreter's command tree. Here is what that looks like in a MacOS terminal window. Windows and Linux require minor adjustments to the syntax.
 

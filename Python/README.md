@@ -1,2 +1,1 @@
-# asynTree
-Abstract Syntax Tree (AST) interpreters in Python.
+# Abstract Syntax Tree (AST) interpreters in Python
