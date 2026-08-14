@@ -10,7 +10,7 @@ MarksiMac:C-Lang williamm$ gcc asynTree.c -o asynTree
 
 MarksiMac:C-Lang williamm$ ./asynTree 1> asynTree.json 2> asynTree.txt
 
-MarksiMac:C-Lang williamm$ ../Python/CompTree.py asynTreeRef.json asynTree.json
+MarksiMac:C-Lang williamm$ python3 ../Python/CompTree.py asynTreeRef.json asynTree.json
 []
 
 MarksiMac:C-Lang williamm$ git diff asynTree.txt
