@@ -153,8 +153,10 @@ class motor:
     def rightPressed(self, event):
         self.rot += 45
         self.run = True
-    def upPressed(self, event): self.incr += 1
-    def downPressed(self, event): self.incr -= 1
+    def upPressed(self, event):
+        self.incr += 1
+    def downPressed(self, event):
+        self.incr -= 1
 
     # pause, then call timerFired again unless done
     def timerFired(self, interval):
@@ -258,14 +260,15 @@ def homeAxis(cmd):
         globals.reply = 'Axis not found.\n'
         return
     motor.axes[axis].movePosition(0, 1)
+    setattr(motor.axes[axis], 'position', 0)
     return
 
 # initialize multi-axis motion controller
 def initializeControl():
     if 0 == len(motor.axes):
-        motor.axes.append(motor('Motor 1', 210,  28))
-        motor.axes.append(motor('Motor 2',  58, 354))
-        motor.axes.append(motor('Motor 3', 362, 354))
+        motor.axes.append(motor('Motor 0', 210,  28))
+        motor.axes.append(motor('Motor 1',  58, 354))
+        motor.axes.append(motor('Motor 2', 362, 354))
     else:
         globals.reply = 'Control already initialized.\n'
 
