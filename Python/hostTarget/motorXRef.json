@@ -4,8 +4,9 @@
   "radius": 100,
   "arc": 270,
   "index": 4
-},{
-  "name": "Motor 1",
+},
+{
+  "name": "Motor 0",
   "xPos": 210,
   "yPos": 28,
   "rot": 0,
@@ -15,9 +16,10 @@
   "done": true,
   "velocity": 3,
   "acceleration": 30,
-  "position": 200
-},{
-  "name": "Motor 2",
+  "position": 0
+},
+{
+  "name": "Motor 1",
   "xPos": 58,
   "yPos": 354,
   "rot": 0,
@@ -29,9 +31,10 @@
   "holdCurrent": 500,
   "velocity": 4,
   "acceleration": 40,
-  "position": 400
-},{
-  "name": "Motor 3",
+  "position": 0
+},
+{
+  "name": "Motor 2",
   "xPos": 362,
   "yPos": 354,
   "rot": 0,
@@ -41,5 +44,5 @@
   "done": true,
   "velocity": 5,
   "acceleration": 50,
-  "position": 300
+  "position": 0
 }]

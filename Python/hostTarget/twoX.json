@@ -13,6 +13,6 @@
     {"cmd": "iterateRegister", "reg": "$2", "start": 0, "stop": 100, "step": 10, "list": [
       {"cmd": "setPosition", "axis": 2, "degrees": "$2", "reply": "Axis: 2, position: 90"},
       {"cmd": "waitPosition", "axis": 2}]}]},
-  {"cmd": "testFlag", "flag": 1, "trueIf": 1, "reply": "flags: 0x0 0", "list": [
+  {"cmd": "testFlag", "flag": 1, "trueIf": 1, "reply": "Flags: 0x0 0", "list": [
     {"cmd": "setHoldCurrent", "axis": 1, "current_mA": 50},
     {"cmd": "setHoldCurrent", "axis": 2, "current_mA": 25}]}]}
