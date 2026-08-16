@@ -7,11 +7,11 @@
   {"cmd": "homeAxis", "axis": 2},
   {"cmd": "setVelocity", "axis": 2, "steps_sec": 10},
   {"cmd": "setAccel", "axis": 2, "steps_sec2": 10},
-  {"cmd": "iterateRegister", "reg": "$1", "start": 0, "stop": 200, "step": 20, "list": [
-    {"cmd": "setPosition", "axis": 1, "degrees": "$1"},
+  {"cmd": "iterateRegister", "reg": 0, "start": 0, "stop": 200, "step": 20, "list": [
+    {"cmd": "setPosition", "axis": 1, "degrees": "reg"},
     {"cmd": "waitPosition", "axis": 1},
-    {"cmd": "iterateRegister", "reg": "$2", "start": 0, "stop": 100, "step": 10, "list": [
-      {"cmd": "setPosition", "axis": 2, "degrees": "$2"},
+    {"cmd": "iterateRegister", "reg": 0, "start": 0, "stop": 100, "step": 10, "list": [
+      {"cmd": "setPosition", "axis": 2, "degrees": "reg"},
       {"cmd": "waitPosition", "axis": 2}]}]},
   {"cmd": "testFlag", "flag": 1, "trueIf": 1, "list": [
     {"cmd": "setHoldCurrent", "axis": 1, "current_mA": 50},

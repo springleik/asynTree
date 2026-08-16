@@ -27,7 +27,6 @@ if len(args) > 3:
 class node():
     tree = {}       # global composite tree
     done = False    # global exit flag
-    iter = {}       # global iterators
 
 # leaf nodes represent commands being sent to target
 class leaf(node):
@@ -51,7 +50,7 @@ class leaf(node):
                 print(reply)
 
     # override this method to subclass
-    def execute(self, cmd = ''):
+    def execute(self, cmd = '', parent = None):
         self.executeCmd(cmd)
 
     # render attributes as JSON text
@@ -74,10 +73,10 @@ class branch(leaf):
     def executeList(self):
         if hasattr(self, 'list'):
             for item in self.list:
-                item.execute()
+                item.execute(parent = self)
 
     # override this method to subclass
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         self.executeCmd()
         self.executeList()
 
@@ -117,7 +116,7 @@ class setRunCurrent(leaf):
         if axis != None: self.axis = axis
         if current_mA != None: self.current_mA = current_mA
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         if hasattr(self, 'current_mA'): cmd += ' {}'.format(self.current_mA)
@@ -130,7 +129,7 @@ class setHoldCurrent(leaf):
         if axis != None: self.axis = axis
         if current_mA != None: self.current_mA = current_mA
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         if hasattr(self, 'current_mA'): cmd += ' {}'.format(self.current_mA)
@@ -143,7 +142,7 @@ class setVelocity(leaf):
         if axis != None: self.axis = axis
         if steps_sec != None: self.steps_sec = steps_sec
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         if hasattr(self, 'steps_sec'): cmd += ' {}'.format(self.steps_sec)
@@ -156,7 +155,7 @@ class setAccel(leaf):
         if axis != None: self.axis = axis
         if steps_sec2 != None: self.steps_sec2 = steps_sec2
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         if hasattr(self, 'steps_sec2'): cmd += ' {}'.format(self.steps_sec2)
@@ -168,7 +167,7 @@ class homeAxis(leaf):
         self.cmd = 'homeAxis'
         if axis != None: self.axis = axis
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         super().execute(cmd)
@@ -180,17 +179,18 @@ class setPosition(leaf):
         if axis != None: self.axis = axis
         if degrees != None: self.degrees = degrees
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         if hasattr(self, 'degrees'):
-            if isinstance(self.degrees, str):
-                cmd += ' {}'.format(node.iter[self.degrees])
-            elif isinstance(self.degrees, int):
+            if isinstance(self.degrees, int):
+                # use value passed to constructor
                 cmd += ' {}'.format(self.degrees)
+            elif 'reg' in self.degrees:
+                # obtain value from parent node
+                cmd += ' {}'.format(getattr(parent, 'reg'))
             else:
                 print('Unexpected degrees attribute.')
-
             cmd += ' {}'.format(self.degrees)
         super().execute(cmd)
 
@@ -200,7 +200,7 @@ class waitPosition(leaf):
         self.cmd = 'waitPosition'
         if axis != None: self.axis = axis
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         cmd = self.cmd
         if hasattr(self, 'axis'): cmd += ' {}'.format(self.axis)
         super().execute(cmd)
@@ -213,7 +213,7 @@ class testFlag(branch):
         self.trueIf = trueIf
 
     # traverse and execute subordinate nodes if condition true
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         # obtain input state
         self.executeCmd('setFlags')
         # test input state
@@ -232,16 +232,16 @@ class testFlag(branch):
 
 # loop over a register value
 class iterateRegister(branch):
-    def __init__(self, reg, start, stop, step = 1):
+    def __init__(self, start, stop, step):
         self.cmd = 'iterateRegister'
-        self.reg = reg
-        self.start = start
-        self.stop = stop
-        self.step = step
+        self.reg = 0        # iterator
+        self.start = start  # start value
+        self.stop = stop    # end value + 1
+        self.step = step    # step size
 
-    def execute(self):
+    def execute(self, cmd = '', parent = None):
         if hasattr(self, 'list'):
-            for node.iter[self.reg] in range(self.start, self.stop, self.step):
+            for self.reg in range(self.start, self.stop, self.step):
                 self.executeList()
 
 # factory method to instantiate local command trees
@@ -279,13 +279,13 @@ def figureFactory(cmd):
         node.tree.append(homeAxis(2))
         node.tree.append(setVelocity(2, 10))
         node.tree.append(setAccel(2, 10))
-        outerLoop = iterateRegister('$1', 0, 200, 20)
+        outerLoop = iterateRegister(0, 200, 20)
         node.tree.append(outerLoop)
-        outerLoop.append(setPosition(1, '$1'))
+        outerLoop.append(setPosition(1, 'reg'))
         outerLoop.append(waitPosition(1))
-        innerLoop = iterateRegister('$2', 0, 100, 10)
+        innerLoop = iterateRegister(0, 100, 10)
         outerLoop.append(innerLoop)
-        innerLoop.append(setPosition(2, '$2'))
+        innerLoop.append(setPosition(2, 'reg'))
         innerLoop.append(waitPosition(2))
         testBranch = testFlag(1, 1)
         node.tree.append(testBranch)

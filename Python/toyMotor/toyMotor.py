@@ -147,9 +147,9 @@ def consX():
 # ============================================================
 # instantiate motors and command tree
 root = tkinter.Tk()
-motor1 = motorSim.motor('Motor 1')
-motor2 = motorSim.motor('Motor 2')
-motor3 = motorSim.motor('Motor 3')
+motor1 = motorSim.motor('Motor 0')
+motor2 = motorSim.motor('Motor 1')
+motor3 = motorSim.motor('Motor 2')
 theTree = ctrlX('Motor Control')
 
 # kick off console thread to interact with user
