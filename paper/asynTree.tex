@@ -147,36 +147,45 @@ Real programming however implies branching and looping, which is easily added by
 
 In figure \ref{treeListing} we look at the JSON representation of a command tree which includes conditional and repeating nodes. Iteration is done by the new ``iterateRegister'' control node that changes the value of a numbered register which is then visible to nodes beneath the control node. Nested loops are supported here by placing the iteration of axis 2 inside the iteration of axis 1. At the end of the sequence a ``testInput'' control node tests a digital input to check whether to return to holding current.
 
-The ability to implement tree structures composed of command and control nodes, using all of the infrastructure we've developed so far, brings into focus a scalable, portable, and verifiable framework for representing interpreted programs of arbitrary size, complexity, and capability. Now we have an abstract syntax tree (AST) interpreter optimized for the application at hand. The composite tree structure maps directly to structured text representations such as JSON, XML, or YAML. Human-readable program listings are easily obtained by serializing nodes while traversing the tree with recursive descent. We encounter each node exactly once when we ask the root node to serialize the command tree. In this picture we can now say clearly that command nodes are dictionaries composed of key-value pairs representing the command name and all of its arguments. Control nodes will also have an ordered list container holding pointers or references to subordinate nodes.
+The ability to implement tree structures composed of command and control nodes, using all of the infrastructure we've developed so far, brings into focus a scalable, portable, and verifiable framework for representing interpreted programs optimized for the application at hand. The composite tree structure maps directly to structured text representations such as JSON, XML, or YAML. Human-readable program listings are easily obtained by serializing nodes while traversing the tree by recursive descent. In this picture we can now say clearly that command nodes are dictionaries composed of key-value pairs representing the command name and all of its arguments. Control nodes will additionally hold an ordered list identifying subordinate nodes.
 
 \section{Deserialization}
 
-There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math expressions. Experience shows that each of these features imposes a significant burden of time and expense to implement, document, and verify. Readers should consider how much value would be added if they were to go down this path. Note that these features will likely be implemented in two steps, first parsing the text representation into a generic syntax tree, and then rendering the syntax tree as domain-specific command nodes to be interpreted at run-time.
-
-Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic command nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy in that we can ask the root node to delete itself and all subordinates by recursive descent. For this to work each node should appear in the tree exactly once.
+There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization, used to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math expressions. Experience shows that each of these features imposes a significant burden of time and expense to implement, document, and verify. Readers should consider how much value would be added before going down this path. Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic command nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates by recursive descent. For this to work each node should appear in the tree exactly once.
 
 \section{Execution model}
-Should I bring in threads, tasks, and processes? Or is that out of scope?
+Bring in threads, tasks, and processes.
 
 \section{Analysis}
-Say something about decorating the tree with measurement and analysis nodes. Which should lead naturally to a discussion of separation of execution and analysis.
+Say something about decorating the tree with measurement and analysis nodes.
+Which should lead naturally to a discussion of separation of execution and analysis.
+May want a 'clear' function to restore a tree to its original state.
+May want multiple passes for analysis, for instance to gather nodes into series, extract fitted parameters, append analysis nodes, gather data for reporting, etc.
 
 We'll discuss deserialization more when we consider adding an analysis phase to our command tree structure.
+With regard to test strategies which compare baseline reference outputs to new outputs obtained from target device-under-test.
+Without re-running physical measurements.
 
 \section{Vocabulary}
-I used to value lexical, grammatical, semantical, and syntactical thinking.
+I used to value lexical, grammatical, semantical, and syntactical thinking. Seems naive now that I can express everything as a tree.
 
 Say something about granularity of command node objects. My guidance would be to package command nodes in the same sense as you would package monitor prompt commands. Problem solved!
 
 \section{Verification}
 Test and verification will lead naturally to my concept of an asymmetric tree comparison.
+List my rules, and explain why they matter.
 
 \section{Communication}
-Say something about rendering the tree in various human and/or machine readable forms. Ideally one-to-one mapping in all directions. With the possibility to run round-trip testing.
+Say something about rendering the tree in various human and/or machine readable forms.
+Ideally one-to-one mapping in all directions.
+With the possibility to run round-trip testing.
 
-Say something about machine-readable versus human-readable source code, bringing AI development and maintenance into the conversation.
+Say something about machine-readable versus human-readable source code.
+Bringing AI development and maintenance into the conversation.
+Goal to represent programs in canonical fashion to facilite communication between all stakeholders.
 
-Bring into the picture how AI can develop, verify, and maintain AST command trees. Make the point that flow charts don't help to communicate with machines, but pseudocode does.
+Bring into the picture how AI can develop, verify, and maintain AST command trees.
+Make the point that flow charts don't help to communicate with machines, but pseudocode does.
 
 \section{Toy model}
 When to introduce toy motor? Should I use it for everything? I'd like to modify the toy motor demo to include a monitor prompt command interpreter. Should I use a console, a socket port, named pipe, anonymous pipe, or what? The obvious solution is to use my multi-client multi-server code already posted on GitHub. Note well that I can mix and match environments, running clients in Python, Java, C, etc. and also running servers in Python, Java, C, etc.
@@ -197,7 +206,13 @@ What is Springleik, and why should readers care? I think the big insight is that
 
 Recall my previous insight that model-view-control (MVC) is a closed loop feedback control system where control is the input, view is the sensor, and model is the plant. User does things with mouse and keyboard until the view becomes a rendering of the model the user actually wants. Yay!
 
+Now think about how the workflow changes when AI is in the loop. Like Claude at FlexLink for instance. Hard parts become easy, easy parts become effortless. I'd like to feature communication with stakeholders, which now includes AI, as a great benefit of AST intepreters.
+
 Encourage readers to paste my JSON text into their favorite AI, to see what it makes of it.
 
-Encourage readers to take my Python code, make a meaninful change to the command tree, then see if behavior changes as expected, and see if tree compare test also reveals the change.
-If we append measurement results as attributes to existing command nodes, then we get serialization of results almost for free!
+Encourage readers to take my Python code,
+ make a meaninful change to the command tree,
+ then see if behavior changes as expected,
+ and see if tree compare test also reveals the change.
+ 
+If we append measured results as attributes to existing command nodes, then we get serialization of results almost for free!
