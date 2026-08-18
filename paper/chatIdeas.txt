@@ -10,4 +10,6 @@ This approach offers several practical advantages. Interpreter development, comm
 The central claim of this paper is therefore not that parsing is unnecessary, but that it need not be the first step. For many bespoke interpreted languages, a complete and useful product can be designed, implemented, verified, and shipped before a source-language parser is ever written.
 ----------------------------------------
 
-This is near the end of the chat "Hierarchical State Machines" from a prompt dated Sat. 18 July 2026 at 1:39pm. Hover text says it was written by GPT-5.5. Chat cites another conversation about the immunoassay project with an undated prompt at the end of the chat "LLMs and Small Languages."
+This is near the end of the chat "Hierarchical State Machines" from a prompt dated Sat. 18 July 2026 at 1:39pm.
+Hover text says it was written by GPT-5.5.
+Chat cites another conversation about the immunoassay project with an undated prompt at the end of the chat "LLMs and Small Languages."
