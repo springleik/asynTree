@@ -107,7 +107,7 @@ def leafCompare (ref, tst, error, path) -> bool:
 # --------------------------------------------------- #
 # locate instances of a subtree by recursive descent
 # returns a list of matches
-def locateTree(sub, data, match = None) -> bool:
+def locateTree(sub, data, match = None) -> list:
     if match is None: match = []
     # check for match at current level
     if treeCompare (sub, data): match.append(data)
