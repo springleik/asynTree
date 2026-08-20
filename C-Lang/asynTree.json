@@ -1,0 +1,11 @@
+{"type":"node","depth":0,"seq":0,"list":[
+   {"type":"node","depth":1,"seq":1,"list":[
+      {"type":"what","one":1,"two":2,"three":3,"depth":2,"seq":2,"list":[
+         {"type":"what","one":4,"two":5,"three":6,"depth":3,"seq":3,"list":[]}]}]},
+   {"type":"node","depth":1,"seq":4,"list":[
+      {"type":"node","depth":2,"seq":5,"list":[]},
+      {"type":"node","depth":2,"seq":6,"list":[]},
+      {"type":"node","depth":2,"seq":7,"list":[]}]},
+   {"type":"node","depth":1,"seq":8,"list":[]},
+   {"type":"node","depth":1,"seq":9,"list":[]},
+   {"type":"node","depth":1,"seq":10,"list":[]}]}

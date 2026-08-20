@@ -15,52 +15,52 @@ Top Level
     Initialize all motors to receive products
     Iterate until halted
         Forward a product to track 1
-            Move motor 1 and motor 2 fast to home position (135)
-            Wait for motors 1 and 2
-            Wait for product to arrive at motor 1 (key 'i')
+            Move motor 0 and motor 1 fast to home position (135)
+            Wait for motors 0 and 1
+            Wait for product to arrive at motor 0 (key 'i')
+            Move motor 0 slow to left position (270)
+            Wait for product to arrive at motor 1 (key 'j')
             Move motor 1 slow to left position (270)
-            Wait for product to arrive at motor 2 (key 'j')
-            Move motor 2 slow to left position (270)
-            Move motor 1 fast to home position
-            Wait for motor 2
+            Move motor 0 fast to home position
+            Wait for motor 1
             Wait for product to arrive at track 1 (key 'o')
-            Move motor 2 fast to home position (135)
+            Move motor 1 fast to home position (135)
 
         Forward a product to track 2
-            Move motor 1 and motor 2 fast to home position (135)
-            Wait for motors 1 and 2
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to left position (270)
-            Wait for product to arrive at motor 2 (key 'j')
-            Move motor 2 slow to right position (0)
-            Move motor 1 fast to home position
-            Wait for motor 2
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 2 fast to home position (135)
+            Move motor 0 and motor 1 fast to home position (135)
+            Wait for motors 0 and 1
+            Wait for product to arrive at motor 0 (key 'i')
+            Move motor 0 slow to left position (270)
+            Wait for product to arrive at motor 1 (key 'j')
+            Move motor 1 slow to right position (0)
+            Move motor 0 fast to home position
+            Wait for motor 1
+            Wait for product to arrive at track 2 (key 'o')
+            Move motor 1 fast to home position (135)
 
         Forward a product to track 3
-            Move motor 1 and motor 3 fast to home position (135)
-            Wait for motors 1 and 3
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to right position (0)
-            Wait for product to arrive at motor 3 (key 'k')
-            Move motor 3 slow to left position (270)
-            Move motor 1 fast to home position
-            Wait for motor 3
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 3 fast to home position (135)
+            Move motor 0 and motor 2 fast to home position (135)
+            Wait for motors 0 and 2
+            Wait for product to arrive at motor 0 (key 'i')
+            Move motor 0 slow to right position (0)
+            Wait for product to arrive at motor 2 (key 'k')
+            Move motor 2 slow to left position (270)
+            Move motor 0 fast to home position
+            Wait for motor 2
+            Wait for product to arrive at track 3 (key 'o')
+            Move motor 2 fast to home position (135)
 
         Forward a product to track 4
-            Move motor 1 and motor 3 fast to home position (135)
-            Wait for motors 1 and 3
-            Wait for product to arrive at motor 1 (key 'i')
-            Move motor 1 slow to right position (0)
-            Wait for product to arrive at motor 3 (key 'k')
-            Move motor 3 slow to right position (270)
-            Move motor 1 fast to home position
-            Wait for motor 3
-            Wait for product to arrive at track 1 (key 'o')
-            Move motor 3 fast to home position (135)
+            Move motor 0 and motor 2 fast to home position (135)
+            Wait for motors 0 and 2
+            Wait for product to arrive at motor 0 (key 'i')
+            Move motor 0 slow to right position (0)
+            Wait for product to arrive at motor 2 (key 'k')
+            Move motor 2 slow to right position (270)
+            Move motor 0 fast to home position
+            Wait for motor 2
+            Wait for product to arrive at track 4 (key 'o')
+            Move motor 2 fast to home position (135)
 '''
 
 # ============================================================
@@ -77,41 +77,41 @@ def ctrlY(theTrack):
     if theTrack == 1:
         posA = leftPos
         posB = leftPos
-        motB = motor2
-        text = 'motor 2'
+        motB = motor1
+        text = 'motor 1'
     elif theTrack == 2:
         posA = leftPos
         posB = rightPos
-        motB = motor2
-        text = 'motor 2'
+        motB = motor1
+        text = 'motor 1'
     elif theTrack == 3:
         posA = rightPos
         posB = leftPos
-        motB = motor3
-        text = 'motor 3'
+        motB = motor2
+        text = 'motor 2'
     elif theTrack == 4:
         posA = rightPos
         posB = rightPos
-        motB = motor3
-        text = 'motor 3'
+        motB = motor2
+        text = 'motor 2'
     else:
         print ('Unexpected track: {}'.format(theTrack))
         return None
 
     subTree = asynInt.node('Track #{}'.format(str(theTrack)))
     subTree.append(
-        asynInt.move('Move motor 1', motor1, homePos, fastSpeed),
+        asynInt.move('Move motor 0', motor0, homePos, fastSpeed),
         asynInt.move('Move ' + text, motB, homePos, fastSpeed),
-        asynInt.doneWait('Wait for motor 1', motor1),
+        asynInt.doneWait('Wait for motor 0', motor0),
         asynInt.keyWait('Wait for key i', 'i'),
         asynInt.doneWait('Wait for ' + text, motB),
-        asynInt.move('Move motor 1', motor1, posA, slowSpeed),
-        asynInt.doneWait('Wait for motor 1', motor1),
-        asynInt.keyWait('Wait for key o', 'o'),
-        asynInt.move('Move motor 1', motor1, homePos, fastSpeed),
+        asynInt.move('Move motor 0', motor0, posA, slowSpeed),
+        asynInt.doneWait('Wait for motor 0', motor0),
+        asynInt.keyWait('Wait for key {}'.format('j' if '1' in text else 'k'), 'o'),
+        asynInt.move('Move motor 0', motor0, homePos, fastSpeed),
         asynInt.move('Move ' + text, motB, posB, slowSpeed),
         asynInt.doneWait('Wait for ' + text, motB),
-        asynInt.delay('Wait track 1', 1.0),
+        asynInt.delay('Wait track {}'.format(theTrack), 1.0),
         asynInt.move('Move ' + text, motB, homePos, fastSpeed))
 
     return subTree
@@ -136,9 +136,9 @@ def consX():
 
         # interpret commands
         if 'q' == cmd:
+            motor0.done = True
             motor1.done = True
             motor2.done = True
-            motor3.done = True
             done = True
             root.quit ()
         elif 'r' == cmd: theTree.execute()
@@ -147,9 +147,9 @@ def consX():
 # ============================================================
 # instantiate motors and command tree
 root = tkinter.Tk()
-motor1 = motorSim.motor('Motor 0')
-motor2 = motorSim.motor('Motor 1')
-motor3 = motorSim.motor('Motor 2')
+motor0 = motorSim.motor('Motor 0')
+motor1 = motorSim.motor('Motor 1')
+motor2 = motorSim.motor('Motor 2')
 theTree = ctrlX('Motor Control')
 
 # kick off console thread to interact with user
@@ -171,13 +171,13 @@ with open('ctrlX.json', 'w') as treeFile:
 # motor objects are outside of tree structure
 with open('motorX.json', 'w') as motorFile:
     motorFile.write('[')
+    motor0.serialize(motorFile)
+    motorFile.write(',')
     motor1.serialize(motorFile)
     motorFile.write(',')
     motor2.serialize(motorFile)
-    motorFile.write(',')
-    motor3.serialize(motorFile)
     motorFile.write(']\n')
 
 # show console output
-print(motor1.getSpeed(), motor1.getPosition(), motor2.getSpeed(),
-    motor2.getPosition(), motor3.getSpeed(), motor3.getPosition())
+print(motor0.getSpeed(), motor0.getPosition(), motor1.getSpeed(),
+    motor1.getPosition(), motor2.getSpeed(), motor2.getPosition())
