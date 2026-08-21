@@ -252,8 +252,8 @@ def figureFactory(cmd):
         return
     index = int(cmd[1], 0)
 
-    # flat instruction list from figure 1
-    if index == 1:
+    # flat instruction list from figure 2
+    if index == 2:
         node.tree = branch()
         node.tree.append(initControl())
         node.tree.append(setRunCurrent(1, 500))
@@ -268,8 +268,8 @@ def figureFactory(cmd):
         node.tree.append(waitPosition(1))
         node.tree.append(setPosition(1))
 
-    # composite command tree from figure 2
-    elif index == 2:
+    # composite command tree from figure 3
+    elif index == 3:
         node.tree = initControl()
         node.tree.append(setRunCurrent(1, 500))
         node.tree.append(homeAxis(1))

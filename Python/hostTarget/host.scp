@@ -4,19 +4,19 @@
 # M. Williamsen, 23 July 2026
 # Springleik project
 
-serial zero.json
-clear
-figure 1
 serial one.json
-execute
-serial oneX.json
+clear
 figure 2
 serial two.json
-setFlags 0
 execute
 serial twoX.json
+figure 3
+serial three.json
+setFlags 0
+execute
+serial threeX.json
 setFlags 2
 execute
-serial twoY.json
+serial threeY.json
 clear
 quit
