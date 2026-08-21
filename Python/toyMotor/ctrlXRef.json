@@ -41,7 +41,7 @@
   "motor": "Motor 0"
 ,"list":[]},{
   "kind": "keyWait",
-  "name": "Wait for key o",
+  "name": "Wait for key j",
   "key": "o"
 ,"list":[]},{
   "kind": "move",
@@ -108,7 +108,7 @@
   "motor": "Motor 0"
 ,"list":[]},{
   "kind": "keyWait",
-  "name": "Wait for key o",
+  "name": "Wait for key j",
   "key": "o"
 ,"list":[]},{
   "kind": "move",
@@ -128,7 +128,7 @@
   "motor": "Motor 1"
 ,"list":[]},{
   "kind": "delay",
-  "name": "Wait track 1",
+  "name": "Wait track 2",
   "wait": 1.0
 ,"list":[]},{
   "kind": "move",
@@ -175,7 +175,7 @@
   "motor": "Motor 0"
 ,"list":[]},{
   "kind": "keyWait",
-  "name": "Wait for key o",
+  "name": "Wait for key k",
   "key": "o"
 ,"list":[]},{
   "kind": "move",
@@ -195,7 +195,7 @@
   "motor": "Motor 2"
 ,"list":[]},{
   "kind": "delay",
-  "name": "Wait track 1",
+  "name": "Wait track 3",
   "wait": 1.0
 ,"list":[]},{
   "kind": "move",
@@ -242,7 +242,7 @@
   "motor": "Motor 0"
 ,"list":[]},{
   "kind": "keyWait",
-  "name": "Wait for key o",
+  "name": "Wait for key k",
   "key": "o"
 ,"list":[]},{
   "kind": "move",
@@ -262,7 +262,7 @@
   "motor": "Motor 2"
 ,"list":[]},{
   "kind": "delay",
-  "name": "Wait track 1",
+  "name": "Wait track 4",
   "wait": 1.0
 ,"list":[]},{
   "kind": "move",
