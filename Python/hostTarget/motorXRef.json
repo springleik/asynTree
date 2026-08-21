@@ -1,47 +1,50 @@
-[{
-  "width": 300,
-  "height": 300,
-  "radius": 100,
-  "arc": 270,
-  "index": 4
-},
-{
-  "name": "Motor 0",
-  "xPos": 210,
-  "yPos": 28,
-  "rot": 0,
-  "targ": 0,
-  "incr": 1,
-  "run": false,
-  "done": true
-},
-{
-  "name": "Motor 1",
-  "xPos": 58,
-  "yPos": 354,
-  "rot": 180,
-  "targ": 180,
-  "incr": 10,
-  "run": false,
-  "done": true,
-  "runCurrent": 500,
-  "holdCurrent": 50,
-  "velocity": 10,
-  "acceleration": 10,
-  "position": 180
-},
-{
-  "name": "Motor 2",
-  "xPos": 362,
-  "yPos": 354,
-  "rot": 90,
-  "targ": 90,
-  "incr": 10,
-  "run": false,
-  "done": true,
-  "runCurrent": 500,
-  "position": 90,
-  "velocity": 10,
-  "acceleration": 10,
-  "holdCurrent": 25
-}]
+[
+  {
+    "width": 300,
+    "height": 300,
+    "radius": 100,
+    "arc": 270,
+    "index": 4
+  },
+  {
+    "name": "Motor 0",
+    "xPos": 210,
+    "yPos": 28,
+    "rot": 0,
+    "targ": 0,
+    "incr": -1,
+    "run": false,
+    "done": true,
+    "velocity": 3,
+    "acceleration": 30,
+    "position": 0
+  },
+  {
+    "name": "Motor 1",
+    "xPos": 58,
+    "yPos": 354,
+    "rot": 0,
+    "targ": 0,
+    "incr": -1,
+    "run": false,
+    "done": true,
+    "runCurrent": 500,
+    "holdCurrent": 500,
+    "velocity": 4,
+    "acceleration": 40,
+    "position": 0
+  },
+  {
+    "name": "Motor 2",
+    "xPos": 362,
+    "yPos": 354,
+    "rot": 0,
+    "targ": 0,
+    "incr": -1,
+    "run": false,
+    "done": true,
+    "velocity": 5,
+    "acceleration": 50,
+    "position": 0
+  }
+]

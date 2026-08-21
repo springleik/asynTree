@@ -39,10 +39,10 @@ Axis: 1, position: -90
 Connection closed by foreign host.
 MarksiMac:hostTarget williamm$
 ```
-Here I've used command line _telnet_ to open the connection. For most commands the results and output are the same as they were at the console prompt. One exception is the 'quit' command, which when typed in _telnet_ closes the socket connection but leaves the server running. Also some commands will show a line of output on the server console, to help with troubleshooting. Type 'help' to get a list of remote commands from the server. Type '?' to get a list of local commands from the client. This proof-of-concept has no provisions for limiting or securing access to the target server. As written it even supports multiple clients connected at the same time, although they are not aware of each other. Real applications would have to address these issues. The host client program in this project also makes a TCP socket connection with the target server and exposes a console command prompt. The following example shows running the host client with default parameters, assuming the server is already running in a separate terminal window. A few commands are typed at the prompt for immediate execution.
+Here I've used command line _telnet_ to open the connection. For most commands the results and output are the same as they were at the console prompt. One exception is the 'quit' command, which when typed in _telnet_ closes the socket connection but leaves the server running. Also some commands will show a line of output on the server console, to help with troubleshooting. This proof-of-concept has no provisions for limiting or securing access to the target server. As written it even supports multiple clients connected at the same time, although they are not aware of each other. Real applications would have to address these issues. The host client program in this project also makes a TCP socket connection with the target server and exposes a console command prompt. The following example shows running the host client with default parameters, assuming the server is already running in a separate terminal window. A few commands are typed at the prompt for immediate execution.
 
 ```
-MarksiMac:hostTarget williamm$ ./host.py
+MarksiMac:hostTarget williamm$ python3 host.py
  Usage: python3 host.py [host=localhost [port=12345 [file.scp]]]
 @: initControl
 @: setVelocity 2 4
@@ -54,7 +54,7 @@ Axis: 2, position: 180
 Connection dropped.
 ```
 
-Both the target and host programs accept script files as input for test purposes. The following example shows a test of the target server while parsing a script file _target.scp_, after which an asymmetric tree comparison in Python script _CompTree.py_ is used to check for differences between a checked-in reference file and the output file _motorX.json_. Of course if you typed the commands found in _target.scp_ at a console prompt, the results should be the same. In this example the script file ends with a 'quit' command which closes the connection. If the 'quit' command is deleted or commented out of the script file, the host program will stay connected so you can continue to interact with the target server through the command prompt.
+Type 'help' to get a list of remote commands from the server. Type '?' to get a list of local commands from the client. Both the target and host programs accept script files as input for test purposes. The following example shows a test of the target server while parsing a script file _target.scp_, after which an asymmetric tree comparison in Python script _CompTree.py_ is used to check for differences between a checked-in reference file and the output file _motorX.json_. Of course if you typed the commands found in _target.scp_ at a console prompt, the results should be the same. In this example the script file ends with a 'quit' command which closes the connection. If the 'quit' command is deleted or commented out of the script file, the host program will stay connected so you can continue to interact with the target server through the command prompt.
 
 ```
 MarksiMac:hostTarget williamm$ rm motorX.json
@@ -73,11 +73,11 @@ Axis: 1, position: 400
 Axis: 2, position: 300
 Axis: 0, position: 200
 -1 (0, 0) -1 (0, 0) -1 (0, 0)
-MarksiMac:hostTarget williamm$ ../CompTree.py motorXRef.json motorX.json
+MarksiMac:hostTarget williamm$ python3 ../CompTree.py motorXRef.json motorX.json
 []
 ```
 
-The empty square brackets show that no differences were encountered, test passed! Now we test the host side, which includes the abstract syntax tree (AST) interpreter. The next example shows how a script file can invoke a factory method which instantiates two different AST programs, 'figure 2' and 'figure 3'. These programs when serialized match those figures in the Springleik pre-print paper. Launch a target server without arguments, so it's listening at port 12345. Then in a separate terminal window run the host client with the script file _host.scp_ as input.
+The empty square brackets show that no differences were encountered, test passed! Now we test the host side, which includes the abstract syntax tree (AST) interpreter. The next example shows how a script file can invoke a factory method which instantiates two different AST command trees, 'figure 2' and 'figure 3'. These programs when serialized match those figures in the Springleik pre-print paper. Launch a target server without arguments, so it's listening at port 12345. Then in a separate terminal window run the host client with the script file _host.scp_ as input.
 
 ```
 MarksiMac:hostTarget williamm$ python3 host.py localhost 12345 host.scp
@@ -108,4 +108,4 @@ MarksiMac:hostTarget williamm$ git diff *.json
 MarksiMac:hostTarget williamm$
 ```
 
-No output, so no differences! Now you get to try the host client program, to see how this AST thing really works. Try typing the commands in the _host.scp_ script file at the host command prompt.
+No output, so no differences! Now you get to try the host client program, to see how this AST thing really works. Try typing the commands in the _host.scp_ script file at the host command prompt to see what happens.
