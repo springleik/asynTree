@@ -14,7 +14,7 @@
 \maketitle
 
 \begin{abstract}
-Small languages arise in computing for a variety of reasons. A simple command prompt can be useful in bringing up new hardware, particularly on small targets running embedded firmware. This leads naturally to a scriptable interface. Which can then evolve further into a primitive domain-specific language (DSL) that supports use cases in development, test, and even production. This work describes one path through the steps that lead from command prompt to small language. Such languages can be very efficient with the resources they use including memory, processor bandwidth, and system services. Memory allocations can be static or dynamic, according to the details of the application. Additional features including self-documenting code and generation of baseline test outputs are easily implemented with minimal effort.
+Small languages arise in computing for a variety of reasons. A simple command prompt can be useful in bringing up new hardware, particularly on small targets running embedded firmware. This leads naturally to a scriptable interface. Which can then evolve further into a primitive domain-specific language (DSL) that supports use cases in development, test, and even production. This work describes one path through the steps that lead from command prompt to small language. Such languages can be very efficient with the resources they use including memory, processor bandwidth, and system services. Memory allocations can be static or dynamic, according to the details of the application. Additional features, including self-documenting code and generation of baseline test outputs, are easily implemented with minimal effort.
 \end{abstract}
 
 \section{Introduction}
@@ -30,12 +30,12 @@ The central claim of this paper is therefore not that parsing is unnecessary, bu
 \section{Model of software development}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{figure1}
-\caption{Software development process rendered as a closed-loop simulation diagram. Negative feedback from the \textit{Verify} block causes the \textit{Deliverables} to evolve, tracking changes in \textit{Requirements}. When all requirements have been met, the error term $E(s)$ goes to zero and the control loop is in steady state.}
+\includegraphics[width=\textwidth]{fig1}
+\caption{Software development process rendered as a closed-loop simulation diagram. Negative feedback from verification $V(s)$ causes deliverables $D(s)$ to evolve, tracking changes in requirements $R(s)$. When all requirements have been met, the error term $E(s)$ goes to zero and the control loop is in steady state.}
 \label{closedLoopModel}
 \end{figure}
 
-Many models are available for software development for this discussion. Here we present a simple model based on closed loop control theory, which includes concepts of time dependence and iteration. Figure \ref{closedLoopModel} is a simulation diagram representing a software development process. The input on the left is requirements $R(s)$, and the output on the right is executable code and other deliverable assets $D(s)$. In between we have a means for creating code \textit{Implement} positioned as the plant in control theory, and a means for testing code \textit{Verify} positioned as the sensor. The summing junction on the left compares test results $V(s)$ with requirements $R(s)$ to produce an error term $E(s)$, which then drives ongoing development. The directed edges connecting these parts together represent $N$-dimensional vectors where $N$ is the number of requirements. The value of each dimension is the extent to which a given requirement has been met on some arbitrary scale.
+Many models are available for software development for this discussion. Here we present a simple model based on closed loop control theory, which includes concepts of time dependence and iteration. Figure \ref{closedLoopModel} is a simulation diagram representing a software development process. The input on the left is requirements $R(s)$, and the output on the right is executable code and other deliverable assets $D(s)$. In between we have a means for creating code \textit{Implement} positioned as the plant in control theory, and a means for verifying code \textit{Test} positioned as the sensor. The summing junction on the left compares verification results $V(s)$ with requirements $R(s)$ to produce an error term $E(s)$, which then drives ongoing implementation. The directed edges connecting these blocks represent $N$-dimensional vectors where $N$ is the number of requirements. The value of each dimension is the extent to which a given requirement has been met on some arbitrary scale.
 
 A typical software project will begin with all vectors pointing to the origin: no requirements, no implementation, and no tests. As development proceeds we add requirements which drive the implementation, which is then tested and compared with requirements. Each directed edge conveys important information, but the most interesting vector is the error term $E(s)$. This will wander in an $N$-dimensional problem space, with $N$ steadily increasing as development proceeds. Ideally this vector should always trend towards zero, with distance from the origin giving us an indication of how far we are from done. Time dependence is not shown explicitly but one can imagine one or more integrators in the loop, with time constants we may or may not control, modifying the time domain response of the development process.
 
@@ -47,11 +47,11 @@ D(s) = R(s)\frac{I(s)}{1+I(s)T(s)}
 \end{equation}
 
 
-In this model we see that there are three things which matter: requirements, implementation, and tests. These pillars of software development should receive equal priority during development, so that all three can be considered as correct and complete when development ends and maintenance phase begins. As a practical matter however many projects end with one or more of the pillars incomplete. I claim without proof that given any one of these, the other two can be derived through various means. For the purposes of this paper we use the simulation diagram in figure \ref{closedLoopModel} to define deriving implementation and tests from requirements as ``forward engineering.'' Starting with an implementation or a test suite is then defined as ``reverse engineering.''
+In this model we see that there are three things which matter: requirements, implementation, and tests. These pillars of software development should receive equal priority during development, so that all three can be considered as correct and complete when development ends and maintenance begins. As a practical matter however many projects end with one or more of the pillars incomplete. I claim without proof that given any one of these, the other two can be derived through various means. For the purposes of this paper we use the simulation diagram in figure \ref{closedLoopModel} to define deriving implementation and tests from requirements as ``forward engineering.'' Starting with an implementation or a test suite is then defined as ``reverse engineering.''
 
 \section{Object model for small targets}
 
-Developers of embedded software for small targets may be tempted to organize their object model around things the system has, such as inputs, outputs, sensors, and actuators. I would submit however that a coherent design is more likely to result from an object model organized around things the embedded system does, such as ``home an axis'', ``measure a sample'', ``acquire a trace'', or ``energize a solenoid.'' The real reason we think in terms of objects is so that we can throw them into a container and iterate over them. While there may be a use case for iterating over peripherals, the important use case here is iterating over a collection of nodes which represent actions a user might want to invoke. These are packaged as command nodes along with the arguments needed to carry out each action. Thus we replace a noun-oriented design with a verb-oriented design so that command nodes can be collected into sequences which can then be interpreted on live hardware, simulated hardware, or a hybrid of both. Let's look at an example of how such a design might arise.
+Developers of embedded software for small targets may be tempted to organize their object model around things the system has, such as inputs, outputs, sensors, and actuators. I would submit however that a coherent design is more likely to result from an object model organized around things the embedded system does, such as ``home an axis'', ``measure a sample'', or ``close a relay.'' The reason we think in terms of objects is so that we can throw them into a container and iterate over them. While there may be a use case for iterating over peripherals, the important use case here is iterating over a collection of nodes which represent actions a user might want to invoke. These are packaged as command nodes along with the arguments needed to carry out each action. Thus we replace a noun-oriented design with a verb-oriented design so that command nodes can be collected into sequences which can then be interpreted on live hardware, simulated hardware, or a hybrid of both. Let's look at an example of how such a design might arise.
 
 Consider a small target device with embedded processor and several axes of motion control. On first bring-up we want to start characterizing the motion controller. We write a small monitor program to run on the target with a command prompt exposed on a serial port, or a socket port if so equipped. Then we write commands to initialize the motion controller, home an axis, move axis to a new position, and wait for position reached. Each command can be followed with one or more arguments giving details such as velocity, acceleration, current, position, etc. Running a terminal program on a host computer allows us to manually exercise various behaviors of the motion controller. We can stream a text file containing motion commands from the host to the target's monitor program to execute a motion sequence of arbitrary complexity. Move commands however take finite time, and we wind up overrunning the monitor program with new commands before old ones are complete. So we write a program to run on the host and carry out a series of motions on the target using monitor program commands, but now waiting for a prompt from the target before sending a new command from the host.
 
@@ -62,9 +62,9 @@ Many readers will have gone through these steps in bringing up a new target. We 
 \begin{itemize}
  \item Instantiate one or more class objects representing command nodes to be executed.
  \item Populate the nodes with arguments appropriate for the desired commands.
- \item Compose the nodes into a program by appending them to a collection.
- \item Iterate over the collection, interpreting each node as a command with arguments.
- \item Capture results returned for each command node, either as attributes of the command nodes or in a separate trace or listing.
+ \item Compose the nodes into a sequence by appending them to an ordered collection.
+ \item Iterate over the collection, interpreting each node as a command to be sent to the target.
+ \item Capture results returned from each command, either as attributes of the command nodes or in a separate trace or listing.
 \end{itemize}
 
 Let's look at what we have. The class objects representing command nodes can live almost anywhere: on the host, on the target, in the cloud, or anywhere else that can interpret them into commands with arguments. For now we think of the arguments as being hard-coded, but they could just as well be derived or symbolic. Various types of collections can be used to iterate over the command nodes, as long as the iteration follows a predictable, repeatable path. The commands themselves can be sent to one or more target devices, or to any other device or simulation with an interface to receive them. Command replies such as motion results or error messages in our motion control example can go back to the host, to some other monitor, or even be ignored. This then is the bare minimum of what's needed to claim we have a small domain-specific language. This can be prototyped and running in a matter of a few days, completely avoiding the trap that ``nothing works until everything works.''
@@ -100,7 +100,7 @@ Let's look at what we have. The class objects representing command nodes can liv
 ]
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a simple command list being sent to an embedded motion controller. Arguments here are named, but could also be positional.}
+\caption{JSON representation of a simple command list being sent to an embedded motion controller. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub.}
 \label{simpleListing}
 \end{figure}
 
@@ -130,31 +130,38 @@ Real programming however implies branching and looping, which is easily added by
   {"cmd": "homeAxis", "axis": 2},
   {"cmd": "setVelocity", "axis": 2, "steps_sec": 10},
   {"cmd": "setAccel", "axis": 2, "steps_sec2": 10},
-  {"cmd": "iterateRegister", "reg": "$1", "start": 0, "stop": 200, "step": 20, "list": [
-    {"cmd": "setPosition", "axis": 1, "degrees": "$1"},
+  {"cmd": "iterateRegister", "reg": 0, "start": 0, "stop": 200,
+    "step": 20, "list": [
+    {"cmd": "setPosition", "axis": 1, "degrees": "reg"},
     {"cmd": "waitPosition", "axis": 1},
-    {"cmd": "iterateRegister", "reg": "$2", "start": 0, "stop": 100, "step": 10, "list": [
-      {"cmd": "setPosition", "axis": 2, "degrees": "$2"},
+    {"cmd": "iterateRegister", "reg": 0, "start": 0, "stop":
+      100, "step": 10, "list": [
+      {"cmd": "setPosition", "axis": 2, "degrees": "reg"},
       {"cmd": "waitPosition", "axis": 2}]}]},
   {"cmd": "testFlag", "flag": 1, "trueIf": 1, "list": [
     {"cmd": "setHoldCurrent", "axis": 1, "current_mA": 50},
     {"cmd": "setHoldCurrent", "axis": 2, "current_mA": 25}]}]}
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a command tree with conditional and repeating nodes. The root node is both a dictionary and a command node. But we could just as well have subclassed \textit{branch} to have a \textit{root} node class. Or used a base class node, with its default behaviors. These are design decisions, along with many other details. \$1 and \$2 are symbols for global registers visible to subordinates of the ``iterateRegister'' nodes.}
+\caption{JSON representation of a command tree with conditional and repeating nodes. The root node is both a dictionary and a command node. But we could just as well have subclassed \textit{branch} to have a \textit{root} node class. Or used a base class node, with its default behaviors. These are design decisions, along with many other details. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub.}
 \label{treeListing}
 \end{figure}
 
-In figure \ref{treeListing} we look at the JSON representation of a command tree which includes conditional and repeating nodes. Iteration is done by the new ``iterateRegister'' control node that changes the value of a numbered register which is then visible to nodes beneath the control node. Nested loops are supported here by placing the iteration of axis 2 inside the iteration of axis 1. At the end of the sequence a ``testInput'' control node tests a digital input to check whether to return to holding current.
+In figure \ref{treeListing} we look at the JSON representation of a command tree which includes conditional and repeating nodes. Iteration is done by the new ``iterateRegister'' control node that changes the value of a register attribute which is visible to nodes beneath the control node. Nested loops are supported here by placing the iteration of axis 2 inside the iteration of axis 1. At the end of the sequence a ``testInput'' control node tests a digital input to check whether to return to holding current.
 
 The ability to implement tree structures composed of command and control nodes, using all of the infrastructure we've developed so far, brings into focus a scalable, portable, and verifiable framework for representing interpreted programs optimized for the application at hand. The composite tree structure maps directly to structured text representations such as JSON, XML, or YAML. Human-readable program listings are easily obtained by serializing nodes while traversing the tree by recursive descent. In this picture we can now say clearly that command nodes are dictionaries composed of key-value pairs representing the command name and all of its arguments. Control nodes will additionally hold an ordered list identifying subordinate nodes.
 
 \section{Deserialization}
 
-There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization, used to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math expressions. Experience shows that each of these features imposes a significant burden of time and expense to implement, document, and verify. Readers should consider how much value would be added before going down this path. Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic command nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates by recursive descent. For this to work each node should appear in the tree exactly once.
+There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization, used to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math expressions. Experience shows that each of these features imposes a significant burden of time and expense to implement, document, and verify. The techniques described here allow one to decide when and how to implement additional features, according to the needs of the project.
+
+
+TODO: cite specific examples from the Springleik project repo on GitHub.
+
+Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic command nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates by recursive descent. For this to work all nodes in the tree should be dynamically allocated and each node should appear in the tree exactly once. It's easy to maintain a global node counter to check for leakage (block not freed) and double frees (block freed twice) at run-time.
 
 \section{Execution model}
-Bring in threads, tasks, and processes.
+Bring in threads, tasks, and processes. Note the convenience of having a single pointer or reference (to the root node) to use for managing each command tree, over its complete life-cycle.
 
 \section{Analysis}
 Say something about decorating the tree with measurement and analysis nodes.
@@ -166,6 +173,8 @@ We'll discuss deserialization more when we consider adding an analysis phase to 
 With regard to test strategies which compare baseline reference outputs to new outputs obtained from target device-under-test.
 Without re-running physical measurements.
 
+Say more about command tree life-cycle. Discuss the tree as it evolves over instantiation, execution, analysis, and finally disposition.
+
 \section{Vocabulary}
 I used to value lexical, grammatical, semantical, and syntactical thinking. Seems naive now that I can express everything as a tree.
 
@@ -176,6 +185,9 @@ Test and verification will lead naturally to my concept of an asymmetric tree co
 List my rules, and explain why they matter.
 
 \section{Communication}
+
+I could start by saying that my AI (ChatGPT) wrote the introduction for this paper based on our conversations. In otherwords, an AI can understand and work with this representation directly without confusion or ambiguity. For human stake-holders we can add a layer which renders pseudocode from the JSON text.
+
 Say something about rendering the tree in various human and/or machine readable forms.
 Ideally one-to-one mapping in all directions.
 With the possibility to run round-trip testing.
