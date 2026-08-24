@@ -1,7 +1,8 @@
 /*
  * File asynTree.h declares an
  * Abstract Syntax Tree Interpreter
- * M. Williamsen, 20 June 2024
+ * M. Williamsen, Springleik Project
+ * 20 June 2024
 */
 
 // https://stackoverflow.com/questions/21150454/representing-an-abstract-syntax-tree-in-c
@@ -12,10 +13,10 @@ typedef struct node
     // instance variables
     int depth;
     int seq;
-    struct node *next;
-    struct node *list;
+    struct node *next;  // singly linked list at the same level
+    struct node *list;  // singly linked list at level beneath
 
-    // instance methods
+    // instance method pointers allow polymorphic behavior
     void (*execute) (void *this);
     void (*serial)  (void *this);
 } node;

@@ -1,6 +1,7 @@
 # ============================================================
 # asynInt.py, Abstract syntax tree interpreter for motion control
-# M. Williamsen, FlexLink AB
+# M. Williamsen, Springleik Project
+# File asynInt.py
 # 14 May 2024
 
 import time, json
@@ -19,7 +20,7 @@ class node:
     def append(self, *nodes):
         for node in nodes:
             self.series.append(node)
-    
+
     # override to add entry and exit code
     def execute(self):
         for item in self.series:
@@ -29,9 +30,9 @@ class node:
         for item in self.series:
             item.analyze()
 
-    # TODO goal to serialize to string, file, or console
+    # serialize to file
     def serialize(self, jFile):
-        s = json.dumps(self.data)[:-1] + ',"list":['
+        s = json.dumps(self.data, indent = 2)[:-1] + ',"list":['
         print(s, file = jFile, end = '')
         first = True
         for item in self.series:
@@ -40,27 +41,28 @@ class node:
             item.serialize(jFile)
         print(']}', file = jFile, end = '')
 
-    # add up levels and node numb
-    def summarize(self, depth = None, numb = None):
+    # add up levels and node number
+    def summarize(self, depth = None, number = None):
         if depth is None: depth = 0
-        if numb is None: numb = 1
+        if number is None: number = 1
         self.data['depth'] = depth
-        self.data['numb'] = numb
+        self.data['number'] = number
         for item in self.series:
-            numb = item.summarize(depth + 1, numb + 1)
-        return numb
+            number = item.summarize(depth + 1, number + 1)
+        return number
 
 # motor initiate move command
 class move(node):
     def __init__(self, name, motor, target, increment):
         super().__init__(name)
         self.data['kind'] = 'move'
-        
+
         # motor object isn't serializable for now
         self.motor = motor
+        self.data['motor'] = motor.name
         self.data['targ'] = target
         self.data['incr'] = increment
-        
+
     def execute(self):
         self.motor.movePosition(self.data['targ'], self.data['incr'])
         for item in self.series:
@@ -72,24 +74,25 @@ class doneWait(node):
         super().__init__(name)
         self.data['kind'] = 'doneWait'
         self.motor = motor
-        
+        self.data['motor'] = motor.name
+
     def execute(self):
         self.motor.flag.wait()
         for item in self.series:
             item.execute()
-        
+
 # iteration command
 class loop(node):
-    def __init__(self, name, numb):
+    def __init__(self, name, count):
         super().__init__(name)
         self.data['kind'] = 'loop'
-        self.data['numb'] = numb
-        
+        self.data['count'] = count
+
     def execute(self):
-        for n in range(self.data['numb']):
+        for n in range(self.data['count']):
             for item in self.series:
                 item.execute()
-    
+
 class delay(node):
     def __init__(self, name, interval):
         super().__init__(name)
@@ -104,7 +107,8 @@ class delay(node):
 class keyWait(node):
     def __init__(self, name, key):
         super().__init__(name)
+        self.data['kind'] = 'keyWait'
         self.data['key'] = key
-        
+
     def execute(self):
         time.sleep(1.0)

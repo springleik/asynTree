@@ -1,0 +1,22 @@
+# ==============================================
+# Demo script file for
+# host.py motion control emulator
+# M. Williamsen, 23 July 2026
+# Springleik project
+
+serial one.json
+clear
+figure 2
+serial two.json
+execute
+serial twoX.json
+figure 3
+serial three.json
+setFlags 0
+execute
+serial threeX.json
+setFlags 2
+execute
+serial threeY.json
+clear
+quit

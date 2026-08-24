@@ -1,12 +1,15 @@
+#!/usr/bin/env python3
 # ------------------------ AST.py ------------------------ #
-# M. Williamsen, FlexLink, 5 April 2024
+# M. Williamsen, Springleik Project
+# File asynTree.py
+# 5 April 2024
 
 # Consider possible demonstrations
 # Strip chart recorder showing position, velocity, acceleration vs. time
 # Strip chart recorder showing quantity per unit time of products passing a sensor
 # Strip chart of products entering or leaving a combiner, diverter, etc
-# showing peak throughput for each channel. Yay!
-# Animation, as in my crankshaft program, with the possibility to slow it down arbitrarily to show dependencies
+# Showing peak throughput for each channel.
+# Animation, with the possibility to slow it down arbitrarily to show dependencies
 # Emergency stop and reset
 # State machine evolution
 # Forcing inputs via buttons on screen
@@ -15,7 +18,7 @@
 # Interesting to compare class instances vs. dictionaries for tree nodes
 # Dictionaries and lists are mutable, and so are class objects
 
-import time, math
+import time, math, sys
 
 # Root class for polymorphic tree nodes
 class node:
@@ -26,39 +29,39 @@ class node:
         self.level = 0
         self.count = 0
         pass
-        
+
     def execute(self):
         print ('Executing node')
         pass
-        
+
     def analyze(self):
         print ('Analyzing node')
         pass
-        
-    def serializeValue(self):
+
+    def serializeValue(self, file):
         theValue = self.value
         theType = type(theValue)
-        if theValue is True: print ('true', end = '')
-        elif theValue is False: print ('false', end = '')
-        elif theValue is None: print ('null', end = '')
-        elif theType is int: print (theValue, end = '')
-        elif theType is str: print ('"' + theValue + '"', end = '')
+        if theValue is True: print ('true', end = '', file = file)
+        elif theValue is False: print ('false', end = '', file = file)
+        elif theValue is None: print ('null', end = '', file = file)
+        elif theType is int: print (theValue, end = '', file = file)
+        elif theType is str: print ('"' + theValue + '"', end = '', file = file)
         elif theType is float:
-            if math.isnan(theValue): print ('NaN', end = '')
-            elif math.isinf(theValue): print ('Infinity', end = '')
-            else: print (theValue, end = '')        
+            if math.isnan(theValue): print ('NaN', end = '', file = file)
+            elif math.isinf(theValue): print ('Infinity', end = '', file = file)
+            else: print (theValue, end = '', file = file)
 
-    def serialize(self):
-        print ('{{"level":{0},"count":{1},"value":'.format(self.level, self.count), end = '')
-        self.serializeValue()
-        print ('}', end = '')
-        
+    def serialize(self, file):
+        print ('{{"level":{0},"count":{1},"value":'.format(self.level, self.count), end = '', file = file)
+        self.serializeValue(file)
+        print ('}', end = '', file = file)
+
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
         self.level = visitor.level
         self.count = visitor.count
         visitor.count += 1
-       
+
 # Subclass with a list
 class branch (node):
     # Each branch node has an optional value and series
@@ -70,45 +73,44 @@ class branch (node):
     def enter (self):
         print ('Entering branch')
         pass
-        
+
     def leave (self):
         print ('Leaving branch')
         pass
-        
+
     def execute(self):
         print ('Executing branch')
         self.enter()
         for item in self.series:
             item.execute()
         self.leave()
-        
+
     def analyze(self):
         print ('Analyzing branch')
         for item in self.series:
             item.analyze()
         pass
-        
-    def serialize(self):
-        print ('{"value":', end = '')
-        self.serializeValue()
-        print (',"level":{0},"count":{1},"series":['.format(self.level, self.count), end = '')
+
+    def serialize(self, file):
+        print ('{"value":', end = '', file = file)
+        self.serializeValue(file)
+        print (',"level":{0},"count":{1},"series":['.format(self.level, self.count), end = '', file = file)
         first = True
         for item in self.series:
             if first: first = False
-            else: print (',', end = '')
-            print ('\n' + item.level * '   ', end = '')
-            item.serialize()
-        print ('\n' + self.level * '   ' + ']}', end = '')
-        
+            else: print (',', end = '', file = file)
+            print ('\n' + item.level * '   ', end = '', file = file)
+            item.serialize(file)
+        print ('\n' + self.level * '   ' + ']}', end = '', file = file)
+
     def summarize(self, visitor = None):
         if visitor is None: visitor = node('visitor')
         super().summarize(visitor)
-        visitor.count += 1
         visitor.level += 1
         for item in self.series:
             item.summarize(visitor)
         visitor.level -= 1
-        
+
     def append(self, item):
         self.series.append(item)
         pass
@@ -121,7 +123,7 @@ class wait (node):
         pass
 
 # branch subclass for loop iteration
-class loop (branch):        
+class loop (branch):
     def execute(self):
         remain = self.value
         while self.value > 0:
@@ -156,7 +158,10 @@ aTree = loop(3,
 )
 
 # summarize the tree
-aTree.summarize()
+summary = node ('visitor')
+aTree.summarize(summary)
+summary.serialize (sys.stdout)
+print ()
 
 # execute the tree
 aTree.execute()
@@ -165,4 +170,6 @@ aTree.execute()
 aTree.analyze()
 
 # serialize the tree
-aTree.serialize()
+with open('asynTree.json', 'w') as file:
+    aTree.serialize(file)
+    file.write('\n')

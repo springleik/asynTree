@@ -1,10 +1,10 @@
 /*
  * File asynTree.c defines an
  * Abstract Syntax Tree Interpreter
- * M. Williamsen, 20 June 2024
+ * M. Williamsen, Springleik Project
+ * 20 June 2024
 */
 
-// https://github.com/zserge/jsmn/tree/master
 // https://stackoverflow.com/questions/21150454/representing-an-abstract-syntax-tree-in-c
 // https://stackoverflow.com/questions/840501/how-do-function-pointers-in-c-work
 
@@ -13,7 +13,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "jsmn.h"
 #include "asynTree.h"
 
 // helper functions to simplify syntax for base class methods
@@ -60,9 +59,9 @@ void serialCommon (void *this)
     // entry code
     assert (this);
     node *p = (node *) this;
-    printf (",\"depth\":%d", p->depth);
-    printf (",\"seq\":%d", p->seq);
-    printf (",\"list\":[");
+    fprintf (stdout, ",\"depth\":%d", p->depth);
+    fprintf (stdout, ",\"seq\":%d", p->seq);
+    fprintf (stdout, ",\"list\":[");
 
     // iterate over child nodes
     boolean first = true;
@@ -70,14 +69,14 @@ void serialCommon (void *this)
     while (p)
     {
         if (first) {first = false;}
-        else {printf (",");}
-        printf ("\n");
+        else {fprintf (stdout, ",");}
+        fprintf (stdout, "\n");
         serial(p);
         p = p->next;
     }
 
     // exit code
-    printf ("]}");
+    fprintf (stdout, "]}");
 }
 
 // serialize all nodes by recursive descent
@@ -85,8 +84,8 @@ void serialNode (void *this)
 {
     // entry code
     assert (this);
-    printf ("%*s", ((node *)this)->depth * 3, "");
-    printf ("{\"type\":\"node\"");
+    fprintf (stdout, "%*s", ((node *)this)->depth * 3, "");
+    fprintf (stdout, "{\"type\":\"node\"");
 
     // invoke common code
     serialCommon (this);
@@ -103,6 +102,7 @@ void release (void *this)
     node *p = ((node *)this)->list;
     while (p)
     {
+        // get next pointer before releasing this
         node *q = p;
         p = p->next;
         release(q);
@@ -169,8 +169,8 @@ void initWhat (what *this)
     initNode (p);
 
     // override instance methods
-    p->serial = serialWhat;
     p->execute = executeWhat;
+    p->serial = serialWhat;
 
     // initialize subclass instance variables
     this->one = 1;
@@ -184,7 +184,7 @@ void executeWhat (void *this)
     // entry code
     assert (this);
     what *p = (what *) this;
-    printf ("Executing what one: %d, two: %d, three: %d\n", p->one, p->two, p->three);
+    fprintf (stderr, "Executing what one: %d, two: %d, three: %d\n", p->one, p->two, p->three);
 
     // invoke base class iteration
     executeNode (this);
@@ -198,11 +198,11 @@ void serialWhat (void *this)
     // entry code
     assert (this);
     what *p = (what *) this;
-    printf ("%*s", p->base.depth * 3, "");
-    printf ("{\"type\":\"what\"");
-    printf (",\"one\":%d", p->one);
-    printf (",\"two\":%d", p->two);
-    printf (",\"three\":%d", p->three);
+    fprintf (stdout, "%*s", p->base.depth * 3, "");
+    fprintf (stdout, "{\"type\":\"what\"");
+    fprintf (stdout, ",\"one\":%d", p->one);
+    fprintf (stdout, ",\"two\":%d", p->two);
+    fprintf (stdout, ",\"three\":%d", p->three);
 
     // invoke common code
     serialCommon (this);
@@ -213,18 +213,10 @@ void serialWhat (void *this)
 int main(void)
 {
     // instantiate a node
-    printf ("hello, world\n");
+    fprintf (stderr, "hello, world\n");
     node *first = malloc (sizeof(node));
     initNode (first);
-    printf ("one: %d, two: %d\n", first->depth, first->seq);
-
-    // instantiate a JSON parser
-    char *jsn = "{\"one\":1,\"two\":2,\"three\":3,\"four\":4}";
-    jsmn_parser par;
-    jsmntok_t tok [16];
-    jsmn_init (&par);
-    int tokens = jsmn_parse (&par, jsn, strlen(jsn), tok, 16);
-    printf ("tokens: %d\n", tokens);
+    fprintf (stderr, "one: %d, two: %d\n", first->depth, first->seq);
 
     // allocate tree nodes
     node *one = malloc (sizeof(node));
@@ -240,7 +232,7 @@ int main(void)
     what *eleven = malloc (sizeof(what));
 
     // initialize tree nodes
-    printf ("nodeCount: %d\n", nodeCount);
+    fprintf (stderr, "nodeCount: %d\n", nodeCount);
     initNode (one);
     initNode (two);
     initNode (three);
@@ -273,12 +265,12 @@ int main(void)
     // execute and serialize the tree to console
     int seq = 0;
     summary (one, 0, &seq);
-    printf ("nodeCount: %d, seq: %d\n", nodeCount, seq);
+    fprintf (stderr, "nodeCount: %d, seq: %d\n", nodeCount, seq);
     execute (one);
     serial (one);
-    printf ("\n");
+    fprintf (stdout, "\n");
     release(one);
-    printf ("nodeCount: %d\n", nodeCount);
+    fprintf (stderr, "nodeCount: %d\n", nodeCount);
     release(first);
-    printf ("nodeCount: %d\n", nodeCount);
+    fprintf (stderr, "nodeCount: %d\n", nodeCount);
 }

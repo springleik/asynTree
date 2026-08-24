@@ -1,0 +1,83 @@
+{"level":0,"count":16,"value":"visitor"}
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Waiting: 0.25 seconds.
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Executing node
+Waiting: 0.1 seconds.
+Executing node
+Executing node
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Leaving branch
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Waiting: 0.25 seconds.
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Executing node
+Waiting: 0.1 seconds.
+Executing node
+Executing node
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Leaving branch
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Waiting: 0.25 seconds.
+Executing branch
+Entering branch
+Executing node
+Executing node
+Executing node
+Executing node
+Waiting: 0.1 seconds.
+Executing node
+Executing node
+Leaving branch
+Executing branch
+Entering branch
+Executing node
+Executing node
+Leaving branch
+Leaving branch
+Analyzing branch
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing branch
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing node
+Analyzing branch
+Analyzing node
+Analyzing node

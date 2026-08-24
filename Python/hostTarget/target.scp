@@ -1,0 +1,36 @@
+# ==============================================
+# Demo script file for
+# target.py motion control emulator
+# M. Williamsen, 23 July 2026
+# Springleik project
+
+initControl
+setRunCurrent 1 500
+setHoldCurrent 1 500
+setVelocity 0 3
+setVelocity 1 4
+setVelocity 2 5
+setAccel 0 30
+setAccel 1 40
+setAccel 2 50
+homeAxis 0
+homeAxis 1
+homeAxis 2
+
+setPosition 1 400
+setPosition 2 300
+setPosition 0 200
+
+waitPosition 0
+waitPosition 1
+waitPosition 2
+# quit
+
+homeAxis 0
+homeAxis 1
+homeAxis 2
+
+waitPosition 0
+waitPosition 1
+waitPosition 2
+quit
