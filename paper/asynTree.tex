@@ -220,33 +220,47 @@ It is especially convenient to carry out syntax and integrity checks when requir
 
 \section{Deserialization}\label{Deserialization}
 
-There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization, used to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math and logic expressions. Experience shows that these features impose a burden of time and expense to implement, document, and verify. The techniques described here allow one to decide when and how to implement additional features, according to the needs of the project.
+There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization, used to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math and logic expressions. Experience shows that these features impose a burden of time and expense to implement, document, and verify. The techniques described here give one the choice of when and how to implement additional features, according to the needs of the project.
 
-Consider that my argument for separation of execution and analysis is that for test purposes we want to be able to capture and archive execution results before analysis, and then at a later time reconstitute the tree after execution and perform offline analysis. Yay!
+There are several use cases which justify the need for deserialization. In our view the most important of these is testability, to allow for round-trip testing. We propose here that since serialization is so much easier than deserialization, serialization should be implemented and verified first to use as a trusted reference. Which in turn makes the deserializer, that is the source code parser, easier to implement and verify. Archived output from the serializer, that is program source code, can be deserialized and then serialized again. With the new code being compared to the archived code for equality. This will be discussed more in section \ref{asymmetricComparison}.
+
+Because the deserializer isn't needed to create and execute AST command trees, it can be implemented class by class, as and when convenient. The way this works is that we begin with all source code nodes deserializing to the default base classes for leaf and branch. Then we add specialized implementation for each node class in turn. The deserializer is typically a factory method which instantiates and composes the nodes encountered while parsing source text. As the deserializer starts working, we can begin to add test cases which rely on it. Specifically, we can have tests where instead of executing the tree to populate it with data nodes, we can deserialize an archived command tree which already has data nodes appended. Thus removing the dependence on live hardware for all steps in the workflow which come after execution. This principle of \textit{Separation of Execution and Analysis} opens up many possibilities for testing on-target and off-target, and for verifying with test cases obtained directly from archived live data, live data modified to stress limits and edge cases, synthetic data meant to prove mathematical robustness, and hybrid combinations of these sources.
+
+A secondary use of deserialization is to move data analysis and reporting off-target to host software running on a workstation or in the cloud. Here too one only needs partial deserialization to support analysis and reporting, leaving hardware-dependent nodes as pass-through base class nodes. This is especially helpful in applications with multiple stages of analysis, or multiple report formats. All can be tested with the same source data.
+
+\section{Math and logic expressions}
+
+The work described here has its origins in the logic scan of industrial process controllers. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and any math operations needed for the application. The ability to parse general math and logic expressions is probably not a requirement for most embedded interpreters, especially in domain-specific applications where needed computations can be coded into pre-defined node classes.
+
+\section{Asymmetric tree comparison}\label{asymmetricComparison}
+Performing a directional comparison is important when comparing test outputs with reference files, so that the test files can include additional comments, annotation, and instrumentation. Additionally, items you don't want to compare (timestamps, sequence numbers that change often, analog values such as voltage or temperature, etc.) can be ignored in the comparison by removing them from the reference file. The test file can then have varying values for these items and still be considered as equal, in order to pass a regression test for instance. An interesting question is whether to include version info for the software under test. If you leave version info in, then you'll have to touch the reference file each time you test a new version. If you actually need an exact match in both directions, simply test the files twice, reversing their order so both are evaluated as test files. If both comparisons are True, then both files have exactly the same dictionary keys and array elements. Following is a list of rules used in this work to compare test outputs with reference files:
+
+\begin{itemize}
+ \item Any dictionary in the test file must have all of the keys in the corresponding dictionary in the reference file. Order is ignored. Dictionaries in the files being compared can have a completely different ordering, and still test as equal. Additional keys in the test file are ignored.
+ \item Any array in the test file must have at least as many elements as the corresponding array in the reference file. Order is maintained and must match, up to the last element in the reference file. Additional array elements in the test file are ignored.
+ \item Each value in a dictionary in the reference file must be equal to the corresponding value in the test file, according to these rules.
+ \item Each element in an array in the reference file must be equal to the corresponding element in the test file, according to these rules.
+ \item Integers must have the same value and sign.
+ \item Floats must have the same value, sign, and exponent. Floats with the value Infinity in the reference file must have a corresponding Infinity in the test file. Sign is not considered in this comparison. Floats with the value NaN in the reference file must have a corresponding NaN in the test file.
+ \item An optional argument can be used to set an error delta. If used, float values will be considered as equal if the absolute value of their difference is less than the error delta value.
+ \item Booleans must either be both True, or both False.
+ \item Text strings must be an exact case-sensitive match, including white space and escape characters inside the string. White space outside of text strings is ignored. The two files being compared can have a completely different formatting in terms of white space, and still test as equal.
+ \item Null values in the reference file must have a corresponding Null value in the test file.
+\end{itemize}
+
+The content of this section has been published previously in reference \cite{asymmetricRules}.
 
 \section{Execution model}
 Bring in threads, tasks, and processes. Note the convenience of having a single pointer or reference (to the root node) to use for managing each command tree, over its complete life-cycle.
 
+\section{Language families}
+Say that we are proposing families of similar languages, not derivatives, offshoots, forks, or libraries. We really mean for each language to be specific to one target application and to stand on its own in terms of maintenance and lifecycle. Refer also to anticipated use of AI/ML in carrying out maintenance and upgrades.
+
 \section{Analysis}
-Say something about decorating the tree with measurement and analysis nodes.
-Which should lead naturally to a discussion of separation of execution and analysis.
-May want a 'clear' function to restore a tree to its original state.
-May want multiple passes for analysis, for instance to gather nodes into series, extract fitted parameters, append analysis nodes, gather data for reporting, etc.
+May want a 'clear' function to restore a tree to its original state. Say more about command tree life-cycle. Discuss the tree as it evolves over instantiation, execution, analysis, and finally disposition.
 
-We'll discuss deserialization more when we consider adding an analysis phase to our command tree structure.
-With regard to test strategies which compare baseline reference outputs to new outputs obtained from target device-under-test.
-Without re-running physical measurements.
-
-Say more about command tree life-cycle. Discuss the tree as it evolves over instantiation, execution, analysis, and finally disposition.
-
-\section{Vocabulary}
-I used to value lexical, grammatical, semantical, and syntactical thinking. Seems naive now that I can express everything as a tree.
-
+\section{Granularity}
 Say something about granularity of command node objects. My guidance would be to package command nodes in the same sense as you would package monitor prompt commands. Problem solved!
-
-\section{Verification}
-Test and verification will lead naturally to my concept of an asymmetric tree comparison.
-List my rules, and explain why they matter.
 
 \section{Communication}
 
@@ -280,13 +294,15 @@ MSOE textbook on Control Systems Theory
 \bibitem{OpSys}
 MSOE textbook on Operating Systems
 \bibitem{Stroustrup}
-Books or papers by Stroustrup
+Books or papers by Stroustrup, for instance my favorite book on C++
 \bibitem{Knuth}
 Anything useful by Donald Knuth, Niklaus Wirth, or Edsger Dijkstra
 \bibitem{GitHubRepo}
 Springleik project repository on GitHub
 \bibitem{MerkleTree}
 Find a review paper about Merkle trees
+\bibitem{asymmetricRules}
+PompTree repo with ReadMe giving rules of asymmetric tree comparison
 \end{thebibliography}
 
 \end{document}
