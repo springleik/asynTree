@@ -17,6 +17,8 @@
 Small languages arise in computing for a variety of reasons. A simple command prompt can be useful in bringing up new hardware, particularly on small targets running embedded firmware. This leads naturally to a scriptable interface. Which can then evolve further into a primitive domain-specific language (DSL) that supports use cases in development, test, and even production. This work describes one path through the steps that lead from command prompt to small language. Such languages can be very efficient with the resources they use including memory, processor bandwidth, and system services. Memory allocations can be static or dynamic, according to the details of the application. Additional features, including self-documenting code and generation of baseline test outputs, are easily implemented with minimal effort.
 \end{abstract}
 
+\graphicspath{ {./figures/} }
+
 \section{Introduction}
 
 Software developers often assume that the first implementation milestone for an interpreted language is a parser capable of translating human-readable source code into an internal representation. This assumption is reasonable for general-purpose programming languages, where source code is the primary means by which programs are created and maintained. However, it is not necessarily true for small domain-specific languages developed for a single application or product.
@@ -106,6 +108,8 @@ Let's look at what we have. The class objects representing command nodes can liv
 
 Now let's look at what's missing. To obtain a text representation of the program we'll need a means to serialize the collection of command nodes. We have many well-established choices such as JSON, XML, YAML, etc. We also have the freedom to design our own representation if warranted, or dispense with source code altogether. In this paper we will assume without loss of generality that JSON has been chosen. Experience shows that it is trivial to give command node classes a serialize method which is specialized for specific commands and arguments. To obtain a program listing we iterate over the collection while serializing each node. If we have multiple interpreters (host, target, cloud, etc.) all should produce identical program listings for a given collection of command nodes. Returning to the example of an embedded motion controller we can look at what the serialized JSON representation might look like in figure \ref{simpleListing}. It should be mentioned here that while off-target interpreters can use the monitor command prompt interface, on-target interpreters don't have to since they can call directly into functions on the target.
 
+\section{Control nodes}
+
 Real programming however implies branching and looping, which is easily added by defining control nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes. Now we need to expand our definition of command nodes to include a node list attribute, allowing us to represent composite tree structures. But not every node needs to have a list. So we divide node classes into composite or \textit{branch} nodes which have a list, and terminal or \textit{leaf} nodes which don't. Clearly conditional and repeating nodes should have lists, to which we append nodes that should only be executed if the condition evaluates as true, or which will be repeated in iterations controlled by a repeating node. Our class hierarchy can begin with the base class \textit{node} which has two subclasses, \textit{branch} and \textit{leaf}. Command and control nodes can then be derived from \textit{branch} and \textit{leaf}. All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent. The execute and serialize methods of composite nodes must also iterate over the node list, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list.
 
 \begin{figure}[t]
@@ -143,13 +147,15 @@ Real programming however implies branching and looping, which is easily added by
     {"cmd": "setHoldCurrent", "axis": 2, "current_mA": 25}]}]}
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a command tree with conditional and repeating nodes. The root node is both a dictionary and a command node. But we could just as well have subclassed \textit{branch} to have a \textit{root} node class. Or used a base class node, with its default behaviors. These are design decisions, along with many other details. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub.}
+\caption{JSON representation of a command tree with conditional and repeating nodes. The root node is both a dictionary and a command node. But we could just as well have subclassed \textit{branch} to have a \textit{root} node class. This is a design decision, along with many other details. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub.}
 \label{treeListing}
 \end{figure}
 
 In figure \ref{treeListing} we look at the JSON representation of a command tree which includes conditional and repeating nodes. Iteration is done by the new ``iterateRegister'' control node that changes the value of a register attribute which is visible to nodes beneath the control node. Nested loops are supported here by placing the iteration of axis 2 inside the iteration of axis 1. At the end of the sequence a ``testFlag'' control node tests a flag to check whether to return to holding current.
 
 The ability to implement tree structures composed of command and control nodes, using all of the infrastructure we've developed so far, brings into focus a scalable, portable, and verifiable framework for representing interpreted programs optimized for the application at hand. The composite tree structure maps directly to structured text representations such as JSON, XML, or YAML. Human-readable program listings are easily obtained by serializing nodes while traversing the tree by recursive descent. In this picture we can now say clearly that command nodes are dictionaries composed of key-value pairs representing the command name and all of its arguments. Program nodes can also contain an ordered list identifying subordinate nodes.
+
+\section{Memory allocation}
 
 Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates recursively. For this to work all nodes in the tree should be dynamically allocated and each node should appear in the tree exactly once. It's easy to maintain a global node counter to check for leakage (block not freed) and double frees (block freed twice) at run-time. An example of this appears in the variable \textit{nodeCount} in file \textit{asynTree.c} in the Springleik project repository on GitHub.
 
@@ -197,11 +203,13 @@ Command tree programs which rarely change can be composed of statically allocate
 
 In figure \ref{figureFactory} we show an example of instantiating and composing a command tree in a Python function which implements a tree factory. That combined with a serialization function gives us a human-readable text representation of the command tree program as structured text. In other words, the interpreter source code is written for us, and we can put off writing the source code parser as long as we like.
 
-One can instrument the command tree by adding node attributes like time stamps, tally counters, iterator values, and reply strings. When added to serialization functions, these attributes then appear in the structured text source code with each attribute conveniently attached to the node where it originated. We can describe this as ``decorating the tree.'' Serializing the tree before and after execution shows clearly where the active paths lie. If memory permits, one can consider keeping time or position series data in the same way, appending new data points to a list maintained by the node where the data points originated. In motion control applications, for instance, one can record axis position while polling for motion done. Such data nodes can be given a serialization function, while their execution function should be a simple pass-through.
+One can instrument the command tree by adding node attributes like time stamps, tally counters, iterator values, and reply strings. When added to serialization functions, these attributes then appear in the structured text source code with each attribute conveniently attached to the node where it originated. We describe this as ``decorating the tree.'' Serializing the tree before and after execution shows clearly where the active paths lie. If memory permits, one can consider keeping time or position series data in the same way, appending new data points to a list maintained by the node where the data points originated. In motion control applications, for instance, one can record axis position while polling for motion done. Such data nodes can be given a serialization function, while their execution function should be a simple pass-through.
 
-In this picture capturing data points like shaft position will be fairly light-weight, perhaps just reading a shaft encoder. Ideally this can be done with no impact on system performance. However in some cases we will want to perform further analysis, for instance extracting fitted parameters like velocity and acceleration from time series data. Since the raw data exists in any serialization done after execution, we can perform analysis wherever the serialized command tree exists. An obvious choice would be to run analysis in the same process that runs the interpreter. In other words we take a tree which already supports execution and serialization, and then add an analysis method, all traversing the tree by recursive descent. Here we encounter the principle of \textit{Separation of Execution and Analysis}. This will be discussed further in section \ref{Deserialization}.
+\section{Analysis}
 
-One might wonder were to put the results of analysis, and we now propose that the best place is to append analysis nodes to the command tree, just as we previously appended data nodes. So any serialization of the tree done after analysis will contain the analyzed results attached to the nodes where they originated. Some applications will require multiple passes of analysis, which is easily accomodated in this technique by writing several analysis functions to be called in sequence. Alternately one can insert specialized analysis nodes into the tree, for the purpose of analyzing data nodes beneath them. This is a design decision which needn't be taken until analysis is needed.
+In this picture capturing data points like shaft position will be fairly light-weight, perhaps just reading a shaft encoder. Ideally this can be done with no impact on system performance. However in some cases we will want to perform further analysis, for instance extracting fitted parameters like velocity and acceleration from time series data. Since the raw data exists in any serialization done after execution, we can perform analysis wherever the serialized command tree exists. An obvious choice would be to run analysis in the same process that runs the interpreter. In other words we take a tree which already supports execution and serialization, and then add an analysis method, all traversing the tree by recursive descent. Alternately one can insert specialized analysis nodes into the tree, for the purpose of analyzing data nodes beneath them. Here we encounter the principle of \textit{Separation of Execution and Analysis}. This will be discussed further in section \ref{Deserialization}.
+
+One might wonder were to put the results of analysis, and we now propose that the best place is to append analysis nodes to the command tree, just as we previously appended data nodes. So any serialization of the tree done after analysis will contain the analyzed results attached to the nodes where they originated. Some applications will require multiple passes of analysis, which is easily accomodated in this technique by writing several analysis functions to be called in sequence. This is a design decision which needn't be taken until analysis is needed.
 
 Reporting in any desired format can also be carried out by recursive descent, facilitated by inserting report nodes or adding a report method to existing node classes. Reporting can take many forms, such as tables, charts, and graphs. Now we see the pattern, that every step in the workflow can be thought of as traversing a command tree by recursive descent in a series of passes. With each pass performing the desired operation and appending the results, in a process which is scalable and verifiable across multiple levels.
 
@@ -211,7 +219,7 @@ It is especially convenient to carry out syntax and integrity checks when requir
  \item Instatiate -- construct or allocate nodes needed for the initial tree,
  \item Compose -- establish parent/child relationships between all nodes, extending in a branching structure from a single root node,
  \item Serialize -- render command tree as structured text,
- \item Verify -- check syntax and verify integrity according to the application,
+ \item Verify -- check syntax and verify integrity according to the needs of the application,
  \item Execute -- carry out a program of interactions with hardware and communications,
  \item Analyze -- gather and summarize data found in subordinate data nodes,
  \item Report -- render formatted reports of gathered data and analysis nodes,
@@ -222,7 +230,7 @@ It is especially convenient to carry out syntax and integrity checks when requir
 
 There are several features we take for granted in established programming languages which might not be needed in a small bespoke language. One is deserialization, used to parse a structured text representation into nodes or tokens in memory. Another is the ability to parse and execute general math and logic expressions. Experience shows that these features impose a burden of time and expense to implement, document, and verify. The techniques described here give one the choice of when and how to implement additional features, according to the needs of the project.
 
-There are several use cases which justify the need for deserialization. In our view the most important of these is testability, to allow for round-trip testing. We propose here that since serialization is so much easier than deserialization, serialization should be implemented and verified first to use as a trusted reference. Which in turn makes the deserializer, that is the source code parser, easier to implement and verify. Archived output from the serializer, that is program source code, can be deserialized and then serialized again. With the new code being compared to the archived code for equality. This will be discussed more in section \ref{asymmetricComparison}.
+There are several use cases which justify the need for deserialization. In our view the most important of these is testability, to allow for round-trip testing. We propose here that since serialization is so much easier than deserialization, serialization should be implemented and verified first to use as a trusted reference. Which in turn makes the deserializer, that is the source code parser, easier to implement and verify. Archived output from the serializer can be deserialized and then serialized again. With the new code being compared to the archived code for equality. This will be discussed more in section \ref{asymmetricComparison}.
 
 Because the deserializer isn't needed to create and execute AST command trees, it can be implemented class by class, as and when needed. The way this works is that we begin with all source code nodes deserializing to the default base classes for leaf and branch. Then we add specialized implementation for each node class in turn. The deserializer is typically a factory method which instantiates and composes the nodes encountered while parsing source text. As the deserializer starts working, we can begin to add test cases which rely on it. Specifically, we can have tests where instead of executing the tree on live hardware to populate it with data nodes, we can deserialize an archived command tree which already has data nodes attached. Thus removing the dependence on live hardware for all steps in the workflow which come after execution. This principle of \textit{Separation of Execution and Analysis} opens up many possibilities for testing on-target and off-target, and for verifying with test cases obtained directly from archived live data, live data modified to stress limits and edge cases, synthetic data meant to prove mathematical robustness, or hybrid combinations of these sources.
 
@@ -232,7 +240,7 @@ As a practical matter, experience shows that implementation of deserialization i
 
 \section{Math and logic expressions}
 
-The work described here has its origins in the logic scan of industrial programmable logic controllers. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and any math operations needed for the application.
+The work described here has its origins in the logic scan of industrial programmable logic controllers. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and for those math operations needed for the application.
 
 The ability to parse general math and logic expressions is probably not a requirement for most embedded interpreters, especially in domain-specific applications where needed computations can be coded into pre-defined node classes. If however the need for mutable math and logic expressions can't be avoided, we would advocate for adding new execute methods to math and logic leaf nodes which return the needed values. Similarly branch nodes which need those return values can invoke the new execute methods of their subordinates to obtain them. This is clearly a step change in complexity for implementation, verification, and documentation. 
 
@@ -255,32 +263,24 @@ Performing a directional comparison is important when comparing test outputs wit
 The content of this section has been published previously in reference \cite{asymmetricRules}.
 
 \section{Execution model}
-Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, all that's needed is a pointer or reference to the root node to initiate a task thread to execute it. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with possible instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees. 
+Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, all that's needed to initiate a task thread to execute the tree is a pointer or reference to the root node. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees.
+
+Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this it's easier to put waits into control node execute methods, to relinquish control between calls to subordinate nodes.
 
 \section{Reuse and granularity}
+One may well wonder how much of this can be reused across multiple projects. Our experience has shown that command nodes are clearly domain specific and can only be reused for very similar applications, while control nodes are not domain specific and can be reused freely. The resulting plethora of small languages can be justified by our need to maintain a small footprint by optimizing the command tree language for each application.
 
-Say that we are proposing families of similar languages, not derivatives, offshoots, forks, or libraries. We really mean for each language to be specific to one target application and to stand on its own in terms of maintenance and lifecycle. Refer also to anticipated use of AI/ML in carrying out maintenance and upgrades.
-
-Say something about granularity of command node objects. My guidance would be to package command nodes in the same sense as you would package monitor prompt commands. Problem solved!
+A related question is how to set the granularity of command and control nodes. We propose starting with one command node class for each monitor command on the target, and one control node class for each branching or gating operation. If math and logic expressions are to be supported, start with one math or logic operation per control node. As development progresses common patterns will soon become apparent, which then become candidates for integration into more functional node classes. These are design decisions which don't have to be decided up front.
 
 \section{Toy model}
-When to introduce toy motor? Should we use it for everything? Modify the toy motor demo to include a monitor prompt command interpreter. Should one use a console, a socket port, named pipe, anonymous pipe, or what? The obvious solution is to use my multi-client multi-server code already posted on GitHub. Note well that one can mix and match environments, running clients in Python, Java, C, etc. and also running servers in Python, Java, C, etc.
 
-For the sake of discussion we've used the example of small embedded targets used for measurement/control/communication. But these techniques have much broader application, and are in fact universal.
+\begin{figure}
+\includegraphics[width=\textwidth]{toyModel}
+\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub.}
+\label{Preamp}
+\end{figure}
 
-\section{Communication}
-Start by saying that AI (ChatGPT) wrote the introduction for this paper based on our conversations. In otherwords, an AI can understand and work with this representation directly without confusion or ambiguity. For human stake-holders we can add a layer which renders pseudocode from the JSON text.
-
-Say something about rendering the tree in various human and/or machine readable forms.
-Ideally one-to-one mapping in all directions.
-With the possibility to run round-trip testing.
-
-Say something about machine-readable versus human-readable source code.
-Bringing AI development and maintenance into the conversation.
-Goal to represent programs in canonical fashion to facilite communication between all stakeholders.
-
-Bring into the picture how AI can develop, verify, and maintain AST command trees.
-Make the point that flow charts don't help to communicate with machines, but pseudocode does.
+The Springleik repository on GitHub includes a toy simulation of a three axis motion controller which implements a target process and a host process which communicate through a TCP socket port. As described in the \textit{ReadMe} file both processes expose a console prompt command line. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
 
 \begin{thebibliography}{99}
 \bibitem{Alexander1}
@@ -307,6 +307,20 @@ PompTree repo with ReadMe giving rules of asymmetric tree comparison
 
 \end{document}
 
+For the sake of discussion we've used the example of small embedded targets used for measurement/control/communication. But these techniques have much broader application, and are in fact universal.
+
+Discuss communication by saying that AI (ChatGPT) wrote the introduction for this paper based on our conversations. In otherwords, an AI can understand and work with this representation directly without confusion or ambiguity. For human stake-holders we can add a layer which renders pseudocode from the JSON text.
+
+Say something about rendering the tree in various human and/or machine readable forms.
+Ideally one-to-one mapping in all directions.
+With the possibility to run round-trip testing.
+
+Say something about machine-readable versus human-readable source code.
+Bringing AI development and maintenance into the conversation.
+Goal to represent programs in canonical fashion to facilite communication between all stakeholders.
+
+Bring into the picture how AI can develop, verify, and maintain AST command trees.
+Make the point that flow charts don't help to communicate with machines, but pseudocode does.
 
 What is Springleik, and why should readers care? We think the big insight is that one can program without programming, code without coding, by putting implementation first and source code last. And source code is an output instead of an input. Now we're re-thinking what forward and reverse engineering are. ``Forward'' should be the easy way (serialize) and ``Reverse'' should be the hard way (deserialize).
 
