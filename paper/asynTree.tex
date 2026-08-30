@@ -277,10 +277,12 @@ A related question is how to set the granularity of command and control nodes. W
 \begin{figure}
 \includegraphics[width=\textwidth]{toyModel}
 \caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub.}
-\label{Preamp}
+\label{toyModel}
 \end{figure}
 
-The Springleik repository on GitHub includes a toy simulation of a three axis motion controller which implements a target process and a host process which communicate through a TCP socket port. As described in the \textit{ReadMe} file both processes expose a console prompt command line. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
+The Springleik repository on GitHub includes a toy simulation of a three axis motion controller which implements a target process and a host process which communicate through a TCP socket port. As described in the \textit{ReadMe} file both processes expose a console prompt command line. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the shaft position indicators shown in figure \ref{toyModel}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
+
+\clearpage
 
 \begin{thebibliography}{99}
 \bibitem{Alexander1}
