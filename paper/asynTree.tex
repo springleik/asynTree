@@ -355,7 +355,7 @@ The toy motor subproject includes a Python script which renders a JSON serializa
 
 \begin{thebibliography}{99}
 \bibitem{chatGPTIntro}
-Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026.
+Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
 \bibitem{Alexander1}
 A Pattern Language (Christopher Alexander 1977)
 \bibitem{Alexander2}
@@ -367,15 +367,15 @@ Textbook on Control Systems Theory
 \bibitem{OpSys}
 Textbook on Operating Systems
 \bibitem{Stroustrup}
-Book on C++
+Textbook on C++
 \bibitem{Knuth}
-See papers suggested by Google AI
+Papers suggested by Google AI
 \bibitem{GitHubRepo}
 Springleik project repository on GitHub \\ \url{https://github.com/springleik/asynTree}
 \bibitem{MerkleTree}
-Review paper about Merkle trees
+Paper about Merkle trees
 \bibitem{IraBaxter}
-Cite a paper about the relationship between ladder and trees.
+Paper about the relationship between ladder and composite trees.
 \bibitem{asymmetricRules}
 Discription of asymmetric tree comparison published previously at \\ \url{https://github.com/springleik/PompTree}
 \end{thebibliography}
@@ -389,46 +389,6 @@ Discription of asymmetric tree comparison published previously at \\ \url{https:
 
 \end{document}
 
-For the sake of discussion we've used the example of small embedded targets used for measurement/control/communication. But these techniques have much broader application, and are in fact universal.
-
-Discuss communication by saying that AI (ChatGPT) wrote the introduction for this paper based on our conversations. In otherwords, an AI can understand and work with this representation directly without confusion or ambiguity. For human stake-holders we can add a layer which renders pseudocode from the JSON text.
-
-Say something about rendering the tree in various human and/or machine readable forms.
-Ideally one-to-one mapping in all directions.
-With the possibility to run round-trip testing.
-
-Say something about machine-readable versus human-readable source code.
-Bringing AI development and maintenance into the conversation.
-Goal to represent programs in canonical fashion to facilite communication between all stakeholders.
-
-Bring into the picture how AI can develop, verify, and maintain AST command trees.
-Make the point that flow charts don't help to communicate with machines, but pseudocode does.
+Bring into the picture how AI can develop, verify, and maintain AST command trees. Make the point that flow charts don't help to communicate with machines, but pseudocode does.
 
 What is Springleik, and why should readers care? We think the big insight is that one can program without programming, code without coding, by putting implementation first and source code last. And source code is an output instead of an input. Now we're re-thinking what forward and reverse engineering are. ``Forward'' should be the easy way (serialize) and ``Reverse'' should be the hard way (deserialize).
-
-Recall my previous insight that model-view-control (MVC) is a closed loop feedback control system where control is the input, view is the sensor, and model is the plant. User does things with mouse and keyboard until the view becomes a rendering of the model the user actually wants. Yay!
-
-Now think about how the workflow changes when AI is in the loop. Like Claude at FlexLink for instance. Hard parts become easy, easy parts become effortless. We'd like to feature communication with stakeholders, which now includes AI, as a great benefit of AST intepreters.
-
-Encourage readers to paste my JSON text into their favorite AI, to see what it makes of it.
-
-Encourage readers to take my Python code,
- make a meaningful change to the command tree,
- then see if behavior changes as expected,
- and see if tree compare test also reveals the change.
-
-If we append measured results as attributes to existing command nodes, then we get serialization of results almost for free!
-
-Asymmetric tree comparison, give my rules as posted on GitHub.
-High volume bulk testing
-Rebaselining with a repo
-
-Highlight my experiment passing in a reference to the parent node when executing the tree
-We prefer this over keeping a full-time parent pointer
-Also prefer this over doubly-linked lists
-We don't have a use case that required double links, in both directions (left/right, up/down)
-Think about how to go backwards through a tree?
-We would promote having the parent branch node manage reverse iteration
-
-Is there any reason to talk about code generators?
-Like using Python or Excel to create JSON descriptions of motion profiles?
