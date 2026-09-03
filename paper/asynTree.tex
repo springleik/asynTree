@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{wrapfig}
 
 %opening
 \title{Springleik: A Case Study in Small Languages}
@@ -283,6 +284,73 @@ A related question is how to set the granularity of command and control nodes. W
 
 The Springleik repository on GitHub includes a toy simulation of a three axis motion controller that implements a target process and a host process, which communicate with each other through a TCP socket port. As described in the subproject's \textit{ReadMe} file, both processes expose a command line console. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the animated shaft position indicators shown in figure \ref{toyModel}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
 
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.9\linewidth}
+\begin{lstlisting}[
+    frame=single,
+    basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    breaklines=true,
+    mathescape=false,
+    texcl=false
+]
+Motor Control: Iterate 3 times.
+  Track #1:
+    Move motor 0 to target 135 with increment 15 deg.
+    Move motor 1 to target 135 with increment 15 deg.
+    Wait for motor 0 target reached.
+    Wait for key i input.
+    Wait for motor 1 target reached.
+    Move motor 0 to target 270 with increment 3 deg.
+    Wait for motor 0 target reached.
+    Wait for key j input.
+    Move motor 0 to target 135 with increment 15 deg.
+    Move motor 1 to target 270 with increment 3 deg.
+    Wait for motor 1 target reached.
+    Wait track 1: Wait for 1.0 seconds.
+    Move motor 1 to target 135 with increment 15 deg.
+\end{lstlisting}
+\end{minipage}
+\caption{Pseudocode generatated automatically by a Python script implementing domain-specific knowledge of the toy motor program's compsite tree structure.}
+\label{pseudoCode}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{minipage}{0.9\linewidth}
+\begin{lstlisting}[
+    frame=single,
+    basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    breaklines=true,
+    mathescape=false,
+    texcl=false
+]
+Iterate until halted
+  Forward a product to track 1
+    Move motor 0 and motor 1 fast to home position (135)
+    Wait for motors 0 and 1
+    Wait for product to arrive at motor 0 (key 'i')
+    Move motor 0 slow to left position (270)
+    Wait for product to arrive at motor 1 (key 'j')
+    Move motor 1 slow to left position (270)
+    Move motor 0 fast to home position
+    Wait for motor 1
+    Wait for product to arrive at track 1 (key 'o')
+    Move motor 1 fast to home position (135)
+\end{lstlisting}
+\end{minipage}
+\caption{Hand-typed comment text corresponding to the automatically generated output in figure \ref{pseudoCode}.}
+\label{commentText}
+\end{figure}
+
+The toy motor subproject includes a Python script which renders a JSON serialization of the control program as pseudocode. The script implements domain-specific knowledge which lets it emit pseudocode representing the design intent of each node. A snippet of its output appears in figure \ref{pseudoCode}. The script was surprisingly easy to implement, and worked on the first try. We propose that the reason for this is that pseudocode has a precise one-to-one mapping to composite tree structures. A corresponding snippet of pseudocode is shown in figure \ref{commentText} which is taken from hand-typed comment text written when the project began. They are not identical, but are easily compared when viewed together.
+
 \clearpage
 
 \begin{thebibliography}{99}
@@ -311,6 +379,13 @@ Cite a paper about the relationship between ladder and trees.
 \bibitem{asymmetricRules}
 Discription of asymmetric tree comparison published previously at \\ \url{https://github.com/springleik/PompTree}
 \end{thebibliography}
+\section{Biography}
+
+\par
+\begin{wrapfigure}{l}{32mm}
+    \includegraphics[width=1.25in,height=1.5625in,clip,keepaspectratio]{Portrait1}
+\end{wrapfigure}
+\textbf{Mark Williamsen} received a B.S. degree in physics and a Ph.D. degree in physics from the University of Wisconsin at Milwaukee in 2003 and 2010 respectively. He has previously worked at Rockwell Automation in Milwaukee and Quantum Design in San Diego, USA. He is currently employed at Coesia FlexLink in Gothenburg, Sweden working on embedded firmware applications for the industrial internet-of-things (IIoT).
 
 \end{document}
 
