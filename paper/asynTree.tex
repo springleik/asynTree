@@ -29,7 +29,7 @@ This paper explores an alternative development strategy. Rather than beginning w
 
 This approach offers several practical advantages. Interpreter development, command semantics, verification, testing, serialization, visualization, and documentation can proceed independently of the considerably different task of deserializing structured text. In our experience, this separation shortens the path to a deployable system while encouraging a clear distinction between execution and analysis. A parser remains valuable, but its implementation can be deferred until there is a genuine operational need for humans or external tools to author executable descriptions directly.
 
-The central claim of this paper is therefore not that parsing is unnecessary, but that it need not be the first step. For many bespoke interpreted languages, a complete and useful product can be designed, implemented, verified, and shipped before a source-language parser is ever written. \cite{chatGPTIntro}
+The central claim of this paper is therefore not that parsing is unnecessary, but that it need not be the first step. For many bespoke interpreted languages, a complete and useful product can be designed, implemented, verified, and shipped before a source-language parser is ever written \cite{chatGPTIntro}.
 
 \section{Model of software development}
 
@@ -51,7 +51,7 @@ D(s) = R(s)\frac{I(s)}{1+I(s)T(s)}
 \end{equation}
 
 
-In this model we see that there are three things which matter: requirements, implementation, and tests. These pillars of software development should receive equal priority during development, so that all three can be considered as correct and complete when development ends and maintenance begins. As a practical matter however many projects end with one or more of the pillars incomplete. We claim without proof that given any one of these, the other two can be derived through various means. For the purposes of this paper we use the simulation diagram in figure \ref{closedLoopModel} to define deriving implementation and tests from requirements as ``forward engineering.'' Starting with an implementation or a test suite is then defined as ``reverse engineering.''
+In this model we see that there are three things which matter: requirements, implementation, and tests. These pillars of software development should receive equal priority during development, so that all three can be considered as correct and complete when development ends and maintenance begins. As a practical matter however many projects end with one or more of the pillars incomplete. We claim without proof that given any one of these, the other two can be derived through various means. For the purposes of this paper we use the simulation diagram in figure \ref{closedLoopModel} to define deriving implementation and tests from requirements as ``forward engineering.'' Starting with an implementation or a test suite is then defined as ``reverse engineering'' \cite{IraBaxter}.
 
 \section{Object model for small targets}
 
@@ -104,7 +104,7 @@ Let's look at what we have. The class objects representing command nodes can liv
 ]
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a simple command list being sent to an embedded motion controller. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub.}
+\caption{JSON representation of a simple command list being sent to an embedded motion controller. The top level container is an array which preserves order. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub \cite{GitHubRepo}.}
 \label{simpleListing}
 \end{figure}
 
@@ -149,7 +149,7 @@ Real programming however implies branching and looping, which is easily added by
     {"cmd": "setHoldCurrent", "axis": 2, "current_mA": 25}]}]}
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a command tree with conditional and repeating nodes. The root node is both a dictionary and a command node. But we could just as well have subclassed \textit{branch} to have a \textit{root} node class. This is a design decision, along with many other details. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub.}
+\caption{JSON representation of a composite command tree with conditional and repeating nodes. The top level container is a dictionary and a command node which does not preserve order. Subordinate node lists are contained in arrays which do preserve order. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub \cite{GitHubRepo}.}
 \label{treeListing}
 \end{figure}
 
@@ -159,7 +159,7 @@ The ability to implement tree structures composed of command and control nodes, 
 
 \section{Memory allocation}
 
-Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates recursively. For this to work all nodes in the tree should be dynamically allocated and each node should appear in the tree exactly once. It's easy to maintain a global node counter to check for leakage (block not freed) and double frees (block freed twice) at run-time. An example of this appears in the variable \textit{nodeCount} in file \textit{asynTree.c} in the Springleik project repository on GitHub.
+Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates recursively. For this to work all nodes in the tree should be dynamically allocated and each node should appear in the tree exactly once. It's easy to maintain a global node counter to check for leakage (block not freed) and double frees (block freed twice) at run-time. An example of this appears in the variable \textit{nodeCount} in file \textit{asynTree.c} in the Springleik project repository on GitHub \cite{GitHubRepo}.
 
 \begin{figure}[t]
 \centering
@@ -199,7 +199,7 @@ Command tree programs which rarely change can be composed of statically allocate
         testBranch.append(setHoldCurrent(2,25))
 \end{lstlisting}
 \end{minipage}
-\caption{Python code snippet from function \textit{figureFactory} in file \textit{host.py} in the Springleik project repository on GitHub. Shown are the steps to instantiate and compose the command tree serialized in figure \ref{treeListing}.}
+\caption{Python code snippet from function \textit{figureFactory} in file \textit{host.py} in the Springleik project repository on GitHub \cite{GitHubRepo}. Shown are the steps to instantiate and compose the command tree serialized in figure \ref{treeListing}.}
 \label{figureFactory}
 \end{figure}
 
@@ -242,12 +242,12 @@ As a practical matter, experience shows that implementation of deserialization i
 
 \section{Math and logic expressions}
 
-The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{IraBaxter}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and for those math operations needed for the application.
+The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and for those math operations needed for the application.
 
 The ability to parse general math and logic expressions is probably not a requirement for most embedded interpreters, especially in domain-specific applications where needed computations can be coded into pre-defined node classes. If however the need for mutable math and logic expressions can't be avoided, we would advocate for adding new execute methods to math and logic leaf nodes which return the needed values. Similarly branch nodes which need those return values can invoke the new execute methods of their subordinates to obtain them. This is clearly a step change in complexity for implementation, verification, and documentation. 
 
 \section{Asymmetric tree comparison}\label{asymmetricComparison}
-Performing a directional comparison is important when comparing test outputs with reference files, so that the test files can include additional comments, annotation, and instrumentation. Additionally, items you don't want to compare (timestamps, sequence numbers that change often, analog values such as voltage or temperature, etc.) can be ignored in the comparison by removing them from the reference file. The test file can then have varying values for these items and still be considered as equal, in order to pass a regression test for instance. An interesting question is whether to include version info for the software under test. If you leave version info in, then you'll have to touch the reference file each time you test a new version. If you actually need an exact match in both directions, simply test the files twice, reversing their order so both are evaluated as test files. If both comparisons are True, then both files have exactly the same dictionary keys and array elements. Following is a list of rules used in this work to compare test outputs with reference files:
+Performing a directional comparison is important when comparing test outputs with reference JSON files, so that the test files can include additional comments, annotation, and instrumentation. Additionally, items you don't want to compare (timestamps, sequence numbers that change often, analog values such as voltage or temperature, etc.) can be ignored in the comparison by removing them from the reference file. The test file can then have varying values for these items and still be considered as equal, in order to pass a regression test for instance. An interesting question is whether to include version info for the software under test. If you leave version info in, then you'll have to touch the reference file each time you test a new version. If you actually need an exact match in both directions, simply test the files twice, reversing their order so both are evaluated as test files. If both comparisons are True, then both files have exactly the same dictionary keys and array elements. Following is a list of rules used in this work to compare test outputs with reference files:
 
 \begin{itemize}
  \item Any dictionary in the test file must have all of the keys in the corresponding dictionary in the reference file. Order is ignored. Dictionaries in the files being compared can have a completely different ordering, and still test as equal. Additional keys in the test file are ignored.
@@ -262,94 +262,25 @@ Performing a directional comparison is important when comparing test outputs wit
  \item Null values in the reference file must have a corresponding Null value in the test file.
 \end{itemize}
 
-The content of this section has been published previously in reference \cite{asymmetricRules}.
+Reference files should be under version control, ideally alongside the implementation source code. Test files can also be versioned, especially if they contain additional content not in the reference files. This style of testing encourages the use of large scale bulk tests, which may seem unfamiliar to those accustomed to long lists of fine-grained assertions. In either case the workflow is the same: find all the deltas, rebaseline those that are expected, and repair those that aren't. One might ask where the refererence files come from. Experience shows that a variety of sources can be used including outputs from previous versions, synthetic data created programmaticaly, hand typed data, or hybrid combinations of these. The content of this section has been published previously in reference \cite{asymmetricRules}.
 
 \section{Execution model}
-Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, all that's needed to initiate a task thread to execute the tree is a pointer or reference to the root node. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees.
-
-Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this, it's easier to put waits into branch node execute methods to relinquish control between calls to subordinate nodes.
+Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, all that's needed to initiate a task thread to execute the tree is a pointer or reference to the root node. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees. Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this, it's easier to put waits into branch node execute methods to relinquish control between calls to subordinate nodes.
 
 \section{Reuse and granularity}
-One may well wonder how much of this can be reused across multiple projects. Our experience has shown that command nodes are clearly domain specific and can only be reused for very similar applications, while control nodes are not domain specific and can be reused freely. The resulting plethora of small languages can be justified by our need to maintain a small footprint by optimizing the command tree language for each application.
-
-A related question is how to set the granularity of command and control nodes. We propose starting with one command node class for each monitor command on the target, and one control node class for each branching or gating operation. If math and logic expressions are to be supported, start with one math or logic operation per control node. As development progresses common patterns will soon become apparent, which then become candidates for integration into more functional node classes. These are design decisions which don't have to be decided up front.
+One may well wonder how much of this can be reused across multiple projects. Our experience has shown that command nodes are clearly domain specific and can only be reused for very similar applications, while control nodes are not domain specific and can be reused freely. The resulting plethora of small languages can be justified by our need to maintain a small footprint by optimizing the command tree language for each application. A related question is how to set the granularity of command and control nodes. We propose starting with one command node class for each monitor command on the target, and one control node class for each branching or gating operation. If math and logic expressions are to be supported, start with one math or logic operation per control node. As development progresses common patterns will soon become apparent, which then become candidates for integration into more functional node classes. These are design decisions which don't have to be decided up front.
 
 \section{Toy model}
 
 \begin{figure}
 \includegraphics[width=\textwidth]{toyModel}
-\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub.}
+\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub \cite{GitHubRepo}.}
 \label{toyModel}
 \end{figure}
 
 The Springleik repository on GitHub includes a toy simulation of a three axis motion controller that implements a target process and a host process, which communicate with each other through a TCP socket port. As described in the subproject's \textit{ReadMe} file, both processes expose a command line console. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the animated shaft position indicators shown in figure \ref{toyModel}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
 
-\begin{figure}[t]
-\centering
-\begin{minipage}{0.9\linewidth}
-\begin{lstlisting}[
-    frame=single,
-    basicstyle=\ttfamily\small,
-    columns=fullflexible,
-    keepspaces=true,
-    showstringspaces=false,
-    breaklines=true,
-    mathescape=false,
-    texcl=false
-]
-Motor Control: Iterate 3 times.
-  Track #1:
-    Move motor 0 to target 135 with increment 15 deg.
-    Move motor 1 to target 135 with increment 15 deg.
-    Wait for motor 0 target reached.
-    Wait for key i input.
-    Wait for motor 1 target reached.
-    Move motor 0 to target 270 with increment 3 deg.
-    Wait for motor 0 target reached.
-    Wait for key j input.
-    Move motor 0 to target 135 with increment 15 deg.
-    Move motor 1 to target 270 with increment 3 deg.
-    Wait for motor 1 target reached.
-    Wait track 1: Wait for 1.0 seconds.
-    Move motor 1 to target 135 with increment 15 deg.
-\end{lstlisting}
-\end{minipage}
-\caption{Pseudocode generatated automatically by a Python script implementing domain-specific knowledge of the toy motor program's compsite tree structure.}
-\label{pseudoCode}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\begin{minipage}{0.9\linewidth}
-\begin{lstlisting}[
-    frame=single,
-    basicstyle=\ttfamily\small,
-    columns=fullflexible,
-    keepspaces=true,
-    showstringspaces=false,
-    breaklines=true,
-    mathescape=false,
-    texcl=false
-]
-Iterate until halted
-  Forward a product to track 1
-    Move motor 0 and motor 1 fast to home position (135)
-    Wait for motors 0 and 1
-    Wait for product to arrive at motor 0 (key 'i')
-    Move motor 0 slow to left position (270)
-    Wait for product to arrive at motor 1 (key 'j')
-    Move motor 1 slow to left position (270)
-    Move motor 0 fast to home position
-    Wait for motor 1
-    Wait for product to arrive at track 1 (key 'o')
-    Move motor 1 fast to home position (135)
-\end{lstlisting}
-\end{minipage}
-\caption{Hand-typed comment text corresponding to the automatically generated output in figure \ref{pseudoCode}.}
-\label{commentText}
-\end{figure}
-
-The toy motor subproject includes a Python script which renders a JSON serialization of the control program as pseudocode. The script implements domain-specific knowledge which lets it emit pseudocode representing the design intent of each node. A snippet of its output appears in figure \ref{pseudoCode}. The script was surprisingly easy to implement, and worked on the first try. We propose that the reason for this is that pseudocode has a precise one-to-one mapping to composite tree structures. A corresponding snippet of pseudocode is shown in figure \ref{commentText} which is taken from hand-typed comment text written when the project began. They are not identical, but are easily compared when viewed together.
+In addition to the interactive command lines, the target and host programs also accept script files containing commands and arguments appropriate for each. Script files read by the target program contain target commands which interact with (simulated) hardware, while script files read by the host program contain host commands which interact with the AST interpreter.
 
 \clearpage
 
@@ -359,25 +290,25 @@ Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conv
 \bibitem{Alexander1}
 A Pattern Language (Christopher Alexander 1977)
 \bibitem{Alexander2}
-Notes on the Synthesis of Form (Christopher Alexander)
+Notes on the Synthesis of Form (Christopher Alexander 1964)
 \bibitem{GangOfFour}
 Design Patterns (Gang of Four 1994)
 \bibitem{ControlSys}
-Textbook on Control Systems Theory
-\bibitem{OpSys}
-Textbook on Operating Systems
+Feedback Control Systems, 3rd edn. (Phillips \& Harbor 1996)
 \bibitem{Stroustrup}
-Textbook on C++
+The C++ Programming Language, 2nd edn. (Stroustrup 1991)
 \bibitem{Knuth}
 Papers suggested by Google AI
 \bibitem{GitHubRepo}
 Springleik project repository on GitHub \\ \url{https://github.com/springleik/asynTree}
 \bibitem{MerkleTree}
-Paper about Merkle trees
+Merkle 1988
 \bibitem{IraBaxter}
-Paper about the relationship between ladder and composite trees.
+Baxter \& Mehlich 2000.
+\bibitem{JEReich}
+Reich, Krogh, \& Baxter 1996
 \bibitem{asymmetricRules}
-Discription of asymmetric tree comparison published previously at \\ \url{https://github.com/springleik/PompTree}
+Description of asymmetric tree comparison published previously at \\ \url{https://github.com/springleik/PompTree}
 \end{thebibliography}
 \section{Biography}
 
