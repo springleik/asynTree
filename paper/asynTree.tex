@@ -104,7 +104,7 @@ Let's look at what we have. The class objects representing command nodes can liv
 ]
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a simple command list being sent to an embedded motion controller. The top level container is an array which preserves order. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub \cite{GitHubRepo}.}
+\caption{JSON representation of a simple command list being sent to an embedded motion controller. The top level container is an array which preserves order. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub \cite{GitHubPython}.}
 \label{simpleListing}
 \end{figure}
 
@@ -149,7 +149,7 @@ Real programming however implies branching and looping, which is easily added by
     {"cmd": "setHoldCurrent", "axis": 2, "current_mA": 25}]}]}
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a composite command tree with conditional and repeating nodes. The top level container is a dictionary and a command node which does not preserve order. Subordinate node lists are contained in arrays which do preserve order. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub \cite{GitHubRepo}.}
+\caption{JSON representation of a composite command tree with conditional and repeating nodes. The top level container is a dictionary and a command node which does not preserve order. Subordinate node lists are contained in arrays which do preserve order. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub \cite{GitHubPython}.}
 \label{treeListing}
 \end{figure}
 
@@ -159,7 +159,7 @@ The ability to implement tree structures composed of command and control nodes, 
 
 \section{Memory allocation}
 
-Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates recursively. For this to work all nodes in the tree should be dynamically allocated and each node should appear in the tree exactly once. It's easy to maintain a global node counter to check for leakage (block not freed) and double frees (block freed twice) at run-time. An example of this appears in the variable \textit{nodeCount} in file \textit{asynTree.c} in the Springleik project repository on GitHub \cite{GitHubRepo}.
+Command tree programs which rarely change can be composed of statically allocated nodes. Programs that could change at run-time however will be composed of nodes taken from a node pool, or using dynamically allocated memory. In garbage-collected environments dynamic nodes will evaporate after they are no longer referenced. Releasing tree nodes without garbage collection is easy since we can ask the root node to delete itself and all subordinates recursively. For this to work all nodes in the tree should be dynamically allocated and each node should appear in the tree exactly once. It's easy to maintain a global node counter to check for leakage (block not freed) and double frees (block freed twice) at run-time. An example of this appears in the variable \textit{nodeCount} in file \textit{asynTree.c} in the Springleik project repository on GitHub \cite{GitHubC-Lang}.
 
 \begin{figure}[t]
 \centering
@@ -199,7 +199,7 @@ Command tree programs which rarely change can be composed of statically allocate
         testBranch.append(setHoldCurrent(2,25))
 \end{lstlisting}
 \end{minipage}
-\caption{Python code snippet from function \textit{figureFactory} in file \textit{host.py} in the Springleik project repository on GitHub \cite{GitHubRepo}. Shown are the steps to instantiate and compose the command tree serialized in figure \ref{treeListing}.}
+\caption{Python code snippet from function \textit{figureFactory} in file \textit{host.py} in the Springleik project repository on GitHub \cite{GitHubPython}. Shown are the steps to instantiate and compose the command tree serialized in figure \ref{treeListing}.}
 \label{figureFactory}
 \end{figure}
 
@@ -219,6 +219,7 @@ It is especially convenient to carry out syntax and integrity checks when requir
 
 \begin{itemize}
  \item Instantiate -- construct or allocate nodes needed for the initial tree,
+ \item Initialize -- set default values for node attributes,
  \item Compose -- establish parent/child relationships between all nodes, extending in a branching structure from a single root node,
  \item Serialize -- render command tree as structured text,
  \item Verify -- check syntax and verify integrity according to the needs of the application,
@@ -242,7 +243,7 @@ As a practical matter, experience shows that implementation of deserialization i
 
 \section{Math and logic expressions}
 
-The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and for those math operations needed for the application.
+The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs, or a constant literal value. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and for those math operations needed for the application.
 
 The ability to parse general math and logic expressions is probably not a requirement for most embedded interpreters, especially in domain-specific applications where needed computations can be coded into pre-defined node classes. If however the need for mutable math and logic expressions can't be avoided, we would advocate for adding new execute methods to math and logic leaf nodes which return the needed values. Similarly branch nodes which need those return values can invoke the new execute methods of their subordinates to obtain them. This is clearly a step change in complexity for implementation, verification, and documentation. 
 
@@ -270,15 +271,15 @@ Much of the work described here has been done on targets which support a real-ti
 \section{Reuse and granularity}
 One may well wonder how much of this can be reused across multiple projects. Our experience has shown that command nodes are clearly domain specific and can only be reused for very similar applications, while control nodes are not domain specific and can be reused freely. The resulting plethora of small languages can be justified by our need to maintain a small footprint by optimizing the command tree language for each application. A related question is how to set the granularity of command and control nodes. We propose starting with one command node class for each monitor command on the target, and one control node class for each branching or gating operation. If math and logic expressions are to be supported, start with one math or logic operation per control node. As development progresses common patterns will soon become apparent, which then become candidates for integration into more functional node classes. These are design decisions which don't have to be decided up front.
 
-\section{Toy model}
+\section{Host target demo}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{toyModel}
-\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub \cite{GitHubRepo}.}
-\label{toyModel}
+\includegraphics[width=\textwidth]{hostTarget}
+\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub \cite{GitHubPython}.}
+\label{hostTarget}
 \end{figure}
 
-The Springleik repository on GitHub includes a toy simulation of a three axis motion controller that implements a target process and a host process, which communicate with each other through a TCP socket port. As described in the subproject's \textit{ReadMe} file, both processes expose a command line console. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the animated shaft position indicators shown in figure \ref{toyModel}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
+The Springleik repository on GitHub \cite{GitHubPython} includes a simulation model of a three axis motion controller that implements a target process (file \textit{target.py}) and a host process (file \textit{host.py}), which communicate with each other through a TCP socket port. As described in the subproject's \textit{ReadMe.md} file, both processes expose a command line console. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the animated shaft position indicators shown in figure \ref{hostTarget}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
 
 In addition to the interactive command lines, the target and host programs also accept script files containing commands and arguments appropriate for each. Script files read by the target program contain target commands which interact with (simulated) hardware, while script files read by the host program contain host commands which interact with the AST interpreter.
 
@@ -299,8 +300,10 @@ Feedback Control Systems, 3rd edn. (Phillips \& Harbor 1996)
 The C++ Programming Language, 2nd edn. (Stroustrup 1991)
 \bibitem{Knuth}
 Papers suggested by Google AI
-\bibitem{GitHubRepo}
-Springleik project repository on GitHub \\ \url{https://github.com/springleik/asynTree}
+\bibitem{GitHubPython}
+Springleik Python project repository on GitHub \\ \url{https://github.com/springleik/asynTree/Python}
+\bibitem{GitHubC-Lang}
+Springleik C Language project repository on GitHub \\ \url{https://github.com/springleik/asynTree/C-Lang}
 \bibitem{MerkleTree}
 Merkle 1988
 \bibitem{IraBaxter}
