@@ -6,7 +6,6 @@
 \usepackage{wrapfig}
 \usepackage{caption}
 
-%opening
 \title{Springleik: A Case Study in Small Languages}
 \author{Mark S. Williamsen}
 
@@ -216,12 +215,13 @@ One might wonder where to put the results of analysis, and we now propose that t
 
 Reporting in any desired format can also be carried out by recursive descent, facilitated by inserting report nodes or adding a report method to existing node classes. Reporting can take many forms, such as tables, charts, and graphs. Now we see the pattern, that each step in the workflow can be thought of as traversing a command tree by recursive descent in a series of passes. With each pass performing the desired operation and appending the results in a process which is scalable and verifiable across multiple levels.
 
-It is especially convenient to carry out syntax and integrity checks when required in a given application. One can establish rules as to which node classes can be subordinate to which other node classes, set limits on attribute values, check that every node is appended exactly once (no cycles), and so forth. Integrity can be verified by computing a hash over the tree. If data nodes are included in the hash, it can be used to detect new data to be uploaded \cite{MerkleTree}. To summarize, we list here some possible workflow steps that will be both possible and practical in this technique. In general these can be invoked in any order against the whole tree or any subtree within it, thus establishing a command tree lifecycle:
+It is especially convenient to carry out syntax and integrity checks when required in a given application. One can establish rules as to which node classes can be subordinate to which other node classes, set limits on attribute values, check that every node is appended exactly once (no cycles), and so forth. Integrity can be verified by computing a hash over the tree. If data nodes are included in the hash, it can be used to detect new data to be uploaded \cite{MerkleTree}. We list here some possible workflow steps that may be useful and practical in this technique. Once the nodes have been instantiated and composed into a tree structure, the remaining methods can be invoked by recursive descent in any order against the whole tree or any subtree within it, thus establishing a command tree lifecycle:
 
 \begin{itemize}
  \item Instantiate -- construct or allocate nodes needed for the initial tree,
- \item Initialize -- set default values for node attributes,
  \item Compose -- establish parent/child relationships between all nodes, extending in a branching structure from a single root node,
+ \item Initialize -- set default values for node attributes,
+ \item Summarize -- add up node count, memory usage, and other metrics,
  \item Serialize -- render command tree as structured text,
  \item Verify -- check syntax and verify integrity according to the needs of the application,
  \item Execute -- carry out a program of interactions with hardware and communications,
@@ -284,35 +284,64 @@ The Springleik repository on GitHub \cite{GitHubPython} includes a simulation mo
 
 In addition to the interactive command lines, the target and host programs also accept script files containing commands and arguments appropriate for each. Script files read by the target program contain target commands which interact with (simulated) hardware, while script files read by the host program contain host commands which interact with the AST interpreter.
 
+\section{Conclusion}
+
+We have described a series of steps in which the firmware of a small embedded target has been enhanced to support development of a domain-specific language which can run on the target, on a host computer, or in the cloud. We have shown that a structured text representation of the interpreted program can be obtained by serialization, while the inverse operation of deserialization can be postponed until needed in the application, perhaps even indefinitely. Changes to the interpreted program can be tracked by archiving serialized output to be compared with reference files. We propose that this be done with an asymmetric tree comparison by recursive descent, according to the rules presented here. Meta data such as measured values, instrumentation nodes, and analysis results can be appended directly to the command tree. The command interpreter itself can be made arbitrarily small, according to available resources in the application. Organizing command tree programs around a single pointer or reference to a root node simplifies managing memory used for the program, whether done by dynamic memory allocation, drawing from a node pool, or static node allocations. Multi-threaded applications are supported by passing the root node pointer or reference to a thread create function. The reason we care about source code is that it expresses the design. What we have shown here is that we don't have to begin with source code, so long as the implementation has a way to express itself uniquely as source code.
+
 \clearpage
 
 \begin{thebibliography}{99}
-\bibitem{chatGPTIntro}
-Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
-\bibitem{Alexander1}
-A Pattern Language (Christopher Alexander 1977)
-\bibitem{Alexander2}
-Notes on the Synthesis of Form (Christopher Alexander 1964)
-\bibitem{GangOfFour}
-Design Patterns (Gang of Four 1994)
-\bibitem{ControlSys}
-Feedback Control Systems, 3rd edn. (Phillips \& Harbor 1996)
-\bibitem{Stroustrup}
-The C++ Programming Language, 2nd edn. (Stroustrup 1991)
 \bibitem{Knuth}
 Papers suggested by Google AI
+
+\bibitem{chatGPTIntro}
+Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
+
+\bibitem{Alexander1}
+C. Alexander, S. Ishikawa, M. Silverstein, ``A Pattern Language: Towns, Buildings, Construction,'' (OUP USA 1977).
+
+\bibitem{Alexander2}
+Christopher Alexander, ``Notes on the Synthesis of Form,''
+(Harvard University Press 1964).
+
+\bibitem{GangOfFour}
+E. Gamma, R. Helm, R. Johnson, J. Vlissides, ``Design Patterns: Elements of Reusable Object-Oriented Software,'' (Addison-Wesley 1994).
+
+\bibitem{ControlSys}
+C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
+
+\bibitem{Stroustrup}
+Bjarne Stroustrup, ``The C++ Programming Language,'' 2nd edn. Addison-Wesley 1991).
+
 \bibitem{GitHubPython}
-Springleik Python project repository on GitHub \\ \url{https://github.com/springleik/asynTree/tree/main/Python}
+M. Williamsen, ``Abstract Syntax Tree (AST) interpreters in Python'',
+\textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/asynTree/tree/main/Python}
+
 \bibitem{GitHubC-Lang}
-Springleik C Language project repository on GitHub \\ \url{https://github.com/springleik/asynTree/tree/main/C-Lang}
+M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language'',
+\textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/asynTree/tree/main/C-Lang}
+
 \bibitem{MerkleTree}
-Merkle 1988
+R. C. Merkle, ``A Digital Signature Based on a Conventional Encryption Function,'' Pomerance, C. (eds) Advances in Cryptology — CRYPTO ’87. CRYPTO 1987. Lecture Notes in Computer Science, vol 293. Springer, Berlin, Heidelberg. \\
+\url{https://doi.org/10.1007/3-540-48184-2_32}
+
 \bibitem{IraBaxter}
-Baxter \& Mehlich 2000.
+I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineering,'' Proceedings of the Fourth Working Conference on Reverse Engineering, Amsterdam, Netherlands, 1997, pp. 104-113, \\
+\url{https://doi.org/10.1109/WCRE.1997.624581.}
+
 \bibitem{JEReich}
-Reich, Krogh, \& Baxter 1996
+J. E. Reich, B. H. Krogh, I. D. Baxter,
+``Symbolic Simulation-Based Techniques for Debugging Discrete Control Programs,'' 13th IFAC World Congress, vol. J, pp. 413-418, 1996. \\
+\url{https://doi.org/10.1016/S1474-6670(17)58446-3}
+
 \bibitem{asymmetricRules}
-Description of asymmetric tree comparison published previously at \\ \url{https://github.com/springleik/PompTree}
+Description of asymmetric tree comparison in section
+\ref{asymmetricComparison} published previously at ``PompTree'',
+\textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/PompTree}
+
 \end{thebibliography}
 \section{Biography}
 
@@ -320,10 +349,7 @@ Description of asymmetric tree comparison published previously at \\ \url{https:
 \begin{wrapfigure}{l}{32mm}
     \includegraphics[width=1.25in,height=1.5625in,clip,keepaspectratio]{Portrait1}
 \end{wrapfigure}
+
 \textbf{Mark Williamsen} received a B.S. degree in physics and a Ph.D. degree in physics from the University of Wisconsin at Milwaukee in 2003 and 2010 respectively. He has previously worked at Rockwell Automation in Milwaukee and Quantum Design in San Diego, USA. He is currently employed at Coesia FlexLink in Gothenburg, Sweden working on embedded firmware applications for the industrial internet-of-things (IIoT).
 
 \end{document}
-
-Bring into the picture how AI can develop, verify, and maintain AST command trees. Make the point that flow charts don't help to communicate with machines, but pseudocode does.
-
-What is Springleik, and why should readers care? We think the big insight is that one can program without programming, code without coding, by putting implementation first and source code last. And source code is an output instead of an input. Now we're re-thinking what forward and reverse engineering are. ``Forward'' should be the easy way (serialize) and ``Reverse'' should be the hard way (deserialize).
