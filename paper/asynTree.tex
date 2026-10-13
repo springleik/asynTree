@@ -286,7 +286,11 @@ In addition to the interactive command lines, the target and host programs also 
 
 \section{Conclusion}
 
-We have described a series of steps in which the firmware of a small embedded target has been enhanced to support development of a domain-specific language which can run on the target, on a host computer, or in the cloud. We have shown that a structured text representation of the interpreted program can be obtained by serialization, while the inverse operation of deserialization can be postponed until needed in the application, perhaps even indefinitely. Changes to the interpreted program can be tracked by archiving serialized output to be compared with reference files. We propose that this be done with an asymmetric tree comparison by recursive descent, according to the rules presented here. Meta data such as measured values, instrumentation nodes, and analysis results can be appended directly to the command tree. The command interpreter itself can be made arbitrarily small, according to available resources in the application. Organizing command tree programs around a single pointer or reference to a root node simplifies managing memory used for the program, whether done by dynamic memory allocation, drawing from a node pool, or static node allocations. Multi-threaded applications are supported by passing the root node pointer or reference to a thread create function. The reason we care about source code is that it expresses the design. What we have shown here is that we don't have to begin with source code, so long as the implementation has a way to express itself uniquely as source code.
+We have described a series of steps in which the firmware of a small embedded target has been enhanced to support development of a domain-specific language which can run on the target, on a host computer, or in the cloud. We have shown that a structured text representation of the interpreted program can be obtained by serialization, while the inverse operation of deserialization can be postponed until needed in the application, perhaps even indefinitely. The reason we care about obtaining source code is that it expresses the design. What we have shown here is that we don't have to start with source code, so long as the syntax tree implementation can express itself as structured text.
+
+Changes to the interpreted program can be tracked by archiving serialized output to be compared with reference files. This can be done with an asymmetric tree comparison by recursive descent, following the rules presented here. Meta data such as measured values, instrumentation, and analysis results can be appended directly to the syntax tree. The interpreter itself can be made arbitrarily small, to suit the resources available in a given application. Organizing syntax tree programs around a single pointer or reference to the root node simplifies managing memory used for the program, whether done by dynamic memory allocation, drawing from a node pool, or static node allocations. Multi-threaded programs are supported by passing the root node pointer or reference to a thread create function. 
+
+Assurance of software provenance and integrity is more difficult when the target is able to parse and deserialize source code into memory. Implementations which can't deserialize avoid this common vulnerability by making the interpreted program immutable. Tools and techniques developed for the Springleik project make this possible and practical for a broad class of applications.
 
 \clearpage
 
@@ -297,12 +301,15 @@ Papers suggested by Google AI
 \bibitem{chatGPTIntro}
 Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
 
+\bibitem{asymmetricRules}
+Description of asymmetric tree comparison in section \ref{asymmetricComparison} published previously at ``PompTree'', \textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/PompTree}
+
 \bibitem{Alexander1}
 C. Alexander, S. Ishikawa, M. Silverstein, ``A Pattern Language: Towns, Buildings, Construction,'' (OUP USA 1977).
 
 \bibitem{Alexander2}
-Christopher Alexander, ``Notes on the Synthesis of Form,''
-(Harvard University Press 1964).
+Christopher Alexander, ``Notes on the Synthesis of Form,'' (Harvard University Press 1964).
 
 \bibitem{GangOfFour}
 E. Gamma, R. Helm, R. Johnson, J. Vlissides, ``Design Patterns: Elements of Reusable Object-Oriented Software,'' (Addison-Wesley 1994).
@@ -329,27 +336,19 @@ R. C. Merkle, ``A Digital Signature Based on a Conventional Encryption Function,
 
 \bibitem{IraBaxter}
 I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineering,'' Proceedings of the Fourth Working Conference on Reverse Engineering, Amsterdam, Netherlands, 1997, pp. 104-113, \\
-\url{https://doi.org/10.1109/WCRE.1997.624581.}
+\url{https://doi.org/10.1109/WCRE.1997.624581}
 
 \bibitem{JEReich}
-J. E. Reich, B. H. Krogh, I. D. Baxter,
-``Symbolic Simulation-Based Techniques for Debugging Discrete Control Programs,'' 13th IFAC World Congress, vol. J, pp. 413-418, 1996. \\
+J. E. Reich, B. H. Krogh, I. D. Baxter, ``Symbolic Simulation-Based Techniques for Debugging Discrete Control Programs,'' 13th IFAC World Congress, vol. J, pp. 413-418, 1996. \\
 \url{https://doi.org/10.1016/S1474-6670(17)58446-3}
 
-\bibitem{asymmetricRules}
-Description of asymmetric tree comparison in section
-\ref{asymmetricComparison} published previously at ``PompTree'',
-\textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/PompTree}
-
 \end{thebibliography}
-\section{Biography}
 
+\section{Biography}
 \par
 \begin{wrapfigure}{l}{32mm}
     \includegraphics[width=1.25in,height=1.5625in,clip,keepaspectratio]{Portrait1}
 \end{wrapfigure}
-
 \textbf{Mark Williamsen} received a B.S. degree in physics and a Ph.D. degree in physics from the University of Wisconsin at Milwaukee in 2003 and 2010 respectively. He has previously worked at Rockwell Automation in Milwaukee and Quantum Design in San Diego, USA. He is currently employed at Coesia FlexLink in Gothenburg, Sweden working on embedded firmware applications for the industrial internet-of-things (IIoT).
 
 \end{document}
