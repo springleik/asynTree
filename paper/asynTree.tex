@@ -39,7 +39,7 @@ The central claim of this paper is therefore not that parsing is unnecessary, bu
 \label{closedLoopModel}
 \end{figure}
 
-Many models are available for software development for this discussion. Here we present a simple model based on closed loop control theory, which includes concepts of time dependence and iteration. Figure \ref{closedLoopModel} is a simulation diagram representing a software development process. The input on the left is requirements $R(s)$, and the output on the right is executable code and other deliverable assets $D(s)$. In between we have a means for creating code \textit{Implement} positioned as the plant in control theory, and a means for verifying code \textit{Test} positioned as the sensor. The summing junction on the left compares verification results $V(s)$ with requirements $R(s)$ to produce an error term $E(s)$, which then drives ongoing implementation. The directed edges connecting these blocks represent $N$-dimensional vectors where $N$ is the number of requirements. The value of each dimension is the extent to which a given requirement has been met on some arbitrary scale.
+Many models are available for software development for this discussion. Here we present a simple model based on closed loop control theory, which includes concepts of time dependence and iteration \cite{ControlSys}. Figure \ref{closedLoopModel} is a simulation diagram representing a software development process. The input on the left is requirements $R(s)$, and the output on the right is executable code and other deliverable assets $D(s)$. In between we have a means for creating code \textit{Implement} positioned as the plant in control theory, and a means for verifying code \textit{Test} positioned as the sensor. The summing junction on the left compares verification results $V(s)$ with requirements $R(s)$ to produce an error term $E(s)$, which then drives ongoing implementation. The directed edges connecting these blocks represent $N$-dimensional vectors where $N$ is the number of requirements. The value of each dimension is the extent to which a given requirement has been met on some arbitrary scale.
 
 A typical software project will begin with all vectors pointing to the origin: no requirements, no implementation, and no tests. As development proceeds we add requirements which drive the implementation, which is then tested and compared with requirements. Each directed edge conveys important information, but the most interesting vector is the error term $E(s)$. This will wander in an $N$-dimensional problem space, with $N$ steadily increasing as development proceeds. Ideally this vector should always trend towards zero, with distance from the origin giving us an indication of how far we are from done. Time dependence is not shown explicitly but one can imagine one or more integrators in the loop, with time constants we may or may not control, modifying the time domain response of the development process.
 
@@ -71,7 +71,7 @@ Many readers will have gone through these steps in bringing up a new target. We 
  \item Capture results returned from each command, either as attributes of the command nodes or in a separate trace or listing.
 \end{itemize}
 
-Let's look at what we have. The class objects representing command nodes can live almost anywhere: on the host, on the target, in the cloud, or anywhere else that can interpret them into commands with arguments. For now we think of the arguments as being hard-coded, but they could just as well be derived or symbolic. Various types of collections can be used to iterate over the command nodes, as long as the iteration follows a predictable, repeatable path. The commands themselves can be sent to one or more target devices, or to any other device or simulation with an interface to receive them. Command replies such as motion results or error messages in our motion control example can go back to the host, to some other monitor, or even be ignored. This then is the bare minimum of what's needed to claim we have a small domain-specific language. This can be prototyped and running in a matter of a few days, completely avoiding the trap that ``nothing works until everything works.''
+Let's look at what we have. The class objects representing command nodes can live almost anywhere: on the host, on the target, in the cloud, or anywhere else that can interpret them into commands with arguments. For now we think of the arguments as being hard-coded, but they could just as well be derived or symbolic. Various types of collections can be used to iterate over the command nodes, as long as the iteration follows a predictable, repeatable path. The commands themselves can be sent to one or more target devices, or to any other device or simulation with an interface to receive them. Command replies such as motion results or error messages in our motion control example can go back to the host, to some other monitor, or even be ignored. This then is the bare minimum of what's needed to claim we have a small domain-specific language \cite{MFowler}. This can be prototyped and running in a matter of a few days, completely avoiding the trap that ``nothing works until everything works.''
 
 \section{Serialization}
 
@@ -114,7 +114,7 @@ Now let's look at what's missing. To obtain a text representation of the program
 
 Real programming however implies branching and looping, which is easily added by defining control nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes. Now we need to expand our definition of command nodes to include a node list attribute, allowing us to represent composite tree structures. But not every node needs to have a list. So we divide node classes into composite or \textit{branch} nodes which have a list, and terminal or \textit{leaf} nodes which don't. Clearly conditional and repeating nodes should have lists, to which we append nodes that should be executed only if the condition evaluates as true, or which will be repeated in iterations controlled by the repeating node. Our class hierarchy can begin with the base class \textit{node} which has two subclasses, \textit{branch} and \textit{leaf}. Command and control nodes can then be derived from \textit{branch} and \textit{leaf}. 
 
-All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent. The execute and serialize methods of composite nodes must also iterate over the node list beneath them, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list. This implements an abstract syntax tree (AST) interpreter, fulfilling the application's semantic model without requiring concrete syntax. In fact, the concrete representation can be obtained by projection using the tree's serialize methods.
+All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent. The execute and serialize methods of composite nodes must also iterate over the node list beneath them, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list. This implements an abstract syntax tree (AST) interpreter, fulfilling the application's semantic model without requiring concrete syntax \cite{Knuth}. In fact, the concrete representation can be obtained by projection using the tree's serialize methods \cite{GangOfFour}.
 
 \begin{figure}[t]
 \centering
@@ -246,7 +246,7 @@ As a practical matter, experience shows that implementation of deserialization i
 
 \section{Math and logic expressions}
 
-The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs, or a constant literal value. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided which return values when executed for the operations of boolean logic, and for those math operations needed for the application.
+The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich, compilerTest}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs, or a constant literal value. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided which return values when executed for the operations of boolean logic, and for those math operations needed for the application.
 
 The ability to parse general math and logic expressions is probably not a requirement for most embedded interpreters, especially in domain-specific applications where needed computations can be coded into pre-defined node classes. If however the need for mutable math and logic expressions can't be avoided, we would advocate for adding new execute methods to math and logic leaf nodes which return the needed values. Similarly branch nodes which need those return values can invoke the new execute methods of their subordinates to obtain them. This is clearly a step change in complexity for implementation, verification, and documentation. 
 
@@ -269,7 +269,7 @@ Performing a directional comparison is important when comparing test outputs wit
 Reference files should be under version control, ideally alongside the implementation source code. Test files can also be versioned, especially if they contain additional content not in the reference files. This style of testing encourages the use of large scale bulk tests, which may seem unfamiliar to those accustomed to long lists of fine-grained assertions. In either case the workflow is the same: find all the deltas, rebaseline those that are expected, and repair those that aren't. One might ask where the refererence files come from. Experience shows that a variety of sources can be used including outputs from previous versions, synthetic data created programmaticaly, hand typed data, or hybrid combinations of these. The content of this section has been published previously in reference \cite{asymmetricRules}.
 
 \section{Execution model}
-Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, all that's needed to initiate a task thread to execute the tree is a pointer or reference to the root node. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees. Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this, it's easier to put waits into branch node execute methods to relinquish control between calls to subordinate nodes.
+Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, all that's needed to initiate a task thread to execute the tree is a pointer or reference to the root node \cite{Stroustrup}. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees. Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this, it's easier to put waits into branch node execute methods to relinquish control between calls to subordinate nodes.
 
 \section{Reuse and granularity}
 One may well wonder how much of this can be reused across multiple projects. Our experience has shown that command nodes are clearly domain specific and can only be reused for very similar applications, while control nodes are not domain specific and can be reused freely. The resulting plethora of small languages can be justified by our need to maintain a small footprint by optimizing the command tree language for each application. A related question is how to set the granularity of command and control nodes. We propose starting with one command node class for each monitor command on the target, and one control node class for each branching or gating operation. If math and logic expressions are to be supported, start with one math or logic operation per control node. As development progresses common patterns will soon become apparent, which then become candidates for integration into more functional node classes. These are design decisions which don't have to be decided up front.
@@ -297,26 +297,45 @@ Assurance of software provenance and integrity is more difficult when the target
 \clearpage
 
 \begin{thebibliography}{99}
-\bibitem{Knuth}
-Papers suggested by Google AI
 
 \bibitem{chatGPTIntro}
 Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
 
-\bibitem{Alexander1}
-C. Alexander, S. Ishikawa, M. Silverstein, ``A Pattern Language: Towns, Buildings, Construction,'' (OUP USA 1977).
+\bibitem{ControlSys}
+C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
 
-\bibitem{Alexander2}
-Christopher Alexander, ``Notes on the Synthesis of Form,'' (Harvard University Press 1964).
+\bibitem{IraBaxter}
+I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineering,'' Proceedings of the Fourth Working Conference on Reverse Engineering, Amsterdam, Netherlands, 1997, pp. 104-113, \\
+\url{https://doi.org/10.1109/WCRE.1997.624581}
+
+\bibitem{MFowler}
+M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IEEE Software}, vol. 26, no. 4, pp. 13-14, July-Aug. 2009, \\
+\url{https://doi.org/10.1109/MS.2009.85}
+
+\bibitem{GitHubPython}
+M. Williamsen, ``Abstract Syntax Tree (AST) Interpreter for Host and Target,''
+\textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/asynTree/tree/main/Python/hostTarget}
+
+\bibitem{Knuth}
+D. Knuth, ``Semantics of Context-Free Languages,''
+\textit{Mathematical Systems Theory}, vol. 2, no. 2, June 1968.
 
 \bibitem{GangOfFour}
 E. Gamma, R. Helm, R. Johnson, J. Vlissides, ``Design Patterns: Elements of Reusable Object-Oriented Software,'' (Addison-Wesley 1994).
 
-\bibitem{ControlSys}
-C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
+\bibitem{GitHubC-Lang}
+M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language,''
+\textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/asynTree/tree/main/C-Lang}
 
-\bibitem{Stroustrup}
-Bjarne Stroustrup, ``The C++ Programming Language,'' 2nd edn. Addison-Wesley 1991).
+\bibitem{MerkleTree}
+R. C. Merkle, ``A Digital Signature Based on a Conventional Encryption Function,'' Pomerance, C. (eds) Advances in Cryptology — CRYPTO ’87. CRYPTO 1987. Lecture Notes in Computer Science, vol 293. Springer, Berlin, Heidelberg. \\
+\url{https://doi.org/10.1007/3-540-48184-2_32}
+
+\bibitem{JEReich}
+J. E. Reich, B. H. Krogh, I. D. Baxter, ``Symbolic Simulation-Based Techniques for Debugging Discrete Control Programs,'' 13th IFAC World Congress, vol. J, pp. 413-418, 1996. \\
+\url{https://doi.org/10.1016/S1474-6670(17)58446-3}
 
 \bibitem{compilerTest}
 M. Williamsen, ``Compiler Test Case Generators,''
@@ -328,35 +347,8 @@ M. Williamsen, ``PompTree,''
 \textit{GitHub}, 12 October 2026, \\
 \url{https://github.com/springleik/PompTree}
 
-\bibitem{GitHubPython}
-M. Williamsen, ``Abstract Syntax Tree (AST) Interpreter for Host and Target,''
-\textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/asynTree/tree/main/Python/hostTarget}
-
-\bibitem{GitHubC-Lang}
-M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language,''
-\textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/asynTree/tree/main/C-Lang}
-
-\bibitem{MerkleTree}
-R. C. Merkle, ``A Digital Signature Based on a Conventional Encryption Function,'' Pomerance, C. (eds) Advances in Cryptology — CRYPTO ’87. CRYPTO 1987. Lecture Notes in Computer Science, vol 293. Springer, Berlin, Heidelberg. \\
-\url{https://doi.org/10.1007/3-540-48184-2_32}
-
-\bibitem{IraBaxter}
-I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineering,'' Proceedings of the Fourth Working Conference on Reverse Engineering, Amsterdam, Netherlands, 1997, pp. 104-113, \\
-\url{https://doi.org/10.1109/WCRE.1997.624581}
-
-\bibitem{JEReich}
-J. E. Reich, B. H. Krogh, I. D. Baxter, ``Symbolic Simulation-Based Techniques for Debugging Discrete Control Programs,'' 13th IFAC World Congress, vol. J, pp. 413-418, 1996. \\
-\url{https://doi.org/10.1016/S1474-6670(17)58446-3}
-
-\bibitem{MFowler}
-M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IEEE Software}, vol. 26, no. 4, pp. 13-14, July-Aug. 2009, \\
-\url{https://doi.org/10.1109/MS.2009.85}
-
-\bibitem{ZZang}
-Z. Zang, N. Wiatrek, M. Gligoric, A. Shi, ``Compiler Testing using Template Java Programs,'' arXiv:2209.04514v1 [cs.PL] 9 Sep 2022 \\
-\url{https://doi.org/10.48550/arXiv.2209.04514}
+\bibitem{Stroustrup}
+Bjarne Stroustrup, ``The C++ Programming Language,'' 2nd edn. Addison-Wesley 1991).
 
 \end{thebibliography}
 
