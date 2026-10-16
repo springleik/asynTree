@@ -1,4 +1,4 @@
-# hostTarget
+# Abstract Syntax Tree (AST) Interpreter for Host and Target
 
 Simulated target device exposes a TCP socket interface with a simple command parser. A separate host program acts as a client, interacting with the target and running an abstract syntax tree (AST) interpreter. Host and target can run on the same machine using the default IP address 'localhost' and default port number '12345'. Or they can be on different machines using IP addresses and a port that you've enabled for TCP communication. All of this is meant as a proof-of-concept, to give you some ideas about what's possible and what the level of effort might be for projects you have in mind.
 
@@ -95,11 +95,11 @@ Axis: 1, position: 0
 
 On exit there will be five new JSON files representing the two AST programs before and after execution.
 
-* _one.json_ represents the 'figure 2' program before execution,
-* _oneX.json_ represents the 'figure 2' program after execution, with the tree now being decorated with replies from the server,
-* _two.json_ represents the 'figure 3' program before execution,
-* _twoX.json_ represents the 'figure 3' program after execution, with the tree now being decorated with replies from the server, with no flags being set
-* _twoY.json_ represents the 'figure 3' program after execution, with the tree now being decorated with replies from the server, with one flag being set.
+* _two.json_ represents the 'figure 2' program before execution,
+* _twoX.json_ represents the 'figure 2' program after execution, with the tree now being decorated with replies from the server,
+* _three.json_ represents the 'figure 3' program before execution,
+* _threeX.json_ represents the 'figure 3' program after execution, with the tree now being decorated with replies from the server, with no flags being set
+* _threeY.json_ represents the 'figure 3' program after execution, with the tree now being decorated with replies from the server, with one flag being set.
 
 One can use _git_ to check for differences between these output files and checked-in references.
 
