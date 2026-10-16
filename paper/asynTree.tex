@@ -112,7 +112,9 @@ Now let's look at what's missing. To obtain a text representation of the program
 
 \section{Control nodes}
 
-Real programming however implies branching and looping, which is easily added by defining control nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes. Now we need to expand our definition of command nodes to include a node list attribute, allowing us to represent composite tree structures. But not every node needs to have a list. So we divide node classes into composite or \textit{branch} nodes which have a list, and terminal or \textit{leaf} nodes which don't. Clearly conditional and repeating nodes should have lists, to which we append nodes that should be executed only if the condition evaluates as true, or which will be repeated in iterations controlled by a repeating node. Our class hierarchy can begin with the base class \textit{node} which has two subclasses, \textit{branch} and \textit{leaf}. Command and control nodes can then be derived from \textit{branch} and \textit{leaf}. All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent. The execute and serialize methods of composite nodes must also iterate over the node list beneath them, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list.
+Real programming however implies branching and looping, which is easily added by defining control nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes. Now we need to expand our definition of command nodes to include a node list attribute, allowing us to represent composite tree structures. But not every node needs to have a list. So we divide node classes into composite or \textit{branch} nodes which have a list, and terminal or \textit{leaf} nodes which don't. Clearly conditional and repeating nodes should have lists, to which we append nodes that should be executed only if the condition evaluates as true, or which will be repeated in iterations controlled by the repeating node. Our class hierarchy can begin with the base class \textit{node} which has two subclasses, \textit{branch} and \textit{leaf}. Command and control nodes can then be derived from \textit{branch} and \textit{leaf}. 
+
+All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent. The execute and serialize methods of composite nodes must also iterate over the node list beneath them, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list. This implements an abstract syntax tree (AST) interpreter, fulfilling the application's semantic model without requiring concrete syntax. In fact, the concrete representation can be obtained by projection using the tree's serialize methods.
 
 \begin{figure}[t]
 \centering
@@ -209,7 +211,7 @@ One can instrument the command tree by adding node attributes at run-time like t
 
 \section{Analysis}
 
-In this picture capturing data points like shaft position will be fairly light-weight, perhaps just reading a shaft encoder. Ideally this can be done with no impact on system performance. However in some cases we will want to perform further analysis, for instance extracting fitted parameters like velocity and acceleration from time series data. Since the raw data exists in any serialization done after execution, we can perform analysis wherever the serialized command tree exists. An obvious choice would be to run analysis in the same process that runs the interpreter. In other words we take a tree which already supports execution and serialization, and then add an analysis method, all traversing the tree by recursive descent. Alternately one can insert specialized analysis nodes into the tree, for the purpose of analyzing data nodes beneath them. Here we encounter the principle of \textit{Separation of Execution and Analysis}. This will be discussed further in section \ref{Deserialization}.
+In this picture capturing data points like shaft position will be fairly light-weight, perhaps just reading a shaft encoder. Ideally this can be done with no impact on system performance. However in some cases we will want to perform further analysis, for instance extracting fitted parameters like velocity and acceleration from time series data. Since the raw data exists in any serialization done after execution, we can perform analysis wherever the serialized command tree exists. An obvious choice would be to run analysis in the same process that runs the interpreter. In other words we take a tree which already supports execution and serialization, and then add an analysis method, all traversing the tree by recursive descent. Alternately one can insert specialized analysis nodes into the tree, for the purpose of analyzing data nodes beneath them. Here we encounter the \textit{Principle of Separation of Execution and Analysis}. This will be discussed further in section \ref{Deserialization}.
 
 One might wonder where to put the results of analysis, and we now propose that the best place is to append analysis nodes to the command tree, just as we previously appended data nodes. So any serialization of the tree done after analysis will contain the analyzed results attached to the nodes where they originated. Some applications will require multiple passes of analysis, which is easily accomodated in this technique by writing several analysis functions to be called in sequence. This is a design decision which needn't be taken until analysis is needed.
 
@@ -220,13 +222,13 @@ It is especially convenient to carry out syntax and integrity checks when requir
 \begin{itemize}
  \item Instantiate -- construct or allocate nodes needed for the initial tree,
  \item Compose -- establish parent/child relationships between all nodes, extending in a branching structure from a single root node,
- \item Initialize -- set default values for node attributes,
- \item Summarize -- add up node count, memory usage, and other metrics,
- \item Serialize -- render command tree as structured text,
- \item Verify -- check syntax and verify integrity according to the needs of the application,
- \item Execute -- carry out a program of interactions with hardware and communications,
- \item Analyze -- gather and summarize data found in subordinate data nodes,
- \item Report -- render formatted reports of gathered data and analysis nodes,
+ \item Initialize -- set default values for node attributes, realizing the canonical semantic model of the program,
+ \item Summarize -- project the command tree to obtain node count, memory usage, and other metrics,
+ \item Serialize -- project the command tree to render it as structured text,
+ \item Verify -- traverse the tree while checking syntax and verifying integrity, according to the needs of the application,
+ \item Execute -- carry out a program of interactions with hardware and communications, transforming the tree as node attributes change and data nodes are appended,
+ \item Analyze -- gather and summarize data found in subordinate data nodes, transforming the tree as analysis nodes are appended,
+ \item Report -- project the tree to render formatted reports of gathered data and analysis nodes,
  \item Release -- deallocate or free memory used for the command tree and all subordinate nodes.
 \end{itemize}
 
@@ -236,7 +238,7 @@ There are several features we take for granted in established programming langua
 
 There are several use cases which justify the need for deserialization. In our view the most important of these is testability, to allow for round-trip testing. We propose here that since serialization is so much easier than deserialization, serialization should be implemented and verified first to use as a trusted reference. Which in turn makes the deserializer, that is the source code parser, easier to implement and verify. Archived output from the serializer can be deserialized and then serialized again. With the new code being compared to the archived code for equality. This will be discussed more in section \ref{asymmetricComparison}.
 
-Because the deserializer isn't needed to create and execute AST command trees, it can be implemented class by class, as and when needed. The way this works is that we begin with all source code nodes deserializing to the default base classes for leaf and branch. Then we add specialized implementation for each node class in turn. The deserializer is typically a factory method which instantiates and composes the nodes encountered while parsing source text. As the deserializer starts working, we can begin to add test cases which rely on it. Specifically, we can have tests where instead of executing the tree on live hardware to populate it with data nodes, we can deserialize an archived command tree which already has data nodes attached. Thus removing the dependence on live hardware for all steps in the workflow which come after execution. This principle of \textit{Separation of Execution and Analysis} opens up many possibilities for testing on-target and off-target, and for verifying with test cases obtained directly from archived live data, live data modified to stress limits and edge cases, synthetic data meant to prove mathematical robustness, or hybrid combinations of these sources.
+Because the deserializer isn't needed to create and execute AST command trees, it can be implemented class by class, as and when needed. The way this works is that we begin with all source code nodes deserializing to the default base classes for leaf and branch. Then we add specialized implementation for each node class in turn. The deserializer is typically a factory method which instantiates and composes the nodes encountered while parsing source text. As the deserializer starts working, we can begin to add test cases which rely on it. Specifically, we can have tests where instead of executing the tree on live hardware to populate it with data nodes, we can deserialize an archived command tree which already has data nodes attached. Thus removing the dependence on live hardware for all steps in the workflow which come after execution. This \textit{Principle of Separation of Execution and Analysis} opens up many possibilities for testing on-target and off-target, and for verifying with test cases obtained directly from archived live data, live data modified to stress limits and edge cases, synthetic data meant to prove mathematical robustness, or hybrid combinations of these sources.
 
 A secondary use of deserialization is to move data analysis and reporting off-target to host software running on a workstation or in the cloud. Here too one only needs partial deserialization to support analysis and reporting, leaving hardware-dependent nodes as pass-through base class nodes. This is especially helpful in applications with multiple stages of analysis, or multiple report formats. All can be tested with the same source data.
 
@@ -244,7 +246,7 @@ As a practical matter, experience shows that implementation of deserialization i
 
 \section{Math and logic expressions}
 
-The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs, or a constant literal value. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided for the operations of boolean logic, and for those math operations needed for the application.
+The work described here has its origins in the logic scan of industrial programmable logic controllers \cite{JEReich}. Having said that, we will only discuss math and logic expressions in an overview. Evaluation of such expressions by recursive descent implies subclasses of nodes which return math and logic values when executed. Leaf (terminal) nodes would return a value obtained from hardware such as analog and digital inputs, or a constant literal value. Leaf nodes could also return values from internal registers as might be used in communicating with other subsystems. Branch (composite) node classes would be provided which return values when executed for the operations of boolean logic, and for those math operations needed for the application.
 
 The ability to parse general math and logic expressions is probably not a requirement for most embedded interpreters, especially in domain-specific applications where needed computations can be coded into pre-defined node classes. If however the need for mutable math and logic expressions can't be avoided, we would advocate for adding new execute methods to math and logic leaf nodes which return the needed values. Similarly branch nodes which need those return values can invoke the new execute methods of their subordinates to obtain them. This is clearly a step change in complexity for implementation, verification, and documentation. 
 
@@ -280,7 +282,7 @@ One may well wonder how much of this can be reused across multiple projects. Our
 \label{hostTarget}
 \end{figure}
 
-The Springleik repository on GitHub \cite{GitHubPython} includes a simulation model of a three axis motion controller that implements a target process (file \textit{target.py}) and a host process (file \textit{host.py}), which communicate with each other through a TCP socket port. As described in the subproject's \textit{ReadMe.md} file, both processes expose a command line console. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the abstract syntax tree interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the animated shaft position indicators shown in figure \ref{hostTarget}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
+The Springleik repository on GitHub \cite{GitHubPython} includes a simulation model of a three axis motion controller that implements a target process (file \textit{target.py}) and a host process (file \textit{host.py}), which communicate with each other through a TCP socket port. As described in the subproject's \textit{ReadMe.md} file, both processes expose a command line console. The target process command line accepts commands related to the simulated hardware. The host process command line accepts commands related to the AST interpreter. Any commands the host doesn't recognize are passed along to the connected target process. The target process uses TkInter to render the animated shaft position indicators shown in figure \ref{hostTarget}. The host process includes a command tree factory method which can instantiate and compose the structures given here in figures \ref{simpleListing} and \ref{treeListing}.
 
 In addition to the interactive command lines, the target and host programs also accept script files containing commands and arguments appropriate for each. Script files read by the target program contain target commands which interact with (simulated) hardware, while script files read by the host program contain host commands which interact with the AST interpreter.
 
@@ -301,10 +303,6 @@ Papers suggested by Google AI
 \bibitem{chatGPTIntro}
 Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
 
-\bibitem{asymmetricRules}
-Description of asymmetric tree comparison in section \ref{asymmetricComparison} published previously at ``PompTree'', \textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/PompTree}
-
 \bibitem{Alexander1}
 C. Alexander, S. Ishikawa, M. Silverstein, ``A Pattern Language: Towns, Buildings, Construction,'' (OUP USA 1977).
 
@@ -320,13 +318,23 @@ C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice
 \bibitem{Stroustrup}
 Bjarne Stroustrup, ``The C++ Programming Language,'' 2nd edn. Addison-Wesley 1991).
 
-\bibitem{GitHubPython}
-M. Williamsen, ``Abstract Syntax Tree (AST) interpreters in Python'',
+\bibitem{compilerTest}
+M. Williamsen, ``Compiler Test Case Generators,''
+\textit{GitHub}, 16 October 2026, \\
+\url{http://www.williamsonic.com/CompTree/index.html}
+
+\bibitem{asymmetricRules}
+M. Williamsen, ``PompTree,''
 \textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/asynTree/tree/main/Python}
+\url{https://github.com/springleik/PompTree}
+
+\bibitem{GitHubPython}
+M. Williamsen, ``Abstract Syntax Tree (AST) Interpreter for Host and Target,''
+\textit{GitHub}, 12 October 2026, \\
+\url{https://github.com/springleik/asynTree/tree/main/Python/hostTarget}
 
 \bibitem{GitHubC-Lang}
-M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language'',
+M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language,''
 \textit{GitHub}, 12 October 2026, \\
 \url{https://github.com/springleik/asynTree/tree/main/C-Lang}
 
@@ -341,6 +349,14 @@ I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineerin
 \bibitem{JEReich}
 J. E. Reich, B. H. Krogh, I. D. Baxter, ``Symbolic Simulation-Based Techniques for Debugging Discrete Control Programs,'' 13th IFAC World Congress, vol. J, pp. 413-418, 1996. \\
 \url{https://doi.org/10.1016/S1474-6670(17)58446-3}
+
+\bibitem{MFowler}
+M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IEEE Software}, vol. 26, no. 4, pp. 13-14, July-Aug. 2009, \\
+\url{https://doi.org/10.1109/MS.2009.85}
+
+\bibitem{ZZang}
+Z. Zang, N. Wiatrek, M. Gligoric, A. Shi, ``Compiler Testing using Template Java Programs,'' arXiv:2209.04514v1 [cs.PL] 9 Sep 2022 \\
+\url{https://doi.org/10.48550/arXiv.2209.04514}
 
 \end{thebibliography}
 
