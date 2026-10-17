@@ -104,7 +104,7 @@ Let's look at what we have. The class objects representing command nodes can liv
 ]
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a simple command list being sent to an embedded motion controller. The top-level container is an array which preserves order. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub \cite{GitHubPython}.}
+\caption{JSON representation of a simple command list being sent to an embedded motion controller. The top-level container is an array which preserves order. Arguments here are named, but could also be positional. JSON text copied from file \textit{two.json} in the Springleik project repository on GitHub \protect\cite{GitHubPython}.}
 \label{simpleListing}
 \end{figure}
 
@@ -151,7 +151,8 @@ All node classes should have methods to execute and to serialize them while trav
     {"cmd": "setHoldCurrent", "axis": 2, "current_mA": 25}]}]}
 \end{lstlisting}
 \end{minipage}
-\caption{JSON representation of a composite command tree with conditional and repeating nodes. The top-level container is a dictionary and command node which does not preserve order. Subordinate node lists are contained in arrays which do preserve order. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub \cite{GitHubPython}.}
+\caption{JSON representation of a composite command tree with conditional and repeating nodes. The top-level container is a dictionary and command node which does not preserve order. Subordinate node lists are contained in arrays which do preserve order. JSON text copied from file \textit{three.json} in the Springleik project repository on GitHub
+\protect\cite{GitHubPython}.}
 \label{treeListing}
 \end{figure}
 
@@ -201,7 +202,8 @@ Command tree programs which rarely change can be composed of statically allocate
         testBranch.append(setHoldCurrent(2,25))
 \end{lstlisting}
 \end{minipage}
-\caption{Python code snippet from function \textit{figureFactory} in file \textit{host.py} in the Springleik project repository on GitHub \cite{GitHubPython}. Shown are the steps to instantiate and compose the command tree serialized in figure \ref{treeListing}.}
+\caption{Python code snippet from function \textit{figureFactory} in file \textit{host.py} in the Springleik project repository on GitHub
+\protect\cite{GitHubPython}. Shown are the steps to instantiate and compose the command tree serialized in figure \protect\ref{treeListing}.}
 \label{figureFactory}
 \end{figure}
 
@@ -278,7 +280,7 @@ One may well wonder how much of this can be reused across multiple projects. Our
 
 \begin{figure}
 \includegraphics[width=\textwidth]{hostTarget}
-\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub \cite{GitHubPython}.}
+\caption{Three axis motion control simulation implemented in a target process. A separate host process implements an abstract syntax tree (AST) interpreter using Springleik techniques. Source code is posted in the Springleik project repository on GitHub \protect\cite{GitHubPython}.}
 \label{hostTarget}
 \end{figure}
 
