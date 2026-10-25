@@ -16,20 +16,17 @@
 \maketitle
 
 \begin{abstract}
-Small languages arise in computing for a variety of reasons. A simple command prompt can be useful in bringing up new hardware, particularly on small targets running embedded firmware. This leads naturally to a scriptable interface. Which can then evolve further into a primitive domain-specific language (DSL) that supports use cases in development, test, and even production. This work describes one path through the steps that lead from command prompt to small language. Such languages can be very efficient with the resources they use including memory, processor bandwidth, and system services. Memory allocations can be static or dynamic, according to the details of the application. Additional features, including self-documenting code and generation of baseline test outputs, are easily implemented with minimal effort.
+Small languages arise in computing for a variety of reasons. A simple command prompt can be useful in bringing up new hardware, particularly on small targets running embedded firmware. This leads naturally to a scriptable interface. Which can then evolve further into a primitive domain-specific language (DSL) that supports use cases in development, test, and even production. This work describes one path through the steps that lead from command prompt to small language. Such languages can be very efficient with the resources they use including memory, processor bandwidth, and system services.
+
+We will show that when programs for a DSL are represented as abstract syntax trees (ASTs), they can be interpreted and executed by recursive descent. This can be done before creating a parser for the language, without even having a concrete representation of the language's source code. Additional features such as serializing the AST to obtain DSL source code and generate baseline test outputs are easily implemented with minimal effort. Implementing a parser for the DSL can be put off until late in the project, perhaps even after delivery.
+
 \end{abstract}
 
 \graphicspath{ {./figures/} }
 
 \section{Introduction}\label{Introduction}
 
-Software developers often assume that the first implementation milestone for an interpreted language is a parser capable of translating human-readable source code into an internal representation. This assumption is reasonable for general-purpose programming languages, where source code is the primary means by which programs are created and maintained. However, it is not necessarily true for small domain-specific languages developed for a single application or product.
-
-This paper explores an alternative development strategy. Rather than beginning with a parser, the executable representation is constructed directly in memory using ordinary programming language facilities. The resulting structure is then executed, verified, serialized, analyzed, and ultimately deployed without ever interpreting a source file. Human-readable representations are treated as derived views of the underlying execution model rather than as the primary artifact.
-
-This approach offers several practical advantages. Interpreter development, command semantics, verification, testing, serialization, visualization, and documentation can proceed independently of the considerably different task of deserializing structured text. In our experience, this separation shortens the path to a deployable system while encouraging a clear distinction between execution and analysis. A parser remains valuable, but its implementation can be deferred until there is a genuine operational need for humans or external tools to author executable descriptions directly.
-
-The central claim of this paper is therefore not that parsing is unnecessary, but that it need not be the first step. For many bespoke interpreted languages, a complete and useful product can be designed, implemented, verified, and shipped before a source-language parser is ever written \cite{chatGPTIntro}.
+TODO
 
 \section{Model of software development}
 
@@ -207,9 +204,7 @@ Command tree programs which rarely change can be composed of statically allocate
 \label{figureFactory}
 \end{figure}
 
-In figure \ref{figureFactory} we show an example of instantiating and composing a command tree in a Python function which implements a tree factory. That combined with a serialization function gives us a human-readable text representation of the command tree program as structured text. In other words, the interpreter source code is written for us, and we can put off writing the source code parser as long as we like.
-
-One can instrument the command tree by adding node attributes at run-time like time stamps, tally counters, iterator values, and reply strings. When added to serialization functions, these attributes then appear in the structured text source code with each attribute conveniently attached to the node where it originated. We describe this transformation as ``decorating the tree.'' Serializing the tree before and after execution shows clearly where the active paths lie. If memory permits, one can consider keeping time series or position series data in the same way, appending new data points to a list maintained by the node where the data points originated. In motion control applications, for instance, one can record axis position while polling for motion done. Such data nodes can be given a serialization function, while their execution function should be a simple pass-through.
+In figure \ref{figureFactory} we show an example of instantiating and composing a command tree in a Python function which implements a tree factory. That combined with a serialization function gives us a human-readable representation of the command tree program as structured text. In other words, the source code describing the AST program is written for us, and we can put off writing the DSL source code parser as long as we like. One can instrument the command tree by adding node attributes at run-time such as time stamps, tally counters, iterator values, and reply strings. When added to serialization functions, these attributes then appear in the structured text source code with each attribute conveniently attached to the node where it originated. We describe this transformation as ``decorating the tree.'' Serializing the tree before and after execution shows clearly where the active paths lie. If memory permits, one can consider keeping time series or position series data in the same way, appending new data points to a list maintained by the node where the data points originated. In motion control applications, for instance, one can record axis position while polling for motion done. Such data nodes can be given a serialization function, while their execution function should be a simple pass-through.
 
 \section{Analysis}
 
@@ -290,18 +285,15 @@ In addition to the interactive command lines, the target and host programs also 
 
 \section{Conclusion}
 
-We have described a series of steps in which the firmware of a small embedded target has been enhanced to support development of a domain-specific language which can run on the target, on a host computer, or in the cloud. We have shown that a structured text representation of the interpreted program can be obtained by serialization, while the inverse operation of deserialization can be postponed until needed in the application, perhaps even indefinitely. The reason we care about obtaining source code is that it expresses the design. What we have shown here is that we don't have to start with source code, so long as the syntax tree implementation can render itself as structured text.
+We have described a series of steps in which the firmware of a small embedded target has been enhanced to support development of a domain-specific language (DSL) which can run on the target, on a host computer, or in the cloud. We have shown that a structured text representation of the abstract syntax tree (AST) program to be interpreted can be obtained by serialization, while the inverse operation of deserialization can be postponed until needed in the application, perhaps even indefinitely. The reason we care about obtaining DSL source code is that it expresses the design. What we have shown here is that we don't have to start with source code, so long as the AST implementation can render itself as structured text. In this picture the AST becomes a persistent organizational structure and medium for communication.
 
-Changes to the interpreted program can be tracked by archiving serialized output to be compared with reference files. This can be done with an asymmetric tree comparison by recursive descent, following the rules presented here. Meta data such as measured values, instrumentation, and analysis results can be appended directly to the syntax tree. The interpreter itself can be made arbitrarily small, to suit the resources available in a given application. Organizing syntax tree programs around a single pointer or reference to the root node simplifies managing memory used for the program, whether done by dynamic memory allocation, drawing from a node pool, or static node allocations. Multi-threaded programs are supported by passing the root node pointer or reference to a thread create function. 
+Changes to the interpreted program can be tracked by archiving serialized output to be compared with reference files. This can be done with an asymmetric tree comparison by recursive descent, following the rules presented here. Meta data such as measured values, instrumentation, and analysis results can be appended directly to the syntax tree. The interpreter itself can be made arbitrarily small, to suit the resources available in a given application. Organizing syntax tree programs around a single pointer or reference to the root node simplifies managing memory used for the program, whether done by dynamic memory allocation, drawing from a node pool, or static node allocations. Multi-threaded programs are supported by passing the root node pointer or reference to a thread create function.
 
-Assurance of software provenance and integrity is more difficult when the target is able to parse and deserialize source code into memory. Implementations which can't deserialize avoid this common vulnerability by making the interpreted program immutable. Tools and techniques developed for the Springleik project make this possible and practical for a broad class of applications.
+Assurance of software provenance and integrity is more difficult when the target is able to parse and deserialize source code into memory. Implementations proposed here which can't deserialize avoid this common vulnerability by making the interpreted program immutable. Tools and techniques developed for the Springleik project make this possible and practical for a broad class of applications.
 
 \clearpage
 
 \begin{thebibliography}{99}
-
-\bibitem{chatGPTIntro}
-Section \ref{Introduction} written by ChatGPT-5.5 on 18 July 2026, based on conversations with the author.
 
 \bibitem{ControlSys}
 C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
@@ -317,7 +309,8 @@ M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IE
 \bibitem{GitHubPython}
 M. Williamsen, ``Abstract Syntax Tree (AST) Interpreter for Host and Target,''
 \textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/asynTree/tree/main/Python/hostTarget}
+\url{https://github.com/springleik/asynTree/tree/main/Python/hostTarget} \\
+\url{https://doi.org/10.5281/zenodo.23595064}
 
 \bibitem{Knuth}
 D. Knuth, ``Semantics of Context-Free Languages,''
@@ -330,7 +323,8 @@ E. Gamma, R. Helm, R. Johnson, J. Vlissides, ``Design Patterns: Elements of Reus
 \bibitem{GitHubC-Lang}
 M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language,''
 \textit{GitHub}, 12 October 2026, \\
-\url{https://github.com/springleik/asynTree/tree/main/C-Lang}
+\url{https://github.com/springleik/asynTree/tree/main/C-Lang} \\
+\url{https://doi.org/10.5281/zenodo.23595064}
 
 \bibitem{MerkleTree}
 R. C. Merkle, ``A Digital Signature Based on a Conventional Encryption Function,'' Pomerance, C. (eds) Advances in Cryptology — CRYPTO ’87. CRYPTO 1987. Lecture Notes in Computer Science, vol 293. Springer, Berlin, Heidelberg. \\
