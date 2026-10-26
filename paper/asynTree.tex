@@ -1,4 +1,5 @@
 \documentclass[a4paper,10pt]{article}
+\usepackage{authblk}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{listings}
@@ -8,6 +9,7 @@
 
 \title{Springleik: A Case Study in Small Languages}
 \author{Mark S. Williamsen}
+\affil{FlexLink AB}
 
 \graphicspath{ {./figures/} }
 
@@ -18,7 +20,7 @@
 \begin{abstract}
 Small languages arise in computing for a variety of reasons. A simple command prompt can be useful in bringing up new hardware, particularly on small targets running embedded firmware. This leads naturally to a scriptable interface. Which can then evolve further into a primitive domain-specific language (DSL) that supports use cases in development, test, and even production. This work describes one path through the steps that lead from command prompt to small language. Such languages can be very efficient with the resources they use including memory, processor bandwidth, and system services.
 
-We will show that when programs for a DSL are represented as abstract syntax trees (ASTs), they can be interpreted and executed by recursive descent. This can be done before creating a parser for the language, without even having a concrete representation of the language's source code. Additional features such as serializing the AST to obtain DSL source code and generate baseline test outputs are easily implemented with minimal effort. Implementing a parser for the DSL can be put off until late in the project, perhaps even after delivery.
+We will show that when programs for a DSL are represented as abstract syntax trees (ASTs) they can be interpreted and executed before creating a parser for the language, without even having a concrete representation of the language's source code. Serializing the AST to obtain DSL source code and generate baseline test outputs is easily implemented with minimal effort. Developing a parser to deserialize the DSL can be put off until late in the project, perhaps even after delivery.
 
 \end{abstract}
 
@@ -26,9 +28,11 @@ We will show that when programs for a DSL are represented as abstract syntax tre
 
 \section{Introduction}\label{Introduction}
 
-The usual process of creating an interpreter for a new programming language begins with implementing a parser for the intended language, able to translate human-readable source code into a representation in memory. This makes sense for a general-purpose programming language where the design of programs written in the language is embodied in the source code, which naturally becomes the preferred form for archiving and communicating about the program. There is however a special case when considering small domain-specific languages (DSLs), where one begins with the representation in memory and puts off implementing a parser until it's needed in the project. For embedded applications this could even be after the product using the interpreter is already shipping.
+The usual process of creating an interpreter for a new programming language begins with implementing a parser for the intended language, able to translate human-readable source code into a representation in memory. This makes sense for a general-purpose language where the design of a program written in the language is embodied in the source code, which naturally becomes the preferred form for archiving and communicating about the program. In this paper we follow a different process to create an interpreter for a language not yet defined, with no concrete syntax available.
 
-In this paper we follow a different process to create an interpreter for a language not yet defined, with no concrete syntax available. Here we begin with the representation in memory of the program to be interpreted as an abstract syntax tree (AST). This then becomes the canonical expression of the program's design, which can be serialized into structured text to be used for archiving and communicating about the program. By treating the source code as an output instead of as an input we position the AST as the primary artifact, which can be executed, verified, serialized, analyzed, and even deployed, before we start working on a source code parser. For small embedded DSLs the lack of a parser needn't be an obstacle to development. In fact, putting off the burden of deserializing source code until after it's become stable and robust can be a significant savings in time and effort. We aren't claiming that a parser is unnecessary. Rather, writing a parser needn't be the first step in the process of developing an interpreter. Our claim is that implementing a parser to deserialize source code can be put off until that functionality is actually needed.
+Here we begin with the representation in memory of the program to be interpreted, as an abstract syntax tree (AST) which then becomes the canonical expression of the program's design. Which can be serialized into structured text to be used for archiving, verifying, and communicating about the program. By treating the source code as an output instead of as an input we position the AST as the primary artifact, which can be executed, verified, serialized, analyzed, and even deployed, before we begin work on a source code parser. For small embedded DSLs the lack of a parser needn't be an obstacle to development.
+
+In fact, putting off the burden of deserializing source code until after it's become stable and robust can be a significant savings in time and effort. We aren't claiming that a parser is unnecessary. Rather, writing a parser needn't be the first step in the process of developing an interpreter. Our claim is that implementing a parser to deserialize source code can be put off until that functionality is actually needed.
 
 \section{Model of software development}
 
@@ -310,8 +314,8 @@ M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IE
 
 \bibitem{GitHubPython}
 M. Williamsen, ``Abstract Syntax Tree (AST) Interpreter for Host and Target,''
-Springleik software release 1.0.0, Zenodo, 2026.
-\url{https://doi.org/10.5281/zenodo.23595065}.
+Springleik software release 1.0.0, Zenodo, 2026. \\
+\url{https://doi.org/10.5281/zenodo.23595065}. \\
 See file \texttt{Python/hostTarget/README.md}.
 
 \bibitem{Knuth}
@@ -324,8 +328,8 @@ E. Gamma, R. Helm, R. Johnson, J. Vlissides, ``Design Patterns: Elements of Reus
 
 \bibitem{GitHubC-Lang}
 M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language,''
-Springleik software release 1.0.0, Zenodo, 2026.
-\url{https://doi.org/10.5281/zenodo.23595065}.
+Springleik software release 1.0.0, Zenodo, 2026. \\
+\url{https://doi.org/10.5281/zenodo.23595065}. \\
 See file \texttt{C-Lang/README.md}.
 
 \bibitem{MerkleTree}
