@@ -26,7 +26,9 @@ We will show that when programs for a DSL are represented as abstract syntax tre
 
 \section{Introduction}\label{Introduction}
 
-TODO
+The usual process of creating an interpreter for a new programming language begins with implementing a parser for the intended language, able to translate human-readable source code into a representation in memory. This makes sense for a general-purpose programming language where the design of programs written in the language is embodied in the source code, which naturally becomes the preferred form for archiving and communicating about the program. There is however a special case when considering small domain-specific languages (DSLs), where one begins with the representation in memory and puts off implementing a parser until it's needed in the project. For embedded applications this could even be after the product using the interpreter is already shipping.
+
+In this paper we follow a different process to create an interpreter for a language not yet defined, with no concrete syntax available. Here we begin with the representation in memory of the program to be interpreted as an abstract syntax tree (AST). This then becomes the canonical expression of the program's design, which can be serialized into structured text to be used for archiving and communicating about the program. By treating the source code as an output instead of as an input we position the AST as the primary artifact, which can be executed, verified, serialized, analyzed, and even deployed, before we start working on a source code parser. For small embedded DSLs the lack of a parser needn't be an obstacle to development. In fact, putting off the burden of deserializing source code until after it's become stable and robust can be a significant savings in time and effort. We aren't claiming that a parser is unnecessary. Rather, writing a parser needn't be the first step in the process of developing an interpreter. Our claim is that implementing a parser to deserialize source code can be put off until that functionality is actually needed.
 
 \section{Model of software development}
 
