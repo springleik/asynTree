@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1 id="abstract-syntax-tree-ast-interpreter-in-c-language">Abstract Syntax Tree (AST) interpreter in C-Language</h1>
+<p>Initial implementation is a skeleton interpreter framework, which could be developed into a small domain-specific language. Assuming we use TCP sockets for inter-process communication, this will be done for Linux/Unix targets first. Following is a simple build-and-test workflow in a MacOS terminal window. Syntax may need some adjustment for Linux and Windows.</p>
+<pre><code>MarksiMac:C-Lang williamm$ pwd
+/Users/williamm/Documents/Projects/asynTree/C-Lang
+
+MarksiMac:C-Lang williamm$ gcc asynTree.c -o asynTree
+
+MarksiMac:C-Lang williamm$ ./asynTree 1&gt; asynTree.json 2&gt; asynTree.txt
+
+MarksiMac:C-Lang williamm$ python3 ../Python/CompTree.py asynTreeRef.json asynTree.json
+[]
+
+MarksiMac:C-Lang williamm$ git diff asynTree.txt
+MarksiMac:C-Lang williamm$</code></pre>
+<p>Check that you are in the right folder and build the executable, done here with <em>gcc</em>. Then run the program, redirecting <em>stdout</em> to a JSON file and <em>stderr</em> to a TXT file. We verify the output by performing an asymmetric tree comparison between a checked-in reference file and the new file <em>asynTree.json</em>. The empty square brackets indicate no differences were found. Finally we use <em>git</em> to look for differences in the text output file <em>asynTree.txt</em>. Apparently none were found. All good! Now you can start making changes and looking for them in the output.</p>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1 id="toymotor">toyMotor</h1>
+<p>Self-contained GUI demo uses Tkinter to simulate a three-axis motion control system run by an AST interpreter. Run it at the command line without arguments to get a console prompt and some GUI windows. Here is what that looks like in a MacOS terminal window. Windows and Linux require minor adjustments to the syntax.</p>
+<pre><code>MarksiMac:toyMotor williamm$ pwd
+/Users/williamm/Documents/Projects/asynTree/Python/toyMotor
+
+MarksiMac:toyMotor williamm$ python3 toyMotor.py
+@: r
+@: q
+15 (135, 135) 15 (135, 135) 15 (135, 135)
+
+MarksiMac:toyMotor williamm$ python3 ../CompTree.py motorXRef.json motorX.json
+[]
+
+MarksiMac:toyMotor williamm$ python3 ../CompTree.py ctrlXRef.json ctrlX.json
+[]
+
+MarksiMac:toyMotor williamm$ python3 pseudoCode.py &gt; pseudoCode.txt
+MarksiMac:toyMotor williamm$ git diff pseudoCode.txt</code></pre>
+<p>Check that you have navigated to the right folder. Run the Python script <em>toyMotor.py</em> without arguments to obtain a console prompt and some GUI windows (screen capture below). Only two single-letter commands are accepted: ‘r’ to run and ‘q’ to quit. Type the ‘r’ run command and press [ENTER]. The demo should run for about a minute, going through its sequence several times. Type ‘q’ to quit the program. On exit the program writes two output files, <em>motorX.json</em> and <em>ctrlX.json</em>. These can be compared to checked-in reference files with an asymmetric JSON tree comparison using the Python script <em>CompTree.py</em> one level up. The empty square brackets show that no changes were found.</p>
+<p>A better understanding of the AST interpreter’s command tree can be obtained by rendering its JSON representation in <em>ctrlX.json</em> as pseudocode using the Python script <em>pseudoCode.py</em>. Here I’ve redirected the output to a text file, and then used <em>git</em> to compare it with a checked-in version. No differences means test passed!</p>
+<figure>
+<img src="toyMotor.png" alt="GUI windows for Toy Motor Demo." /><figcaption>GUI windows for Toy Motor Demo.</figcaption>
+</figure>
+<p>When individual motor windows are frontmost, they also respond to keypresses including arrow keys and some letter keys. This was left in for troubleshooting but is not part of the demo.</p>
+</body>
+</html>
