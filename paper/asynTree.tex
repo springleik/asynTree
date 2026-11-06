@@ -27,9 +27,11 @@ Small languages arise in software engineering for a variety of reasons. A simple
 
 \section{Introduction}\label{Introduction}
 
-Interesting software problems can sometimes give rise to new programming languages, often in the form of a domain-specific language (DSL). For small targets with limited run-time resources, such a language can be implemented as an embedded or internal DSL \cite{2012Hage}. If one begins a project with this in mind, they might be tempted to start by defining a concrete syntax and then developing a parser for that syntax. In this paper however we consider the case where the need for a DSL was not anticipated, and therefore no concrete syntax exists. The workflow presented here reverses the process by putting abstract syntax first, and allowing concrete syntax to be postponed until needed or perhaps even indefinitely \cite{2010Fisler}.
+Interesting software problems can sometimes give rise to new programming languages, often in the form of a domain-specific language (DSL). For small targets with limited run-time resources, such a language can be implemented as an embedded or internal DSL \cite{2012Hage}. If one begins a project with this in mind, they might be tempted to start by defining a concrete syntax and then developing a parser for that syntax. In this paper however we consider the case where the need for a DSL was not anticipated, and therefore no concrete syntax exists. The workflow presented here reverses the process by putting abstract syntax first, allowing concrete syntax to be postponed until needed or perhaps even indefinitely \cite{2010Fisler}.
 
-In our work abstract syntax appears in the form of a composite tree data structure, composed using standard facilities of the host language. Examples in Python, Java, and C are given in the Springleik repository on GitHub \cite{GitHubSpringleik}. We will show that this can be done without having defined a concrete syntax, and therefore without relying on a parser \cite{2014Voelter}.
+In this work abstract syntax appears in the form of a composite tree data structure, composed using standard facilities of the host language. Examples in Python, Java, and C are given in the Springleik repository on GitHub \cite{GitHubSpringleik}. We will show that this can be done without having defined a concrete syntax, and therefore without relying on a parser \cite{2014Voelter}. Some authors have described syntax-directed or projectional editing as techniques for putting abstract syntax first \cite{1995Simonyi}. This however introduces some difficulties, in that it lacks a text-based representation to work with customary versioning and differencing tools. Similarly, test strategies will suffer when a proprietary editor is required for ``coding without code'' in the DSL.
+
+Implementation of an AST can proceed without a big investment in planning or technology \cite{2023Brand}. As described here it can be done with an existing development environment using tools and techniques already on hand \cite{2013Erdweg}. Rather than draining resources, it can add value by facilitating robust software implementation, verification, and documentation. Our experience across multiple projects, from new development to legacy upgrades, has encouraged us to continue the development and application of Springleik AST interpreters.
 
 \section{Model of software development}
 
@@ -114,7 +116,7 @@ Now let's look at what's missing. To obtain a text representation of the program
 
 Real programming however implies branching and looping, which is easily added by defining control nodes for conditional and repeated execution where the arguments represent loop count, limits for comparison, etc. At this point we've only described programs which are a simple list or sequence of nodes. Now we need to expand our definition of command nodes to include a node list attribute, allowing us to represent composite tree structures. But not every node needs to have a list. So we divide node classes into composite or \textit{branch} nodes which have a list, and terminal or \textit{leaf} nodes which don't. Clearly conditional and repeating nodes should have lists, to which we append nodes that should be executed only if the condition evaluates as true, or which will be repeated in iterations controlled by the repeating node. Our class hierarchy can begin with the base class \textit{node} which has two subclasses, \textit{branch} and \textit{leaf}. Command and control nodes can then be derived from \textit{branch} and \textit{leaf}. 
 
-All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent. The execute and serialize methods of composite nodes must also iterate over the node list beneath them, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list. This implements an abstract syntax tree (AST) interpreter, fulfilling the application's semantic model without requiring concrete syntax \cite{Knuth}. In fact, the concrete representation can be obtained by projection using the tree's serialize methods \cite{GangOfFour}.
+All node classes should have methods to execute and to serialize them while traversing a command tree by recursive descent \cite{2012Wurthinger}. The execute and serialize methods of composite nodes must also iterate over the node list beneath them, calling the execute or serialize method of each subordinate node in turn. The execute method of a composite node can include entry and exit code, to run before and after iterating over the node list. This implements an abstract syntax tree (AST) interpreter, fulfilling the application's semantic model without requiring concrete syntax \cite{Knuth}. In fact, the concrete representation can be obtained by projection using the tree's serialize methods \cite{GangOfFour}.
 
 \begin{figure}[t]
 \centering
@@ -300,9 +302,16 @@ In addition to the interactive command lines, the target and host programs also 
 
 \bibitem{2012Hage} 2012 Hage
 \bibitem{2010Fisler} 2010 Fisler
-\bibitem{2014Voelter} 2014 Voelter
-\bibitem{2012Wurthinger} 2012 Würthinger
 
+\bibitem{GitHubSpringleik}
+M. Williamsen, ``Abstract Syntax Tree (AST) interpreters in Python, Java, and C-Language,''
+Springleik software release 1.0.0, Zenodo, 2026. \\
+\url{https://doi.org/10.5281/zenodo.23595065}. \\
+
+\bibitem{2014Voelter} 2014 Voelter
+\bibitem{1995Simonyi} 1995 Simonyi
+\bibitem{2023Brand} 2023 van den Brand
+\bibitem{2013Erdweg} 2013 Erdweg
 
 \bibitem{ControlSys}
 C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
@@ -321,10 +330,7 @@ Springleik software release 1.0.0, Zenodo, 2026. \\
 \url{https://doi.org/10.5281/zenodo.23595065}. \\
 See file \texttt{Python/hostTarget/ReadMe.html}.
 
-\bibitem{GitHubSpringleik}
-M. Williamsen, ``Abstract Syntax Tree (AST) interpreters in Python, Java, and C-Language,''
-Springleik software release 1.0.0, Zenodo, 2026. \\
-\url{https://doi.org/10.5281/zenodo.23595065}. \\
+\bibitem{2012Wurthinger} 2012 Würthinger
 
 \bibitem{Knuth}
 D. Knuth, ``Semantics of Context-Free Languages,''
