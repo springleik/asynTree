@@ -29,7 +29,7 @@ Small languages arise in software engineering for a variety of reasons. A simple
 
 Interesting software problems can sometimes give rise to new programming languages, often in the form of a domain-specific language (DSL). For small targets with limited run-time resources, such a language can be implemented as an embedded or internal DSL \cite{2012Hage}. If one begins a project with this in mind, they might be tempted to start by defining a concrete syntax and then developing a parser for that syntax. In this paper however we consider the case where the need for a DSL was not anticipated, and therefore no concrete syntax exists. The workflow presented here reverses the process by putting abstract syntax first, allowing concrete syntax to be postponed until needed or perhaps even indefinitely \cite{2010Fisler}.
 
-In this work abstract syntax appears in the form of a composite tree data structure, composed using standard facilities of the host language. Examples in Python, Java, and C are given in the Springleik repository on GitHub \cite{GitHubSpringleik}. We will show that this can be done without having defined a concrete syntax, and therefore without relying on a parser \cite{2014Voelter}. Some authors have described syntax-directed or projectional editing as techniques for putting abstract syntax first \cite{1995Simonyi}. This however introduces some difficulties, in that it lacks a text-based representation to work with customary versioning and differencing tools. Similarly, test strategies will suffer when a proprietary editor is required for ``coding without code'' in the DSL.
+In this work abstract syntax appears in the form of a composite tree data structure, composed using standard facilities of the host language. We will show that this can be done without having defined a concrete syntax, and therefore without relying on a parser \cite{2014Voelter}. Examples in Python, Java, and C are given in the Springleik repository on GitHub \cite{GitHubSpringleik}. Some authors have described syntax-directed or projectional editing as techniques for putting abstract syntax first \cite{1995Simonyi}. This however introduces some difficulties, in that it lacks a text-based representation to work with customary versioning and differencing tools. Similarly, test strategies will suffer when a proprietary editor is required for ``coding without code'' in the DSL.
 
 Implementation of an AST can proceed without a big investment in planning or technology \cite{2023Brand}. As described here it can be done with an existing development environment using tools and techniques already on hand \cite{2013Erdweg}. Rather than draining resources, it can add value by facilitating robust software implementation, verification, and documentation. Our experience across multiple projects, from new development to legacy upgrades, has encouraged us to continue the development and application of Springleik AST interpreters.
 
@@ -300,37 +300,54 @@ In addition to the interactive command lines, the target and host programs also 
 
 \begin{thebibliography}{99}
 
-\bibitem{2012Hage} 2012 Hage
-\bibitem{2010Fisler} 2010 Fisler
+\bibitem{2012Hage}
+J. Hage, ``Bookreview JFP: Domain-Specific Languages by Martin Fowler The Addison Wesley Signature Series,'' Journal of Functional Programming. 2012 May;22(3):375-7. \\
+\url{https://doi.org/10.1017/S0956796812000123}
+
+\bibitem{2010Fisler}
+J. Clements, K. Fisler. ``Little language project modules,'' Journal of Functional Programming. 2010 Jan;20(1):3-18. \\
+\url{https://doi.org/10.1017/S0956796809990281}
 
 \bibitem{GitHubSpringleik}
 M. Williamsen, ``Abstract Syntax Tree (AST) interpreters in Python, Java, and C-Language,''
 Springleik software release 1.0.0, Zenodo, 2026. \\
-\url{https://doi.org/10.5281/zenodo.23595065}. \\
+\url{https://doi.org/10.5281/zenodo.23595065}
 
-\bibitem{2014Voelter} 2014 Voelter
-\bibitem{1995Simonyi} 1995 Simonyi
-\bibitem{2023Brand} 2023 van den Brand
-\bibitem{2013Erdweg} 2013 Erdweg
+\bibitem{2014Voelter}
+M. Voelter, J. Siegmund, T. Berger, B. Kolb, ``Towards user-friendly projectional editors,'' in International Conference on Software Language Engineering 2014 Sep 15 (pp. 41-61). Cham: Springer International Publishing. \\
+\url{https://doi.org/10.1007/978-3-319-11245-9_3}
+
+\bibitem{1995Simonyi}
+C. Simonyi, ``The death of computer languages, the birth of intentional programming,'' in NATO Science Committee Conference 1995 Sep (pp. 17-18). Available as Microsoft Research Technical Report MSR-TR-95-52.
+
+\bibitem{2023Brand}
+M. van den Brand, ``A personal retrospective on language workbenches,'' Software and Systems Modeling. 2023 Jun;22(3):847-50. \\
+\url{https://doi.org/10.1007/s10270-023-01101-9}
+
+\bibitem{2013Erdweg}
+S. Erdweg, T. Van Der Storm, M. Völter, M. Boersma, R. Bosman, W. R.Cook, A. Gerritsen, A. Hulshout, S. Kelly, A. Loh, G. D. Konat, ``The state of the art in language workbenches: Conclusions from the language workbench challenge,'' in International Conference on Software Language Engineering 2013 Oct 26 (pp. 197-217). Cham: Springer International Publishing. \\
+\url{https://doi.org/10.1007/978-3-319-02654-1_11}
 
 \bibitem{ControlSys}
-C. L. Phillips \& R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
+C. L. Phillips and R. D. Harbor, ``Feedback Control Systems,'' 3rd edn. (Prentice Hall 1996).
 
 \bibitem{IraBaxter}
-I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineering,'' Proceedings of the Fourth Working Conference on Reverse Engineering, Amsterdam, Netherlands, 1997, pp. 104-113, \\
+I. D. Baxter and M. Mehlich, ``Reverse engineering is reverse forward engineering,'' Proceedings of the Fourth Working Conference on Reverse Engineering, Amsterdam, Netherlands, 1997, pp. 104-113. \\
 \url{https://doi.org/10.1109/WCRE.1997.624581}
 
 \bibitem{MFowler}
-M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IEEE Software}, vol. 26, no. 4, pp. 13-14, July-Aug. 2009, \\
+M. Fowler, ``A Pedagogical Framework for Domain-Specific Languages,'' \textit{IEEE Software}, vol. 26, no. 4, pp. 13-14, July-Aug. 2009. \\
 \url{https://doi.org/10.1109/MS.2009.85}
 
 \bibitem{GitHubPython}
 M. Williamsen, ``Abstract Syntax Tree (AST) Interpreter for Host and Target,''
 Springleik software release 1.0.0, Zenodo, 2026. \\
-\url{https://doi.org/10.5281/zenodo.23595065}. \\
+\url{https://doi.org/10.5281/zenodo.23595065} \\
 See file \texttt{Python/hostTarget/ReadMe.html}.
 
-\bibitem{2012Wurthinger} 2012 Würthinger
+\bibitem{2012Wurthinger}
+T. Würthinger, A. Wöß, L. Stadler, G. Duboscq, D. Simon, C. Wimmer, ``Self-optimizing AST interpreters,'' in Proceedings of the 8th Symposium on Dynamic Languages 2012 Oct 22 (pp. 73-82). \\
+\url{https://doi.org/10.1145/2384577.2384587}
 
 \bibitem{Knuth}
 D. Knuth, ``Semantics of Context-Free Languages,''
@@ -343,7 +360,7 @@ E. Gamma, R. Helm, R. Johnson, J. Vlissides, ``Design Patterns: Elements of Reus
 \bibitem{GitHubC-Lang}
 M. Williamsen, ``Abstract Syntax Tree (AST) interpreter in C-Language,''
 Springleik software release 1.0.0, Zenodo, 2026. \\
-\url{https://doi.org/10.5281/zenodo.23595065}. \\
+\url{https://doi.org/10.5281/zenodo.23595065} \\
 See file \texttt{C-Lang/ReadMe.html}.
 
 \bibitem{MerkleTree}
@@ -356,12 +373,12 @@ J. E. Reich, B. H. Krogh, I. D. Baxter, ``Symbolic Simulation-Based Techniques f
 
 \bibitem{compilerTest}
 M. Williamsen, ``Compiler Test Case Generators,''
-retrieved online 16 October 2026, \\
+retrieved online 16 October 2026. \\
 \url{http://www.williamsonic.com/CompTree/index.html}
 
 \bibitem{asymmetricRules}
 M. Williamsen, ``PompTree,''
-\textit{GitHub}, 12 October 2026, \\
+\textit{GitHub}, 12 October 2026. \\
 \url{https://github.com/springleik/PompTree}
 
 \bibitem{Stroustrup}
