@@ -217,9 +217,9 @@ Capturing data points like shaft position will be fairly light-weight, perhaps j
 
 One might wonder where to put the results of analysis, and we now propose that the best place is to append analysis nodes to the command tree, just as we previously appended data nodes. So any serialization of the tree done after analysis will contain the analyzed results attached to the nodes where they originated. Some applications will require multiple passes of analysis, which is easily accommodated in this technique by writing several analysis functions to be called in sequence. This is a design decision which needn't be taken until analysis is needed.
 
-Reporting in any desired format can also be carried out by recursive descent, facilitated by inserting report nodes or adding a report method to existing node classes. Reporting can take many forms, such as tables, charts, and graphs. Now we see the pattern, that each step in the workflow can be thought of as traversing a command tree by recursive descent in a series of passes. With each pass performing the desired operation and appending the results in a process which is scalable and verifiable across multiple levels.
+Reporting in any desired format can also be carried out by recursive descent, facilitated by inserting report nodes or adding a report method to existing node classes. Reporting can take many forms, such as tables, charts, graphs, or even pseudocode. Now we see the pattern, that each step in the workflow can be thought of as traversing a command tree by recursive descent in a series of passes. With each pass performing the desired operation and appending the results in a process which is scalable and verifiable across multiple levels.
 
-It is especially convenient to carry out syntax and integrity checks when required in a given application. One can establish rules as to which node classes can be subordinate to which other node classes, set limits on attribute values, check that every node is appended exactly once (no cycles), and so forth. Integrity can be verified by computing a hash over the tree. If data nodes are included in the hash, it can be used to detect new data to be uploaded \cite{MerkleTree}. We list here some possible workflow steps that may be useful and practical in this technique. Once the nodes have been instantiated and composed into a tree structure, the remaining methods can be invoked by recursive descent in any order against the whole tree or any subtree within it, thus establishing a command tree life cycle:
+It is especially convenient to carry out syntax and integrity checks when required in a given application. One can establish rules as to which node classes can be subordinate to which other node classes, set limits on attribute values, check that every node is appended exactly once (no cycles), and so forth. Integrity can be verified by computing a hash over the tree. If data nodes are included in the hash, it can be used to detect new data to be uploaded \cite{MerkleTree}. We list here some possible workflow steps that may be useful and practical in this technique. Once the nodes have been instantiated and composed into a tree structure, the remaining methods can be invoked in any order by recursive descent against the whole tree or any subtree within it, thus establishing a command tree life cycle:
 
 \begin{itemize}
  \item Instantiate -- construct or allocate nodes needed for the initial tree,
@@ -271,7 +271,7 @@ Performing a directional comparison is important when comparing serialized test 
 Reference files should be under version control, ideally alongside the implementation source code. Test files can also be versioned, especially if they contain additional content not in the reference files. This style of testing encourages the use of large scale bulk tests, which may seem unfamiliar to those accustomed to long lists of fine-grained assertions. In either case the workflow is the same: find all the deltas, rebaseline those that are expected, and repair those that aren't. One might ask where the reference files come from. Experience shows that a variety of sources can be used including outputs from previous versions, synthetic data created programmatically, hand typed data, or hybrid combinations of these. The content of this section has been published previously in reference \cite{asymmetricRules}.
 
 \section{Execution model}
-Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, a task thread to execute the tree can be started by simply passing a pointer or reference to the root node into the thread create function \cite{Stroustrup}. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees. Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this, it's easier to put waits into branch node execute methods to relinquish control between calls to subordinate nodes. Memory used for each command tree can be released or otherwise disposed of recursively when no longer needed.
+Much of the work described here has been done on targets which support a real-time operating system (RTOS). Since the Springleik command tree carries along with it all of the arguments and parameters needed for execution, a task thread to execute the tree can be started by simply passing a pointer or reference to the root node into the thread create function. On exit the pointer or reference will identify a tree now having updated state information in its attributes, along with any instrumentation and data nodes appended during execution. Having a unique pointer or reference allows the developer to think clearly about the life cycle of each command tree. By limiting access to hardware and global data to specific commands or node classes, it becomes straightforward to implement synchronization primitives to maintain thread safety between command trees. Springleik command trees easily support cooperative multitasking by inserting appropriate thread waits. While one could introduce a node class to do this, it's easier to put waits into branch node execute methods to relinquish control between calls to subordinate nodes. Memory used for each command tree can be released or otherwise disposed of recursively when no longer needed.
 
 \section{Reuse and granularity}
 One may well wonder how much of this can be reused across multiple projects. Our experience has shown that command nodes are clearly domain specific and can only be reused for very similar applications, while control nodes are not domain specific and can be reused freely. The resulting plethora of small languages can be justified by our need to maintain a small footprint while optimizing the command tree language for each application. A related question is how to set the granularity of command and control nodes. We propose starting with one command node class for each monitor command on the target, and one control node class for each branching or gating operation. If math and logic expressions are to be supported, start with one math or logic operation per control node. As development progresses common patterns will soon become apparent, which then become candidates for integration into more functional node classes. These are design decisions which don't have to be decided up front.
@@ -290,11 +290,7 @@ In addition to the interactive command lines, the target and host programs also 
 
 \section{Conclusion}
 
-% We have described a series of steps in which the firmware of a small embedded target has been enhanced to support development of a domain-specific language (DSL) which can run on the target, on a host computer, or in the cloud. We have shown that a structured text representation of the abstract syntax tree (AST) program to be interpreted can be obtained by serialization, while the inverse operation of deserialization can be postponed until needed in the application, perhaps even indefinitely. The reason we care about obtaining DSL source code is that it expresses the design. What we have shown here is that we don't have to start with source code, so long as the AST implementation can render itself as structured text. In Springleik the AST becomes a persistent organizational structure and medium for communication.
 
-% Changes to the interpreted program can be tracked by archiving serialized output to be compared with reference files. This can be done with an asymmetric tree comparison by recursive descent, following the rules presented here. Meta data such as measured values, instrumentation, and analysis results can be appended directly to the syntax tree. The interpreter itself can be made arbitrarily small, to suit the resources available in a given application. Organizing syntax tree programs around a single pointer or reference to the root node simplifies managing memory used for the program, whether done by dynamic memory allocation, drawing from a node pool, or static node allocations. Multi-threaded programs are supported by passing the root node pointer or reference to a thread create function.
-
-% Assurance of software provenance and integrity is more difficult when the target is able to parse and deserialize source code into memory. Implementations proposed here which can't deserialize avoid this common vulnerability by making the interpreted program immutable. Tools and techniques developed for the Springleik project make this possible and practical for a broad class of applications.
 
 \clearpage
 
@@ -308,14 +304,14 @@ J. Hage, ``Bookreview JFP: Domain-Specific Languages by Martin Fowler The Addiso
 J. Clements, K. Fisler. ``Little language project modules,'' Journal of Functional Programming. 2010 Jan;20(1):3-18. \\
 \url{https://doi.org/10.1017/S0956796809990281}
 
+\bibitem{2014Voelter}
+M. Voelter, J. Siegmund, T. Berger, B. Kolb, ``Towards user-friendly projectional editors,'' in International Conference on Software Language Engineering 2014 Sep 15 (pp. 41-61). Cham: Springer International Publishing. \\
+\url{https://doi.org/10.1007/978-3-319-11245-9_3}
+
 \bibitem{GitHubSpringleik}
 M. Williamsen, ``Abstract Syntax Tree (AST) interpreters in Python, Java, and C-Language,''
 Springleik software release 1.0.0, Zenodo, 2026. \\
 \url{https://doi.org/10.5281/zenodo.23595065}
-
-\bibitem{2014Voelter}
-M. Voelter, J. Siegmund, T. Berger, B. Kolb, ``Towards user-friendly projectional editors,'' in International Conference on Software Language Engineering 2014 Sep 15 (pp. 41-61). Cham: Springer International Publishing. \\
-\url{https://doi.org/10.1007/978-3-319-11245-9_3}
 
 \bibitem{1995Simonyi}
 C. Simonyi, ``The death of computer languages, the birth of intentional programming,'' in NATO Science Committee Conference 1995 Sep (pp. 17-18). Available as Microsoft Research Technical Report MSR-TR-95-52.
@@ -380,9 +376,6 @@ retrieved online 16 October 2026. \\
 M. Williamsen, ``PompTree,''
 \textit{GitHub}, 12 October 2026. \\
 \url{https://github.com/springleik/PompTree}
-
-\bibitem{Stroustrup}
-Bjarne Stroustrup, ``The C++ Programming Language,'' 2nd edn. (Addison-Wesley 1991).
 
 \end{thebibliography}
 
