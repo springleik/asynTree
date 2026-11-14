@@ -42,9 +42,10 @@ public class asynTree {
     // execute and serialize the tree to console
     one.execute ();
     int rslt = one.serial (0, 0);
-	System.err.printf ("\nrslt: %d\n", rslt);
+    System.out.println ();
 	
 	// check status
+	System.err.printf ("rslt: %d\n", rslt);
 	System.err.printf ("nodeCount: %d\n", node.nodeCount);
   }
 }
@@ -85,6 +86,7 @@ class node {
         }
 		
 		// exit code
+		System.out.print ("]}");
 		return seq;
 	}
 	
@@ -148,4 +150,12 @@ class what extends node {
         // invoke common code
         return serialCommon (depth, seq);
     }
+    
+    // execute what recursively
+    void execute () {
+		System.err.printf ("Executing what one: %d, two: %d, three: %d\n", one, two, three);
+		
+		// invoke base class iteration
+		super.execute ();
+	}
 }
