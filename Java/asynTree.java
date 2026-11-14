@@ -41,8 +41,8 @@ public class asynTree {
     
     // execute and serialize the tree to console
     one.execute ();
-    one.serial (0);
-	System.out.println ();
+    int rslt = one.serial (0, 0);
+	System.err.printf ("\nrslt: %d\n", rslt);
 	
 	// check status
 	System.err.printf ("nodeCount: %d\n", node.nodeCount);
@@ -56,22 +56,18 @@ class node {
 	
     // instance members
     List <node> theList;
-    int depth;
-    int seq;
 
 	// constructor
 	node () {
 		theList = new ArrayList <> ();
-		depth = 0;
-		seq = 0;
 		nodeCount++;
 	}
 	
 	// common code for serialization
-	void serialCommon (int theDepth) {
+	int serialCommon (int depth, int seq) {
 		// entry code
-		System.out.printf (",\"depth\":%d", theDepth++);
-		System.out.printf (",\"seq\":%d", seq);
+		System.out.printf (",\"depth\":%d", depth++);
+		System.out.printf (",\"seq\":%d", seq++);
 		System.out.printf (",\"list\":[");
 		
 		// iterate over child nodes
@@ -85,24 +81,24 @@ class node {
                 System.out.print (",");
             }
             System.out.println ();
-            aNode.serial (theDepth);
+            seq = aNode.serial (depth, seq);
         }
 		
 		// exit code
-		System.out.print ("]}");
+		return seq;
 	}
 	
     // serialize this node recursively
-    void serial (int theDepth) {
+    int serial (int depth, int seq) {
         // entry code
-        if (0 != theDepth) {
+        if (0 != depth) {
 			// indent output if needed
-			System.out.printf ("%" + (theDepth * 3) + "s", "");
+			System.out.printf ("%" + (depth * 3) + "s", "");
 		}
 		System.out.printf ("{\"type\":\"node\"");
 
         // invoke common code
-        serialCommon (theDepth);
+        return serialCommon (depth, seq);
     }
     
     // append that to this
@@ -122,18 +118,6 @@ class node {
 		// exit code
 
 	}
-
-    // summarize this branch node recursively
-    void summary () {
-		// entry code
-		
-		for (node aNode: theList) {
-			// iterate over child nodes
-			aNode.summary ();
-		}
-
-		// exit code
-	}
 }
 
 class what extends node {
@@ -150,11 +134,11 @@ class what extends node {
 	}
 	
     // serialize what recursively
-    void serial (int theDepth) {
+    int serial (int depth, int seq) {
         // entry code
-        if (0 != theDepth) {
+        if (0 != depth) {
 			// indent output if needed
-			System.out.printf ("%" + (theDepth * 3) + "s", "");
+			System.out.printf ("%" + (depth * 3) + "s", "");
 		}
 		System.out.printf ("{\"type\":\"what\"");
 		System.out.printf (",\"one\":%d", one);
@@ -162,6 +146,6 @@ class what extends node {
 		System.out.printf (",\"three\":%d", three);
 
         // invoke common code
-        serialCommon (theDepth);
+        return serialCommon (depth, seq);
     }
 }
