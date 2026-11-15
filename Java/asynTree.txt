@@ -1,0 +1,6 @@
+hello, world
+nodeCount: 11
+Executing what one: 1, two: 2, three: 3
+Executing what one: 4, two: 5, three: 6
+rslt: 11
+nodeCount: 11
