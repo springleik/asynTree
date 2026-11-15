@@ -1,4 +1,4 @@
-# toyMotor
+# Toy Motor Demo with Abstract Syntax Tree (AST) interpreter
 
 Self-contained GUI demo uses Tkinter to simulate a three-axis motion control system run by an AST interpreter. Run it at the command line without arguments to get a console prompt and some GUI windows. Here is what that looks like in a MacOS terminal window. Windows and Linux require minor adjustments to the syntax.
 

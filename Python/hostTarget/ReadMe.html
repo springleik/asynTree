@@ -1,20 +1,4 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>README</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-<h1 id="abstract-syntax-tree-ast-interpreter-for-host-and-target">Abstract Syntax Tree (AST) Interpreter for Host and Target</h1>
+<h1 id="abstract-syntax-tree-ast-interpreter-for-host-and-target">Abstract Syntax Tree (AST) interpreter for Host and Target</h1>
 <p>Simulated target device exposes a TCP socket interface with a simple command parser. A separate host program acts as a client, interacting with the target and running an abstract syntax tree (AST) interpreter. Host and target can run on the same machine using the default IP address ‘localhost’ and default port number ‘12345’. Or they can be on different machines using IP addresses and a port that you’ve enabled for TCP communication. All of this is meant as a proof-of-concept, to give you some ideas about what’s possible and what the level of effort might be for projects you have in mind.</p>
 <p>We start in a terminal window by navigating to the right directory. Output shown is from MacOS, syntax may need adjustments for Linux and Windows. Run the Python script <em>target.py</em> without arguments to launch a target server at port ‘12345’. You can run multiple servers as long as each has its own port number, but one is enough for now.</p>
 <pre><code>MarksiMac:hostTarget williamm$ pwd
@@ -32,7 +16,7 @@ Axis: 0, position: 90
 -1 (0, 0) 1 (0, 0) 1 (0, 0)</code></pre>
 <p>Here I’ve started the target server and typed some commands at the console prompt. If everything is working correctly you should see some Tkinter GUI windows, as in the following screen capture. Commands are case-sensitive. Type ‘help’ or ‘?’ to see a list of available commands. Note that motor axes start with zero velocity, which you have to change to make them move. Once this makes sense to you, you can run the target server again and open a socket connection to it using <em>telnet</em>, <em>Putty</em>, or any similar program.</p>
 <figure>
-<img src="target.png" alt="Three axis motion controller simulation." /><figcaption>Three axis motion controller simulation.</figcaption>
+<img src="target.png" alt="Three axis motion controller simulation." /><figcaption aria-hidden="true">Three axis motion controller simulation.</figcaption>
 </figure>
 <pre><code>MarksiMac:hostTarget williamm$ telnet localhost 12345
 Trying 127.0.0.1...
@@ -101,5 +85,3 @@ Axis: 1, position: 0
 <pre><code>MarksiMac:hostTarget williamm$ git diff *.json
 MarksiMac:hostTarget williamm$</code></pre>
 <p>No output, so no differences! Now you get to try the host client program, to see how this AST thing really works. Try typing the commands in the <em>host.scp</em> script file at the host command prompt to see what happens.</p>
-</body>
-</html>

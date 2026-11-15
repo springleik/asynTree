@@ -1,4 +1,4 @@
-# Abstract Syntax Tree (AST) Interpreter for Host and Target
+# Abstract Syntax Tree (AST) interpreter for Host and Target
 
 Simulated target device exposes a TCP socket interface with a simple command parser. A separate host program acts as a client, interacting with the target and running an abstract syntax tree (AST) interpreter. Host and target can run on the same machine using the default IP address 'localhost' and default port number '12345'. Or they can be on different machines using IP addresses and a port that you've enabled for TCP communication. All of this is meant as a proof-of-concept, to give you some ideas about what's possible and what the level of effort might be for projects you have in mind.
 
