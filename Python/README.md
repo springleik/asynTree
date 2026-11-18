@@ -2,7 +2,7 @@
 
 This folder currently contains three sub-project folders:
 
-* [__asynTree__](./asynTree/) Skeleton interpreter runs on the command line, produces a JSON file and come console text.
+* [__asynTree__](./asynTree/) Skeleton interpreter runs on the command line, produces a JSON file and some console text.
 * [__hostTarget__](./hostTarget/) Simulated target device exposes a TCP socket interface with a simple command interpreter. Separate host program acts as a client, interacting with the target and running an AST interpreter.
 * [__toyMotor__](./toyMotor/) Self-contained GUI demo uses Tkinter to simulate a three-axis motion control system run by an AST interpreter.
 
